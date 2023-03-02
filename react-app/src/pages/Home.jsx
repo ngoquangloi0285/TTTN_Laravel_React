@@ -4,10 +4,11 @@ import Marquee from "react-fast-marquee";
 import BlogCard from "../components/BlogCard";
 import ProductCard from "../components/ProductCard";
 import SpecialProducts from "../components/SpecialProducts";
+import Suggestions from "../components/Suggestions";
 const Home = () => {
   return (
     <>
-      <section className="home-wrapper-1 py-5">
+      <section className="home-wrapper-2 py-5">
         <div className="container-xxl">
           <div className="row">
             <div className="col-6">
@@ -226,11 +227,24 @@ const Home = () => {
               <h3 className="section-heading">Our Popular Products</h3>
             </div>
             <div className="row">
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
+              <ProductCard />
+              <ProductCard />
+              <ProductCard />
+              <ProductCard />
             </div>
+          </div>
+        </div>
+      </section>
+      <section className="famous-wrapper py-5 home-wrapper-2">
+        <div className="container-xxl">
+          <div className="row">
+            <div className="col-12">
+              <h3 className="section-heading">Suggestions for you</h3>
+            </div>
+            <Suggestions/>
+            <Suggestions/>
+            <Suggestions/>
+            <Suggestions/>
           </div>
         </div>
       </section>
@@ -241,9 +255,10 @@ const Home = () => {
               <h3 className="section-heading">Special  Products</h3>
             </div>
             <div className="row">
-              <SpecialProducts/>
-              <SpecialProducts/>
-              <SpecialProducts/>
+              <SpecialProducts />
+              <SpecialProducts />
+              <SpecialProducts />
+              <SpecialProducts />
             </div>
           </div>
         </div>
