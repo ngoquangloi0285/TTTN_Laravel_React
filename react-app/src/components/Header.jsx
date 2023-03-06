@@ -1,17 +1,20 @@
 import React from "react";
 import { NavLink, Link } from "react-router-dom";
 import { BsSearch } from "react-icons/bs";
+
+
+
 const Header = () => {
   return (
     <>
       {/* header top */}
       <header className="header-top-strip py-3">
-        <div class="container-xxl">
+        <div className="container-xxl">
           <div className="row">
             <div className="col-6">
-              <p className="text-white mb-0">
-                Free shipping Our $100 & Free Returns{" "}
-              </p>
+              <h5 className="mb-0 text-warning">
+                Welcome to Our web page!
+              </h5>
             </div>
             <div className="col-6">
               <p className="text-end text-white mb-0">
@@ -31,8 +34,8 @@ const Header = () => {
         <div className="container-xxl">
           <div className="row align-items-center">
             <div className="col-2">
-              <Link className="text-white">
-                <h2 className="mb-0">Dev Center</h2>
+              <Link to="/" className="text-white">
+                <h2 className="mb-0">Dev ALTT</h2>
               </Link>
             </div>
             <div className="col-5">
@@ -131,8 +134,8 @@ const Header = () => {
                 <div className="menu-links">
                   <div className="d-flex align-items-center gap-15">
                     <NavLink to="/">Home</NavLink>
-                    <NavLink to="about">About</NavLink>
                     <NavLink to="store">Our Store</NavLink>
+                    <NavLink to="about">About</NavLink>
                     <NavLink to="contact">Contact</NavLink>
                     <NavLink to="blog">Blog</NavLink>
                   </div>

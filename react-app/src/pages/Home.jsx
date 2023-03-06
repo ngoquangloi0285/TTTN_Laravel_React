@@ -5,37 +5,33 @@ import BlogCard from "../components/BlogCard";
 import ProductCard from "../components/ProductCard";
 import SpecialProducts from "../components/SpecialProducts";
 import Suggestions from "../components/Suggestions";
+import { Slide } from 'react-slideshow-image';
+import 'react-slideshow-image/dist/styles.css';
+import Meta from '../components/Meta';
+
+const slideImages = [
+  { url: 'http://localhost:3000/images/main-banner.jpg', title: 'main-banner.jpg' },
+  { url: 'http://localhost:3000/images/main-banner-1.jpg', title: 'main-banner.jpg' },
+];
+
 const Home = () => {
   return (
     <>
+      <Meta title={"Home"} />
       <section className="home-wrapper-2 py-5">
         <div className="container-xxl">
           <div className="row">
             <div className="col-6">
               <div className="main-banner position-relative  ">
                 <div id="carouselExample" class="carousel slide">
-                  <div className="carousel-inner">
-                    <div>
-                      <div className="carousel-item active">
-                        <img src="images/main-banner.jpg" className="d-block w-100" alt="..." />
-                      </div>
-                      <div className="carousel-item">
-                        <img src="images/main-banner.jpg" className="d-block w-100" alt="..." />
-                      </div>
-                      <div className="carousel-item">
-                        <img src="images/main-banner.jpg" className="d-block w-100" alt="..." />
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <button className="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-                      <span className="carousel-control-prev-icon" aria-hidden="true" />
-                      <span className="visually-hidden">Previous</span>
-                    </button>
-                    <button className="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-                      <span className="carousel-control-next-icon" aria-hidden="true" />
-                      <span className="visually-hidden">Next</span>
-                    </button>
+                  <div className="carousel-inner rounded-3 slide-container">
+                    <Slide>
+                      {slideImages.map(image => (
+                        <div className="each-slide carousel-item active" key={image}>
+                          <img src={image.url} className="d-block img-fluid" alt="..." />
+                        </div>
+                      ))}
+                    </Slide>
                   </div>
                   <div className="main-banner-content position-absolute">
                     <h4>SUPERCHANRGRED FOR PROS.</h4>
@@ -241,10 +237,10 @@ const Home = () => {
             <div className="col-12">
               <h3 className="section-heading">Suggestions for you</h3>
             </div>
-            <Suggestions/>
-            <Suggestions/>
-            <Suggestions/>
-            <Suggestions/>
+            <Suggestions />
+            <Suggestions />
+            <Suggestions />
+            <Suggestions />
           </div>
         </div>
       </section>
@@ -296,10 +292,23 @@ const Home = () => {
             <div className="col-12">
               <h3 className="section-heading">Our Latest Blogs</h3>
             </div>
-            <BlogCard />
-            <BlogCard />
-            <BlogCard />
-            <BlogCard />
+            <div className="d-flex flex-wrap gap-2 justify-content-center">
+            <div className="gr-4 shadow mb-4">
+              <BlogCard />
+            </div>
+            <div className="gr-4 shadow mb-4">
+              <BlogCard />
+            </div>
+            <div className="gr-4 shadow mb-4">
+              <BlogCard />
+            </div>
+            <div className="gr-4 shadow mb-4">
+              <BlogCard />
+            </div>
+            <div className="gr-4 shadow mb-4">
+              <BlogCard />
+            </div>
+            </div>
           </div>
         </div>
       </section>

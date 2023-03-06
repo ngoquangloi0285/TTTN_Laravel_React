@@ -1,9 +1,27 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom';
+import ReactStars from "react-rating-stars-component";
 import Maps from '../components/Maps'
 import Meta from '../components/Meta';
+import ProductCard from '../components/ProductCard';
 
 const OurStore = () => {
+    const ratingChanged = (newRating) => {
+        console.log(newRating);
+    };
+
+    const [value, setValue] = useState("");
+
+    const handleChange = (event) => {
+        const newValue = event.target.value;
+        if (isNaN(newValue)) {
+            alert("Vui lòng chỉ nhập số.");
+            setValue("");
+        } else {
+            setValue(newValue);
+        }
+    };
+    const [grid, setGird] = useState(4);
     return (
         <>
             <Meta title={"Our Store"} />
@@ -65,23 +83,27 @@ const OurStore = () => {
                                     </h5>
                                     <div className="d-flex align-items-center gap-10">
                                         <span><strong>$</strong></span>
-                                        <form class="form-floating">
-                                            <input type="email"
+                                        <div class="form-floating">
+                                            <input type="number"
                                                 class="form-control"
                                                 id="floatingInputValue1"
                                                 placeholder=""
+                                                value={value}
+                                                onChange={handleChange}
                                             />
                                             <label htmlFor="floatingInputValue1">From</label>
-                                        </form>
+                                        </div>
                                         <span><strong>$</strong></span>
-                                        <form class="form-floating">
-                                            <input type="email"
+                                        <div class="form-floating">
+                                            <input type="number"
                                                 class="form-control"
                                                 id="floatingInputValue2"
                                                 placeholder=""
+                                                value={value}
+                                                onChange={handleChange}
                                             />
                                             <label htmlFor="floatingInputValue2">To</label>
-                                        </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -114,12 +136,107 @@ const OurStore = () => {
                             </div>
                             <div className="filter-card mb-3">
                                 <h3 className="filter-title">
+                                    Product Tags
+                                </h3>
+                                <div className="d-flex flex-wrap align-items-center gap-10">
+                                    <span className="badge bg-success text-light rounded-3 py-2 px-3">
+                                        Headphone
+                                    </span>
+                                    <span className="badge bg-success text-light rounded-3 py-2 px-3">
+                                        Laptop
+                                    </span>
+                                    <span className="badge bg-success text-light rounded-3 py-2 px-3">
+                                        TV
+                                    </span>
+                                    <span className="badge bg-success text-light rounded-3 py-2 px-3">
+                                        SmartPhone
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="filter-card mb-3">
+                                <h3 className="filter-title">
                                     Random Product
                                 </h3>
+                                <div>
+                                    <div className="random-products d-flex ">
+                                        <div className="w-50">
+                                            <img className='img-fluid' src="images/watch.jpg" alt="watch" />
+                                        </div>
+                                        <div className="w-50">
+                                            <h5>Kids headphones bluk 10 pack</h5>
+                                            <ReactStars
+                                                count={5}
+                                                onChange={ratingChanged}
+                                                size={24}
+                                                value="4"
+                                                edit={false}
+                                                activeColor="#ffd700"
+                                            />
+                                            <b>$100</b>
+                                        </div>
+                                    </div>
+                                    <div className="random-products d-flex ">
+                                        <div className="w-50">
+                                            <img className='img-fluid' src="images/watch.jpg" alt="watch" />
+                                        </div>
+                                        <div className="w-50">
+                                            <h5>Kids headphones bluk 10 pack</h5>
+                                            <ReactStars
+                                                count={5}
+                                                onChange={ratingChanged}
+                                                size={24}
+                                                value="4"
+                                                edit={false}
+                                                activeColor="#ffd700"
+                                            />
+                                            <b>$100</b>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div className="col-9">
-
+                            <div className="filter-sort-gird mb-4">
+                                <div className="d-flex justify-content-between align-items-center">
+                                    <div className="d-flex align-items-center gap-10">
+                                        <p className='mb-0 title-sort d-block'>Sort By:</p>
+                                        <select className='form-control form-select' name="" id="">
+                                            <option value="" selected>Best Selling</option>
+                                            <option value="">Featured</option>
+                                            <option value="">Price, low to high</option>
+                                            <option value="">Price, high to low</option>
+                                            <option value="">Date, old to new</option>
+                                            <option value="">Date, new to old</option>
+                                        </select>
+                                    </div>
+                                    <div className="d-flex align-items-center gap-10">
+                                        <p className='m-0 totalproducts'>21 Products</p>
+                                        <div className="d-flex align-items-center gap-10 gird">
+                                            <img onClick={() => {
+                                                setGird(3)
+                                            }}
+                                                className='d-block img-fluid' src="images/gr4.svg" alt="gird" />
+                                            <img onClick={() => {
+                                                setGird(4)
+                                            }}
+                                                className='d-block img-fluid' src="images/gr3.svg" alt="gird" />
+                                            <img onClick={() => {
+                                                setGird(6)
+                                            }}
+                                                className='d-block img-fluid' src="images/gr2.svg" alt="gird" />
+                                            <img onClick={() => {
+                                                setGird(12)
+                                            }}
+                                                className='d-block img-fluid' src="images/gr.svg" alt="gird" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="products-list pd-5">
+                                <div className="d-flex flex-wrap gap-10">
+                                    <ProductCard grid={grid} />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
