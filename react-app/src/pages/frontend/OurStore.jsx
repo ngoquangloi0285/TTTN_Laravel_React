@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom';
 import ReactStars from "react-rating-stars-component";
-import Maps from '../components/Maps'
-import Meta from '../components/Meta';
-import ProductCard from '../components/ProductCard';
+import Maps from '../../components/frontend/Maps'
+import Meta from '../../components/frontend/Meta';
+import ProductCard from '../../components/frontend/ProductCard';
 
 const OurStore = () => {
     const ratingChanged = (newRating) => {

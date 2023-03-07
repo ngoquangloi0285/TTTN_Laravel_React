@@ -47,15 +47,15 @@ const Header = () => {
                   aria-label="Search Product Here..."
                   aria-describedby="basic-addon2"
                 />
-                <span className="input-group-text py-3" id="basic-addon2">
+                <button className="input-group-text py-3" id="basic-addon2">
                   <BsSearch className="fs-6" />
-                </span>
+                </button>
               </div>
             </div>
             <div className="col-5">
               <div className="header-upper-links d-flex justify-content-between align-items-center">
                 <div>
-                  <Link className="d-flex align-items-center gap-10 text-white">
+                  <Link to='/compare-product' className="d-flex align-items-center gap-10 text-white">
                     <img src="images/compare.svg" alt="compare" />
                     <p className="mb-0">
                       Compare <br /> Products{" "}

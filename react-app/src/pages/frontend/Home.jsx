@@ -1,13 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Marquee from "react-fast-marquee";
-import BlogCard from "../components/BlogCard";
-import ProductCard from "../components/ProductCard";
-import SpecialProducts from "../components/SpecialProducts";
-import Suggestions from "../components/Suggestions";
+import BlogCard from "../../components/frontend/BlogCard";
+import ProductCard from "../../components/frontend/ProductCard";
+import SpecialProducts from "../../components/frontend/SpecialProducts";
+import Suggestions from "../../components/frontend/Suggestions";
 import { Slide } from 'react-slideshow-image';
 import 'react-slideshow-image/dist/styles.css';
-import Meta from '../components/Meta';
+import Meta from '../../components/frontend/Meta';
 
 const slideImages = [
   { url: 'http://localhost:3000/images/main-banner.jpg', title: 'main-banner.jpg' },

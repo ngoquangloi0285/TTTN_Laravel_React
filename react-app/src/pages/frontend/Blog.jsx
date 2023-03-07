@@ -1,8 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
-import Maps from '../components/Maps'
-import Meta from '../components/Meta';
-import BlogCard from '../components/BlogCard';
+import Maps from '../../components/frontend/Maps';
+import Meta from '../../components/frontend/Meta';
+import BlogCard from '../../components/frontend/BlogCard';
 
 const Blog = () => {
   return (

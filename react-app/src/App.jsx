@@ -1,11 +1,12 @@
 import './App.css';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Layout from './components/Layout';
-import Home from './pages/Home';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import OurStore from './pages/OurStore';
-import Blog from './pages/Blog';
+import Layout from './components/frontend/Layout';
+import Home from './pages/frontend/Home';
+import About from './pages/frontend/About';
+import Contact from './pages/frontend/Contact';
+import OurStore from './pages/frontend/OurStore';
+import Blog from './pages/frontend/Blog';
+import CompareProduct from './pages/frontend/CompareProduct';
 function App() {
   return (
     <>
@@ -17,6 +18,7 @@ function App() {
             <Route path='contact' element={<Contact/>} />
             <Route path='blog' element={<Blog/>} />
             <Route path="store" element={<OurStore/>} />
+            <Route path="compare-product" element={<CompareProduct/>} />
           </Route>
         </Routes>
       </BrowserRouter>
