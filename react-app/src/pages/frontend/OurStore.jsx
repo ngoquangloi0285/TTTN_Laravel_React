@@ -10,15 +10,25 @@ const OurStore = () => {
         console.log(newRating);
     };
 
-    const [value, setValue] = useState("");
+    const [value1, setValue1] = useState("");
+    const [value2, setValue2] = useState("");
 
-    const handleChange = (event) => {
+    const handleChange1 = (event) => {
         const newValue = event.target.value;
         if (isNaN(newValue)) {
             alert("Vui lòng chỉ nhập số.");
-            setValue("");
+            setValue1("");
         } else {
-            setValue(newValue);
+            setValue1(newValue);
+        }
+    };
+    const handleChange2 = (event) => {
+        const newValue = event.target.value;
+        if (isNaN(newValue)) {
+            alert("Vui lòng chỉ nhập số.");
+            setValue2("");
+        } else {
+            setValue2(newValue);
         }
     };
     const [grid, setGird] = useState(4);
@@ -84,23 +94,23 @@ const OurStore = () => {
                                     <div className="d-flex align-items-center gap-10">
                                         <span><strong>$</strong></span>
                                         <div class="form-floating">
-                                            <input type="number"
+                                            <input type="text"
                                                 class="form-control"
                                                 id="floatingInputValue1"
                                                 placeholder=""
-                                                value={value}
-                                                onChange={handleChange}
+                                                value={value1}
+                                                onChange={handleChange1}
                                             />
                                             <label htmlFor="floatingInputValue1">From</label>
                                         </div>
                                         <span><strong>$</strong></span>
                                         <div class="form-floating">
-                                            <input type="number"
+                                            <input type="text"
                                                 class="form-control"
                                                 id="floatingInputValue2"
                                                 placeholder=""
-                                                value={value}
-                                                onChange={handleChange}
+                                                value={value2}
+                                                onChange={handleChange2}
                                             />
                                             <label htmlFor="floatingInputValue2">To</label>
                                         </div>
