@@ -6,6 +6,7 @@ import OurStore from './pages/frontend/OurStore'
 import About from './pages/frontend/About'
 import Contact from './pages/frontend/Contact'
 import Blog from './pages/frontend/Blog'
+import CompareProduct from './pages/frontend/CompareProduct'
 import NotFound from './pages/NotFound';
 import Dashboard from './components/backend/Dashboard'
 import Login from './pages/frontend/Login'
@@ -14,6 +15,7 @@ import NewProduct from './components/backend/Products/NewProduct'
 import EditProduct from './components/backend/Products/EditProduct'
 import UpdateProduct from './components/backend/Products/UpdateProduct'
 import TrashProduct from './components/backend/Products/TrashProduct'
+import Product from './pages/backend/Product'
 
 const route = createBrowserRouter([
     {
@@ -21,21 +23,27 @@ const route = createBrowserRouter([
         element: <Dashboard/>,
         children: [
             {
-                path: 'new-product',
-                element: <NewProduct/>
-            },
-            {
-                path: 'edit-product',
-                element: <EditProduct/>
-            },
-            {
-                path: 'update-product',
-                element: <UpdateProduct/>
-            },
-            {
-                path: 'trash-product',
-                element: <TrashProduct/>
-            },
+                path: 'products',
+                element: <Product/>,
+                children: [
+                    {
+                        path: 'new-product',
+                        element: <NewProduct/>
+                    },
+                    {
+                        path: 'edit-product',
+                        element: <EditProduct/>
+                    },
+                    {
+                        path: 'update-product',
+                        element: <UpdateProduct/>
+                    },
+                    {
+                        path: 'trash-product',
+                        element: <TrashProduct/>
+                    },
+                ]
+            }
         ]
     },
     {
@@ -61,6 +69,10 @@ const route = createBrowserRouter([
             {
                 path: 'blog',
                 element: <Blog />
+            },
+            {
+                path: 'compare-product',
+                element: <CompareProduct />
             },
             {
                 path: 'login',

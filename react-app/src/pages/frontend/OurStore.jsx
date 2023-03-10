@@ -4,6 +4,7 @@ import ReactStars from "react-rating-stars-component";
 import Maps from '../../components/frontend/Maps'
 import Meta from '../../components/frontend/Meta';
 import ProductCard from '../../components/frontend/ProductCard';
+import Color from '../../components/frontend/Color';
 
 const OurStore = () => {
     const ratingChanged = (newRating) => {
@@ -122,13 +123,9 @@ const OurStore = () => {
                                     Colors
                                 </h3>
                                 <div className="d-flex flex-wrap">
-                                    <ul className="colors">
-                                        <li></li>
-                                        <li></li>
-                                        <li></li>
-                                        <li></li>
-                                        <li></li>
-                                    </ul>
+                                    <div>
+                                        <Color />
+                                    </div>
                                 </div>
                                 <h3 className="filter-title">
                                     Size
