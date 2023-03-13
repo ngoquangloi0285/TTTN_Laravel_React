@@ -16,6 +16,7 @@ import EditProduct from './components/backend/Products/EditProduct'
 import UpdateProduct from './components/backend/Products/UpdateProduct'
 import TrashProduct from './components/backend/Products/TrashProduct'
 import Product from './pages/backend/Product'
+import Wishlist from './pages/frontend/Wishlist'
 
 const route = createBrowserRouter([
     {
@@ -73,6 +74,10 @@ const route = createBrowserRouter([
             {
                 path: 'compare-product',
                 element: <CompareProduct />
+            },
+            {
+                path: 'wishlist',
+                element: <Wishlist />
             },
             {
                 path: 'login',

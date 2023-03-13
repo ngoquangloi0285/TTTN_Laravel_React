@@ -673,14 +673,14 @@ a {
   margin: auto;
   display: block;
 }
-.compare-product-card .cross {
+.compare-product-card .cross, .wishlist-card .cross {
   top: 10px;
   right: 10px;
   width: 20px;
   cursor: pointer;
 }
 
-.compare-product-card .product-card-detail h5.title {
+.compare-product-card .product-card-detail h5.title, .wishlist-card h5.title {
   font-size: 15px;
   line-height: 21px;
 }
@@ -689,7 +689,7 @@ a {
   font-size: 13px;
 }
 
-.compare-product-card .product-card-detail h6.price {
+.compare-product-card .product-card-detail h6.price, .wishlist-card h6.price {
   font-size: 15px;
   line-height: 21px;
   font-weight: 400;
@@ -719,7 +719,44 @@ a {
   margin: 0;
 }
 /* Compare Product End */
+/* Wishlist */
+.wishlist-card {
+  padding: 10px 15px;
+  background-color: white;
+  border-radius: 10px;
+}
+/* Wishlist End */
+/* Login */
+.auth-card {
+  padding: 20px;
+  background-color: #AA77FF;
+  max-width: 500px;
+  margin: 10px auto;
+  border-radius: 10px;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.4);
+}
+.auth-card h3 {
+  font-size: 31px;
+  font-weight: 500;
+  color: white;
+  margin-bottom: 1rem;
+}
+.auth-card .form-control {
+  height: 50px;
+}
+.auth-card input::placeholder {
+  color: var(--color-232f3e);
+}
+.btn-login {
+  border: none;
+  border-radius: 0px;
+  background-color: white;
+  color: #131921;
+  font-size: 1rem;
+}
 
+
+/* Login End*/
 
 /* Contact END */
 /* Footer Part */
