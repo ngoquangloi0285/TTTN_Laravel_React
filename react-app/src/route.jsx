@@ -10,13 +10,15 @@ import CompareProduct from './pages/frontend/CompareProduct'
 import NotFound from './pages/NotFound';
 import Dashboard from './components/backend/Dashboard'
 import Login from './pages/frontend/Login'
-import Register from './pages/frontend/Register'
+import Signup from './pages/frontend/SingUp'
 import NewProduct from './components/backend/Products/NewProduct'
 import EditProduct from './components/backend/Products/EditProduct'
 import UpdateProduct from './components/backend/Products/UpdateProduct'
 import TrashProduct from './components/backend/Products/TrashProduct'
 import Product from './pages/backend/Product'
 import Wishlist from './pages/frontend/Wishlist'
+import Forgotpassword from './pages/frontend/Forgotpassword'
+import ResetPassword from './pages/frontend/ResetPassword'
 
 const route = createBrowserRouter([
     {
@@ -85,7 +87,15 @@ const route = createBrowserRouter([
             },
             {
                 path: 'signup',
-                element: <Register />
+                element: <Signup />
+            },
+            {
+                path: 'forgot-password',
+                element: <Forgotpassword />
+            },
+            {
+                path: 'reset-password',
+                element: <ResetPassword />
             },
 
         ]

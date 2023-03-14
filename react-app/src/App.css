@@ -739,20 +739,61 @@ a {
   font-size: 31px;
   font-weight: 500;
   color: white;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
+}
+.auth-card p {
+  color: #F9ED69;
+  margin-bottom: 0.5rem;
 }
 .auth-card .form-control {
   height: 50px;
+  color: #000;
+  font-size: 15px;
+  border-radius: 5px;
+  border: none;
+  background-color: #EEF1FF;
+  /* text-transform: capitalize; */
 }
 .auth-card input::placeholder {
-  color: var(--color-232f3e);
+  color: var(--color-3b4149);
 }
+.auth-card a {
+  font-size: 15px;
+  color: #333;
+  font-weight: 500;
+}
+.auth-card .btn-forgot a {
+  margin-top: 10px;
+  padding: 10px 20px;
+  color: #FFF;
+}
+.auth-card .btn-forgot a:hover {
+  background-color: #000;
+  border-radius: 5px;
+}
+.auth-card a:nth-child(2) {
+  color: #F9ED69;
+}
+.auth-card a:nth-child(2):hover {
+  color: #000;
+}
+.auth-card a:hover {
+  font-size: 15px;
+  color: #fff;
+  transition: .2s;
+}
+
 .btn-login {
   border: none;
-  border-radius: 0px;
-  background-color: white;
-  color: #131921;
+  border-radius: 5px;
+  background-color: var(--color-febd69);
+  color: #000;
   font-size: 1rem;
+}
+.btn-login:hover {
+  background-color: #000;
+  color: #FFF;
+  box-shadow: none;
 }
 
 
