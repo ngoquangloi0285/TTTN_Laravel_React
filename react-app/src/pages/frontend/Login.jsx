@@ -4,16 +4,16 @@ import Maps from '../../components/frontend/Maps'
 import Meta from '../../components/frontend/Meta'
 import axios from '../../api/axios'
 const Login = () => {
-  const [EmailPhone, setEmailPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
-      await axios.post('/login', {EmailPhone,password})
-      setEmailPhone("")
-      setPassword("")
+      await axios.post('/login', {email,password})
+      setEmail(" ")
+      setPassword(" ")
       navigate("/")
     } catch (e) {
       console.log(e)
@@ -32,8 +32,8 @@ const Login = () => {
                 <form action="" onSubmit={handleLogin} className='d-flex flex-column gap-15'>
                   <div>
                     <input type="email"
-                      value={EmailPhone}
-                      onChange={(e) => setEmailPhone(e.target.value)}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       placeholder='Email or Phone' className="form-control" />
                   </div>
                   <div>
