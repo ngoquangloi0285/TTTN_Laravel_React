@@ -1,9 +1,23 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Maps from '../../components/frontend/Maps'
 import Meta from '../../components/frontend/Meta'
+import useAuthContext from '../../context/AuthContext'
 
 const Signup = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  // const [phone,setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [password_confirmation, setPasswordConfirmation] = useState("");
+  const { register, errors } = useAuthContext();
+
+
+  const handleSignUp = async (event) => {
+    event.preventDefault();
+    register({name,email,password,password_confirmation})
+  }
+
   return (
     <>
       <Meta title={"Sign Up"} />
@@ -14,23 +28,36 @@ const Signup = () => {
             <div className="col-12">
               <div className="auth-card">
                 <h3 className='text-center'>Sign Up</h3>
-                <form action="" className='d-flex flex-column gap-15'>
+                <form action="" onSubmit={handleSignUp} className='d-flex flex-column gap-15'>
                   <div>
-                    <input type="text" placeholder='Your Name' className="form-control" />
-                  </div>
-                  <div className='auth-note'>
-                    <input type="email" placeholder='Email' className="form-control" />
                     <p><small>*Note: Email or Phone will be your username</small></p>
+                    <input value={name} onChange={(e) => setName(e.target.value)} type="text" placeholder='Your Name' className="form-control" />
+                    {errors.name &&
+                      <div className="d-flex">
+                        <span className="text-error">{errors.name[0]}</span>
+                      </div>}
                   </div>
                   <div className='auth-note'>
-                    <input type="text" placeholder='Phone' className="form-control" />
-                    <p><small>*Note: Phone or Email will be your username</small></p>
+                    <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder='Email' className="form-control" />
+
+                    {errors.email &&
+                      <div className="d-flex">
+                        <span className="text-error">{errors.email[0]}</span>
+                      </div>}
                   </div>
                   <div>
-                    <input type="password" minLength="8" placeholder='Password' className="form-control" />
+                    <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" minLength="8" placeholder='Password' className="form-control" />
+                    {errors.password &&
+                      <div className="d-flex">
+                        <span className="text-error">{errors.password[0]}</span>
+                      </div>}
                   </div>
                   <div>
-                    <input type="password" minLength="8" placeholder='Confirm password' className="form-control" />
+                    <input value={password_confirmation} onChange={(e) => setPasswordConfirmation(e.target.value)} type="password" minLength="8" placeholder='Confirm password' className="form-control" />
+                    {errors.password_confirmation &&
+                      <div className="d-flex">
+                        <span className="text-error">{errors.password_confirmation[0]}</span>
+                      </div>}
                   </div>
                   <div className='d-flex gap-10'>
                     <p>Already have an account? <span>

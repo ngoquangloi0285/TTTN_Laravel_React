@@ -15,6 +15,7 @@ const slideImages = [
 ];
 
 const Home = () => {
+  
   return (
     <>
       <Meta title={"Home"} />

@@ -1,14 +1,13 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
 import Maps from '../../components/frontend/Maps'
 import Meta from '../../components/frontend/Meta'
 
 const ResetPassword = () => {
-    return (
-        <>
-            <Meta title={"Reset Password"} />
-            <Maps title="Reset Password" />
-            <div className="login-wrapper py-5 home-wrapper-2">
+  return (
+    <>
+      <Meta title={"Reset Password"} />
+      <Maps title="Reset Password" />
+      <div className="login-wrapper py-5 home-wrapper-2">
         <div className="container-xxl">
           <div className="row">
             <div className="col-12">
@@ -31,8 +30,8 @@ const ResetPassword = () => {
         </div>
       </div>
 
-        </>
-    )
+    </>
+  )
 }
 
 export default ResetPassword

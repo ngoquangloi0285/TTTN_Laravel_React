@@ -22,7 +22,7 @@ const Footer = () => {
                   aria-label="Your Email Address..."
                   aria-describedby="basic-addon2"
                 />
-                <span className="input-group-text py-2" id="basic-addon2">
+                <span className="header-link input-group-text py-2" id="basic-addon2">
                   Subscribe
                 </span>
               </div>
@@ -44,38 +44,38 @@ const Footer = () => {
                 <a className="text-white mt-2" href="mailto: nqlit2109@gmail.com">Emaill: nqlit2109@gmail.com</a>
               </div>
               <div className="social-icons d-flex gap-30 align-items-center mt-4">
-                <Link to="/" className="text-white"><BsLinkedin/></Link>
-                <Link to="/" className="text-white"><BsGithub/></Link>
-                <Link to="/" className="text-white"><BsFacebook/></Link>
-                <Link to="/" className="text-white"><BsYoutube/></Link>
-                <Link to="/" className="text-white"><BsInstagram/></Link>
+                <Link to="/" className="header-link text-white"><BsLinkedin/></Link>
+                <Link to="/" className="header-link text-white"><BsGithub/></Link>
+                <Link to="/" className="header-link text-white"><BsFacebook/></Link>
+                <Link to="/" className="header-link text-white"><BsYoutube/></Link>
+                <Link to="/" className="header-link text-white"><BsInstagram/></Link>
               </div>
             </div>
             <div className="col-3">
               <h4 className="text-white mb-4">Infomattion</h4>
               <div className="footer-links d-flex flex-column">
-                <Link to="/" className="text-white mb-1 py-2">Privacy Policy</Link>
-                <Link to="/" className="text-white mb-1 py-2">Refund Policy</Link>
-                <Link to="/" className="text-white mb-1 py-2">Shipping Policy</Link>
-                <Link to="/" className="text-white mb-1 py-2">Terms & Condition</Link>
-                <Link to="/" className="text-white mb-1 py-2">Blogs</Link>
+                <Link to="/" className="header-link text-white mb-1 py-2">Privacy Policy</Link>
+                <Link to="/" className="header-link text-white mb-1 py-2">Refund Policy</Link>
+                <Link to="/" className="header-link text-white mb-1 py-2">Shipping Policy</Link>
+                <Link to="/" className="header-link text-white mb-1 py-2">Terms & Condition</Link>
+                <Link to="/" className="header-link text-white mb-1 py-2">Blogs</Link>
               </div>
             </div>
             <div className="col-3">
               <h4 className="text-white mb-4">Account</h4>
               <div className="footer-links d-flex flex-column">
-                <Link to="/" className="text-white mb-1 py-2">About US</Link>
-                <Link to="/" className="text-white mb-1 py-2">Faq</Link>
-                <Link to="/" className="text-white mb-1 py-2">Contact</Link>
+                <Link to="/" className="header-link text-white mb-1 py-2">About US</Link>
+                <Link to="/" className="header-link text-white mb-1 py-2">Faq</Link>
+                <Link to="/" className="header-link text-white mb-1 py-2">Contact</Link>
               </div>
             </div>
             <div className="col-2">
               <h4 className="text-white mb-4">Quick Links</h4>
               <div className="footer-links d-flex flex-column">
-                <Link to="/" className="text-white mb-1 py-2">Laptops</Link>
-                <Link to="/" className="text-white mb-1 py-2">Headphones</Link>
-                <Link to="/" className="text-white mb-1 py-2">Tablets</Link>
-                <Link to="/" className="text-white mb-1 py-2">Watch</Link>
+                <Link to="/" className="header-link text-white mb-1 py-2">Laptops</Link>
+                <Link to="/" className="header-link text-white mb-1 py-2">Headphones</Link>
+                <Link to="/" className="header-link text-white mb-1 py-2">Tablets</Link>
+                <Link to="/" className="header-link text-white mb-1 py-2">Watch</Link>
               </div>
             </div>
           </div>
