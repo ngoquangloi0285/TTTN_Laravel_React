@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 
@@ -38,6 +38,9 @@ export const AuthProvider = ({ children }) => {
             if (e.response.status === 422) {
                 setError(e.response.data.errors)
             }
+            else if (e.response.status === 500) {
+                setError(e.response.data.errors)
+            }
             console.log(e)
         }
     }
@@ -45,8 +48,14 @@ export const AuthProvider = ({ children }) => {
         axios.post("/logout").then(() => {
             setUser(null);
         });
+
     }
-    return <AuthContext.Provider value={{user, errors, getUser, login, logout, register}}>
+    useEffect(() => {
+        if (!user) {
+            getUser();
+        }
+    })
+    return <AuthContext.Provider value={{ user, errors, getUser, login, logout, register }}>
         {children}
     </AuthContext.Provider>
 }

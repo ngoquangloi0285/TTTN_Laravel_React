@@ -1,17 +1,14 @@
 import React, { useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
-import { BsSearch } from "react-icons/bs";
+import { BsCartCheck, BsSearch } from "react-icons/bs";
+import { BiLogOut } from "react-icons/bi";
+import { RiAccountCircleLine } from "react-icons/ri";
 import useAuthContext from "../../context/AuthContext";
 
 const Header = () => {
   const { user, getUser } = useAuthContext();
   const { logout } = useAuthContext();
-
-  useEffect(() => {
-    if (!user) {
-      getUser();
-    }
-  })
+  
   return (
     <>
       {/* header top */}
@@ -97,23 +94,21 @@ const Header = () => {
                           <ul className="dropdown-menu">
                             <li>
                               <Link className="dropdown-item" to="#">
-                                Action
+                                My account <RiAccountCircleLine  className="icon-item"/>
                               </Link>
                             </li>
                             <li>
                               <Link className="dropdown-item" to="#">
-                                Another action
+                                Order <BsCartCheck className="icon-item"/>
                               </Link>
                             </li>
                             <li>
-                              <Link className="dropdown-item" to="#">
-                                Something else here
-                              </Link>
+                              <button onClick={logout} className="dropdown-item header-btn d-block header-link">Logout <BiLogOut className="icon-item"/></button>
                             </li>
                           </ul>
                         </div>
 
-                        <button onClick={logout} className="header-btn d-block header-link">Logout</button>
+
                       </>) :
                         (
                           <>

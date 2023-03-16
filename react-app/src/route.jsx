@@ -19,36 +19,39 @@ import Product from './pages/backend/Product'
 import Wishlist from './pages/frontend/Wishlist'
 import Forgotpassword from './pages/frontend/Forgotpassword'
 import ResetPassword from './pages/frontend/ResetPassword'
+import AuthLayout from './Layout/AuthLayout'
 
 const route = createBrowserRouter([
     {
         path: '/admin',
-        element: <Dashboard/>,
+        element: <Dashboard />,
         children: [
             {
                 path: 'products',
-                element: <Product/>,
+                element: <Product />,
                 children: [
                     {
                         path: 'new-product',
-                        element: <NewProduct/>
+                        element: <NewProduct />
                     },
                     {
                         path: 'edit-product',
-                        element: <EditProduct/>
+                        element: <EditProduct />
                     },
                     {
                         path: 'update-product',
-                        element: <UpdateProduct/>
+                        element: <UpdateProduct />
                     },
                     {
                         path: 'trash-product',
-                        element: <TrashProduct/>
+                        element: <TrashProduct />
                     },
                 ]
             }
         ]
     },
+
+
     {
         path: '/',
         element: <App />,

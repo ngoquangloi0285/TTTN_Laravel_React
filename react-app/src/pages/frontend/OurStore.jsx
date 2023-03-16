@@ -92,29 +92,30 @@ const OurStore = () => {
                                     <h5 className="sub-title">
                                         Price
                                     </h5>
-                                    <div className="d-flex align-items-center gap-10">
-                                        <span><strong>$</strong></span>
-                                        <div class="form-floating">
-                                            <input type="text"
-                                                class="form-control"
-                                                id="floatingInputValue1"
-                                                placeholder=""
-                                                value={value1}
-                                                onChange={handleChange1}
-                                            />
-                                            <label htmlFor="floatingInputValue1">From</label>
-                                        </div>
-                                        <span><strong>$</strong></span>
-                                        <div class="form-floating">
-                                            <input type="text"
-                                                class="form-control"
-                                                id="floatingInputValue2"
-                                                placeholder=""
-                                                value={value2}
-                                                onChange={handleChange2}
-                                            />
-                                            <label htmlFor="floatingInputValue2">To</label>
-                                        </div>
+                                    <div className="d-flex align-items-center gap-10 ">
+                                        <form action="" className='d-flex justify-content-center align-items-center form-control flex-wrap'>
+                                            <div class="form-floating">
+                                                <input type="text"
+                                                    class="form-control"
+                                                    id="floatingInputValue1"
+                                                    placeholder=""
+                                                    value={value1}
+                                                    onChange={handleChange1}
+                                                />
+                                                <label htmlFor="floatingInputValue1">From</label>
+                                            </div>
+                                            <div class="form-floating">
+                                                <input type="text"
+                                                    class="form-control"
+                                                    id="floatingInputValue2"
+                                                    placeholder=""
+                                                    value={value2}
+                                                    onChange={handleChange2}
+                                                />
+                                                <label htmlFor="floatingInputValue2">To</label>
+                                            </div>
+                                            <button className="btn my-2 button">Apply</button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
