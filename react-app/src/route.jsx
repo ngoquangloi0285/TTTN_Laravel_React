@@ -19,7 +19,6 @@ import Product from './pages/backend/Product'
 import Wishlist from './pages/frontend/Wishlist'
 import Forgotpassword from './pages/frontend/Forgotpassword'
 import ResetPassword from './pages/frontend/ResetPassword'
-import AuthLayout from './Layout/AuthLayout'
 
 const route = createBrowserRouter([
     {
@@ -97,12 +96,12 @@ const route = createBrowserRouter([
                 element: <Forgotpassword />
             },
             {
-                path: 'reset-password',
+                path: 'password-reset/:token',
                 element: <ResetPassword />
             },
-
         ]
     },
+
     {
         path: '*',
         element: <NotFound />

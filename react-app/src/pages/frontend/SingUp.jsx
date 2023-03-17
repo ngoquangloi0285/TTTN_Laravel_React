@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Maps from '../../components/frontend/Maps'
 import Meta from '../../components/frontend/Meta'
@@ -7,7 +7,7 @@ import useAuthContext from '../../context/AuthContext'
 const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  // const [phone,setPhone] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [password_confirmation, setPasswordConfirmation] = useState("");
   const { register, errors } = useAuthContext();
@@ -15,7 +15,7 @@ const Signup = () => {
 
   const handleSignUp = async (event) => {
     event.preventDefault();
-    register({name,email,password,password_confirmation})
+    register({ name, email, phone, password, password_confirmation })
   }
 
   return (
@@ -39,10 +39,16 @@ const Signup = () => {
                   </div>
                   <div className='auth-note'>
                     <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder='Email' className="form-control" />
-
                     {errors.email &&
                       <div className="d-flex">
                         <span className="text-error">{errors.email[0]}</span>
+                      </div>}
+                  </div>
+                  <div className='auth-note'>
+                    <input value={phone} onChange={(e) => setPhone(e.target.value)} type="text" placeholder='Phone' className="form-control" />
+                    {errors.phone &&
+                      <div className="d-flex">
+                        <span className="text-error">{errors.phone[0]}</span>
                       </div>}
                   </div>
                   <div>
@@ -61,7 +67,8 @@ const Signup = () => {
                   </div>
                   <div className='d-flex gap-10'>
                     <p>Already have an account? <span>
-                      <Link className='text-white' to="../login">Login</Link>
+                      <Link className='text-white' to="../login">Login
+                      </Link>
                     </span></p>
                   </div>
                   <div className='d-flex justify-content-center gap-10 align-items-center'>

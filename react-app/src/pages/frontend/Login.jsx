@@ -9,14 +9,11 @@ const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
-  const {login, errors} = useAuthContext();
-  const csrf = () => axios.get("/sanctum/csrf-cookie");
+  const { login, errors } = useAuthContext();
 
   const handleLogin = async (event) => {
     event.preventDefault();
-    await csrf();
-    login({email, password})
+    login({ email, password })
   }
   return (
     <>
@@ -44,14 +41,15 @@ const Login = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       minLength="8" placeholder='Password' className="form-control" />
-                      {errors.email &&
-                    <div className="d-flex">
-                      <span className="text-error">{errors.password[0]}</span>
-                    </div>}
+                    {errors.email &&
+                      <div className="d-flex">
+                        <span className="text-error">{errors.password[0]}</span>
+                      </div>}
                   </div>
                   <div className='d-flex gap-10'>
                     <Link to="../forgot-password">Forgot Password?</Link>
-                    <Link to="../signup">Signup</Link>
+                    <Link to="../signup">Signup
+                    </Link>
                   </div>
                   <div className='d-flex justify-content-center gap-10 align-items-center'>
                     <button type='submit' className='button btn-login'>Login</button>

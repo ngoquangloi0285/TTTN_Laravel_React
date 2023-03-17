@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { NavLink, Link } from "react-router-dom";
 import { BsCartCheck, BsSearch } from "react-icons/bs";
 import { BiLogOut } from "react-icons/bi";
@@ -8,7 +8,6 @@ import useAuthContext from "../../context/AuthContext";
 const Header = () => {
   const { user, getUser } = useAuthContext();
   const { logout } = useAuthContext();
-  
   return (
     <>
       {/* header top */}
@@ -94,16 +93,16 @@ const Header = () => {
                           <ul className="dropdown-menu">
                             <li>
                               <Link className="dropdown-item" to="#">
-                                My account <RiAccountCircleLine  className="icon-item"/>
+                                My account <RiAccountCircleLine className="icon-item" />
                               </Link>
                             </li>
                             <li>
                               <Link className="dropdown-item" to="#">
-                                Order <BsCartCheck className="icon-item"/>
+                                Order <BsCartCheck className="icon-item" />
                               </Link>
                             </li>
                             <li>
-                              <button onClick={logout} className="dropdown-item header-btn d-block header-link">Logout <BiLogOut className="icon-item"/></button>
+                              <button onClick={logout} className="dropdown-item header-btn d-block header-link">Logout <BiLogOut className="icon-item" /></button>
                             </li>
                           </ul>
                         </div>

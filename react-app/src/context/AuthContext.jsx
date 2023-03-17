@@ -8,7 +8,6 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [errors, setError] = useState([]);
     const navigate = useNavigate();
-
     const csrf = () => axios.get("/sanctum/csrf-cookie");
 
     const getUser = async () => {
@@ -41,12 +40,13 @@ export const AuthProvider = ({ children }) => {
             else if (e.response.status === 500) {
                 setError(e.response.data.errors)
             }
-            console.log(e)
+            // console.log(e)
         }
     }
     const logout = () => {
         axios.post("/logout").then(() => {
             setUser(null);
+            navigate("/login")
         });
 
     }
@@ -54,8 +54,8 @@ export const AuthProvider = ({ children }) => {
         if (!user) {
             getUser();
         }
-    })
-    return <AuthContext.Provider value={{ user, errors, getUser, login, logout, register }}>
+    }, [])
+    return <AuthContext.Provider value={{ user, errors, getUser, login, logout, register, csrf }}>
         {children}
     </AuthContext.Provider>
 }
