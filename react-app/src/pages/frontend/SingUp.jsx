@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import LoadingOverlay from 'react-loading-overlay'
 import { Link } from 'react-router-dom'
 import Maps from '../../components/frontend/Maps'
 import Meta from '../../components/frontend/Meta'
@@ -10,12 +11,17 @@ const Signup = () => {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [password_confirmation, setPasswordConfirmation] = useState("");
-  const { register, errors } = useAuthContext();
+  const { register, errors, isLoading, status } = useAuthContext();
 
 
   const handleSignUp = async (event) => {
     event.preventDefault();
     register({ name, email, phone, password, password_confirmation })
+    setName("");
+    setEmail("");
+    setPhone("");
+    setPassword("");
+    setPasswordConfirmation("");
   }
 
   return (
@@ -29,6 +35,7 @@ const Signup = () => {
               <div className="auth-card">
                 <h3 className='text-center'>Sign Up</h3>
                 <form action="" onSubmit={handleSignUp} className='d-flex flex-column gap-15'>
+
                   <div>
                     <p><small>*Note: Email or Phone will be your username</small></p>
                     <input value={name} onChange={(e) => setName(e.target.value)} type="text" placeholder='Your Name' className="form-control" />
@@ -72,6 +79,12 @@ const Signup = () => {
                     </span></p>
                   </div>
                   <div className='d-flex justify-content-center gap-10 align-items-center'>
+                    <LoadingOverlay className='text-danger'
+                      spinner
+                      active={isLoading}
+                      text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
+                      }
+                    ></LoadingOverlay>
                     <button type='submit' className='button btn-login'>Sign Up</button>
                   </div>
                 </form>

@@ -6,7 +6,7 @@ import { RiAccountCircleLine } from "react-icons/ri";
 import useAuthContext from "../../context/AuthContext";
 
 const Header = () => {
-  const { user, getUser } = useAuthContext();
+  const { user } = useAuthContext();
   const { logout } = useAuthContext();
   return (
     <>
@@ -88,6 +88,7 @@ const Header = () => {
                           >
                             <span className="me-1 d-inline-block header-link">
                               {user?.name}
+                              {user?.roles}
                             </span>
                           </button>
                           <ul className="dropdown-menu">

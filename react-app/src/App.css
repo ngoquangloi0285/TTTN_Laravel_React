@@ -21,6 +21,10 @@ body {
   font-family: 'Rubik', sans-serif;
 }
 
+.css-79elbk {
+  bottom: 20px;
+}
+
 .alert {
   background-color: #f44336;
   color: white;
@@ -873,6 +877,7 @@ a {
 
 .btn-login {
   border: none;
+  margin-top: 15px;
   border-radius: 5px;
   background-color: var(--color-febd69);
   color: #000;

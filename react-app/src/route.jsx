@@ -49,8 +49,6 @@ const route = createBrowserRouter([
             }
         ]
     },
-
-
     {
         path: '/',
         element: <App />,

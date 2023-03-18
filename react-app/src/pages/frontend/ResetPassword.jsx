@@ -4,6 +4,7 @@ import Meta from '../../components/frontend/Meta'
 import useAuthContext from '../../context/AuthContext'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import axios from '../../api/axios'
+import LoadingOverlay from 'react-loading-overlay'
 
 const ResetPassword = () => {
   const [email, setEmail] = useState();
@@ -14,6 +15,8 @@ const ResetPassword = () => {
   const [searchParams] = useSearchParams();
   const { token } = useParams();
   const { csrf } = useAuthContext();
+  const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
   useEffect(() => {
     setEmail(searchParams.get('email'));
@@ -24,6 +27,7 @@ const ResetPassword = () => {
     await csrf;
     setError([])
     setStatus(null)
+    setIsLoading(true);
     try {
       const response = await axios.post('/reset-password', {
         email,
@@ -31,11 +35,13 @@ const ResetPassword = () => {
         password,
         password_confirmation
       })
+      setIsLoading(false);
       setStatus(response.data.status)
       setEmail("")
       setPassword("")
       setPasswordConfirmation("")
     } catch (e) {
+      setIsLoading(false);
       if (e.response.status === 422) {
         setError(e.response.data.errors)
       }
@@ -74,6 +80,12 @@ const ResetPassword = () => {
                       </div>}
                   </div>
                   <div className='text-center btn-forgot'>
+                  <LoadingOverlay className='text-danger'
+                      spinner
+                      active={isLoading}
+                      text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
+                      }
+                    ></LoadingOverlay>
                     <button type='submit' className='button btn-login'>Change Password</button>
                     
                   </div>

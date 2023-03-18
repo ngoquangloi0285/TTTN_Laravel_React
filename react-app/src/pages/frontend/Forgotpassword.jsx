@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import LoadingOverlay from 'react-loading-overlay'
 import { Link, useSearchParams } from 'react-router-dom'
 import axios from '../../api/axios'
 import Maps from '../../components/frontend/Maps'
@@ -10,16 +11,21 @@ const Forgotpassword = () => {
   const [errors, setError] = useState([]);
   const [status, setStatus] = useState(null);
   const { csrf } = useAuthContext();
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     await csrf;
     setError([])
     setStatus(null)
+    setIsLoading(true);
     try {
       const response = await axios.post('/forgot-password', { email })
+      setIsLoading(false);
       setStatus(response.data.status)
       setEmail("")
     } catch (e) {
+      setIsLoading(false);
       if (e.response.status === 422) {
         setError(e.response.data.errors)
       }
@@ -50,6 +56,12 @@ const Forgotpassword = () => {
                       </div>}
                   </div>
                   <div className='btn-forgot text-center'>
+                  <LoadingOverlay className='text-danger'
+                      spinner
+                      active={isLoading}
+                      text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
+                      }
+                    ></LoadingOverlay>
                     <button type='submit' className='button btn-login'>Submit</button>
                     <div className='text-center'>
                       <Link to="../login">Cancel</Link>

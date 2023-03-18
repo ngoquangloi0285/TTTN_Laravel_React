@@ -1,18 +1,19 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import LoadingOverlay from 'react-loading-overlay'
+import { Link } from 'react-router-dom'
 import Maps from '../../components/frontend/Maps'
 import Meta from '../../components/frontend/Meta'
-import axios from '../../api/axios'
 import useAuthContext from '../../context/AuthContext'
 
 const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login, errors } = useAuthContext();
+  const { login, errors, isLoading } = useAuthContext();
 
   const handleLogin = async (event) => {
     event.preventDefault();
+    // console.log(isLoading)
     login({ email, password })
   }
   return (
@@ -41,7 +42,7 @@ const Login = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       minLength="8" placeholder='Password' className="form-control" />
-                    {errors.email &&
+                    {errors.password &&
                       <div className="d-flex">
                         <span className="text-error">{errors.password[0]}</span>
                       </div>}
@@ -52,6 +53,12 @@ const Login = () => {
                     </Link>
                   </div>
                   <div className='d-flex justify-content-center gap-10 align-items-center'>
+                  <LoadingOverlay className='text-danger'
+                      spinner
+                      active={isLoading}
+                      text={<button type='submit' className='button btn-login text-white bg-success'>Loading data...</button>
+                      }
+                    ></LoadingOverlay>
                     <button type='submit' className='button btn-login'>Login</button>
                   </div>
                 </form>
