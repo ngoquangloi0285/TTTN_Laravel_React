@@ -5,5 +5,5 @@ const AuthLayout = () => {
     const { user } = useAuthContext();
     return user ? <Outlet /> : <Navigate to="/login" />
 }
-export default AuthLayout
+export default AuthLayout;
 

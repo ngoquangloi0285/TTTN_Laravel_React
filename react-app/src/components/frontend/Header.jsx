@@ -4,6 +4,7 @@ import { BsCartCheck, BsSearch } from "react-icons/bs";
 import { BiLogOut } from "react-icons/bi";
 import { RiAccountCircleLine } from "react-icons/ri";
 import useAuthContext from "../../context/AuthContext";
+import { AiFillDashboard, AiOutlineDashboard } from "react-icons/ai";
 
 const Header = () => {
   const { user } = useAuthContext();
@@ -88,27 +89,36 @@ const Header = () => {
                           >
                             <span className="me-1 d-inline-block header-link">
                               {user?.name}
-                              {user?.roles}
                             </span>
                           </button>
                           <ul className="dropdown-menu">
+                          {user?.roles === "admin" ? (
+                              <li>
+                                <Link className="dropdown-item" to="admin">
+                                  Admin <AiOutlineDashboard className="icon-item" />
+                                </Link>
+                              </li>
+                            ) : (
+                              " "
+                            )
+                            }
                             <li>
                               <Link className="dropdown-item" to="#">
                                 My account <RiAccountCircleLine className="icon-item" />
                               </Link>
                             </li>
+
                             <li>
                               <Link className="dropdown-item" to="#">
                                 Order <BsCartCheck className="icon-item" />
                               </Link>
                             </li>
+                            
                             <li>
                               <button onClick={logout} className="dropdown-item header-btn d-block header-link">Logout <BiLogOut className="icon-item" /></button>
                             </li>
                           </ul>
                         </div>
-
-
                       </>) :
                         (
                           <>
