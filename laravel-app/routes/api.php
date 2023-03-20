@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ChangePassController;
 use App\Http\Controllers\Api\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -20,4 +21,4 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 });
 
 Route::post("/create-product", [ProductController::class,'store']);
-
+Route::post("/change-password", [ChangePassController::class,'ChangePassWord']);

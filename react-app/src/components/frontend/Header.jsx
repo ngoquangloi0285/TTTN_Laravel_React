@@ -113,7 +113,11 @@ const Header = () => {
                                 Order <BsCartCheck className="icon-item" />
                               </Link>
                             </li>
-                            
+                            <li>
+                              <Link className="dropdown-item" to="change-password">
+                                Change Password <RiAccountCircleLine className="icon-item" />
+                              </Link>
+                            </li>
                             <li>
                               <button onClick={logout} className="dropdown-item header-btn d-block header-link">Logout <BiLogOut className="icon-item" /></button>
                             </li>

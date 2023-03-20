@@ -9,7 +9,7 @@ const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login, errors, isLoading } = useAuthContext();
+  const { login, errors, status, isLoading } = useAuthContext();
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -26,6 +26,11 @@ const Login = () => {
             <div className="col-12">
               <div className="auth-card">
                 <h3 className='text-center'>Login</h3>
+                {status && 
+                <div class="bg-succes py-5 text-center" role="alert">
+                  {status}
+                </div>
+                }
                 <form action="" onSubmit={handleLogin} className='d-flex flex-column gap-15'>
                   <div>
                     <input type="email"

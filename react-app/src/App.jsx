@@ -24,6 +24,7 @@ import GuestLayout from './Layout/GuestLayout';
 import React from 'react';
 import Header from './components/frontend/Header';
 import Footer from './components/frontend/Footer';
+import ChangePasswordForm from './pages/frontend/ChangePassword';
 
 function App() {
   return (
@@ -38,12 +39,14 @@ function App() {
           <Route path="store" element={<OurStore />} />
           <Route path="compare-product" element={<CompareProduct />} />
           <Route path="wishlist" element={<Wishlist />} />
-          <Route path="forgot-password" element={<Forgotpassword />} />
-          <Route path="reset-password" element={<ResetPassword />} />
+          <Route path="change-password" element={<ChangePasswordForm />} />
+          <Route path="admin" element={<Dashboard />} />
         </Route>
         <Route element={<GuestLayout />}>
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
+          <Route path="forgot-password" element={<Forgotpassword />} />
+          <Route path="password-reset/:token" element={<ResetPassword />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

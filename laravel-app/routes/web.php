@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ChangePassController;
 use Illuminate\Support\Facades\Route;
 
 /*

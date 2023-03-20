@@ -12,14 +12,17 @@ const ResetPassword = () => {
   const [password_confirmation, setPasswordConfirmation] = useState();
   const [errors, setError] = useState([]);
   const [status, setStatus] = useState(null);
+  // 
   const [searchParams] = useSearchParams();
   const { token } = useParams();
+  //
   const { csrf } = useAuthContext();
+  //
   const [isLoading, setIsLoading] = useState(false);
 
-  const navigate = useNavigate();
   useEffect(() => {
     setEmail(searchParams.get('email'));
+    console.log(email)
   }, [])
 
   const handleSubmit = async (e) => {
@@ -63,17 +66,17 @@ const ResetPassword = () => {
                       Go to <Link to="../login">Login</Link>
                     </div>
                 </div>}
-                <h3 className='text-center'>Change Password</h3>
+                <h3 className='text-center'>Reset Password</h3>
                 <form action="" onSubmit={handleSubmit} className='d-flex flex-column gap-15'>
                   <div>
-                    <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" minLength="8" placeholder='Current password' className="form-control" />
+                    <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" minLength="8" placeholder='New password' className="form-control" />
                     {errors.password &&
                       <div className="d-flex">
                         <span className="text-error">{errors.password[0]}</span>
                       </div>}
                   </div>
                   <div>
-                    <input value={password_confirmation} onChange={(e) => setPasswordConfirmation(e.target.value)} type="password" minLength="8" placeholder='Change password' className="form-control" />
+                    <input value={password_confirmation} onChange={(e) => setPasswordConfirmation(e.target.value)} type="password" minLength="8" placeholder='Password Confirmation' className="form-control" />
                     {errors.password_confirmation &&
                       <div className="d-flex">
                         <span className="text-error">{errors.password_confirmation[0]}</span>
@@ -86,7 +89,7 @@ const ResetPassword = () => {
                       text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
                       }
                     ></LoadingOverlay>
-                    <button type='submit' className='button btn-login'>Change Password</button>
+                    <button type='submit' className='button btn-login'>Reset Password</button>
                     
                   </div>
                 </form>

@@ -11,17 +11,12 @@ const Signup = () => {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [password_confirmation, setPasswordConfirmation] = useState("");
-  const { register, errors, isLoading, status } = useAuthContext();
+  const { register, errors, isLoading } = useAuthContext();
 
 
   const handleSignUp = async (event) => {
     event.preventDefault();
     register({ name, email, phone, password, password_confirmation })
-    setName("");
-    setEmail("");
-    setPhone("");
-    setPassword("");
-    setPasswordConfirmation("");
   }
 
   return (
