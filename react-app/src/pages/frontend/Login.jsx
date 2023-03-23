@@ -26,11 +26,10 @@ const Login = () => {
             <div className="col-12">
               <div className="auth-card">
                 <h3 className='text-center'>Login</h3>
-                {status && 
-                <div class="bg-succes py-5 text-center" role="alert">
-                  {status}
-                </div>
-                }
+                {status &&
+                  <div class="p-0  border-0 alert alert-success bg-success text-center" role="alert">
+                    {status}
+                  </div>}
                 <form action="" onSubmit={handleLogin} className='d-flex flex-column gap-15'>
                   <div>
                     <input type="email"
@@ -58,7 +57,7 @@ const Login = () => {
                     </Link>
                   </div>
                   <div className='d-flex justify-content-center gap-10 align-items-center'>
-                  <LoadingOverlay className='text-danger'
+                    <LoadingOverlay className='text-danger'
                       spinner
                       active={isLoading}
                       text={<button type='submit' className='button btn-login text-white bg-success'>Loading data...</button>

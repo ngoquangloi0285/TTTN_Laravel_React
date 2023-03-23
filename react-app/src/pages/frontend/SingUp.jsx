@@ -74,10 +74,10 @@ const Signup = () => {
                     </span></p>
                   </div>
                   <div className='d-flex justify-content-center gap-10 align-items-center'>
-                    <LoadingOverlay className='text-danger'
+                  <LoadingOverlay className='text-danger'
                       spinner
                       active={isLoading}
-                      text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
+                      text={<button type='submit' className='button btn-login text-white bg-success'>Loading data...</button>
                       }
                     ></LoadingOverlay>
                     <button type='submit' className='button btn-login'>Sign Up</button>

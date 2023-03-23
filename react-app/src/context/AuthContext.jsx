@@ -8,8 +8,9 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [errors, setError] = useState([]);
+    const [errors, setError] = useState({});
     const [status, setStatus] = useState([]);
+
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const csrf = () => axios.get("/sanctum/csrf-cookie");
@@ -75,19 +76,13 @@ export const AuthProvider = ({ children }) => {
         return promise;
     }
 
-    // const logout = () => {
-    //     axios.post("/logout").then(() => {
-    //         setUser(null);
-    //         navigate("/login")
-    //         window.location.reload();
-    //     });
-    // }
     const logout = () => {
         // Gửi request để đăng xuất người dùng
         axios.post('/logout')
             .then(() => {
                 // Nếu đăng xuất thành công, chuyển hướng về trang đăng nhập
-                window.location.href = '/login';
+                setUser(null);
+                navigate("/login")
             })
             .catch((error) => {
                 // Nếu có lỗi, hiển thị thông báo lỗi
@@ -95,35 +90,29 @@ export const AuthProvider = ({ children }) => {
             });
     }
     const changepassword = async ({ ...data }, callback) => {
-
         await csrf();
         let resolve;
         const promise = new Promise((r) => {
             resolve = r;
         });
-        setIsLoading(false);
+        setIsLoading(true);
         try {
-            await axios.post('/api/change-password', { ...data });
-            setIsLoading(true);
+            await axios.post('/api/v1/change-password', { ...data });
+            setIsLoading(false);
             logout();
-            setUser(null);
-            setStatus("Change successfully");
+            setStatus("Change Password Success");
             resolve();
             callback();
+
         } catch (e) {
             setIsLoading(false);
+            console.log(e.response.data.errors);
             if (e.response.status === 422) {
                 setError(e.response.data.errors)
             }
-            else if (e.response.status === 500) {
-                setError(e.response.data.errors)
-            }
-            console.log(e.response.data.errors);
         }
         return promise;
     }
-
-
 
     useEffect(() => {
         if (!user) {
