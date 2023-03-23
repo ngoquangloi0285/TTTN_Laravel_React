@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('category', function (Blueprint $table) {
+        Schema::create('contacts', function (Blueprint $table) {
             $table->id();
-            $table->string('name_category', 255)->nullable();
-            $table->string('slug', 255)->nullable();
-            $table->integer('parent_category')->unsigned();
-            $table->string('author', 100);
+            $table->string('name_contact', 255);
+            $table->string('email_contact', 255);
+            $table->string('phone_contact', 255);
+            $table->string('comments_contact', 255);
             $table->tinyInteger('status')->lenght(1)->unsigned()->nullable();
             $table->softDeletes();
             $table->timestamps();
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('category');
+        Schema::dropIfExists('contacts');
     }
 };
