@@ -15,7 +15,7 @@ const slideImages = [
 ];
 
 const Home = () => {
-  
+
   return (
     <>
       <Meta title={"Home"} />
@@ -228,6 +228,10 @@ const Home = () => {
               <ProductCard />
               <ProductCard />
               <ProductCard />
+              <ProductCard />
+              <ProductCard />
+              <ProductCard />
+              <ProductCard />
             </div>
           </div>
         </div>
@@ -238,10 +242,16 @@ const Home = () => {
             <div className="col-12">
               <h3 className="section-heading">Suggestions for you</h3>
             </div>
-            <Suggestions />
-            <Suggestions />
-            <Suggestions />
-            <Suggestions />
+            <div className="row">
+              <Suggestions />
+              <Suggestions />
+              <Suggestions />
+              <Suggestions />
+              <Suggestions />
+              <Suggestions />
+              <Suggestions />
+              <Suggestions />
+            </div>
           </div>
         </div>
       </section>
@@ -294,21 +304,21 @@ const Home = () => {
               <h3 className="section-heading">Our Latest Blogs</h3>
             </div>
             <div className="d-flex flex-wrap gap-2 justify-content-center">
-            <div className="gr-4 shadow mb-4">
-              <BlogCard />
-            </div>
-            <div className="gr-4 shadow mb-4">
-              <BlogCard />
-            </div>
-            <div className="gr-4 shadow mb-4">
-              <BlogCard />
-            </div>
-            <div className="gr-4 shadow mb-4">
-              <BlogCard />
-            </div>
-            <div className="gr-4 shadow mb-4">
-              <BlogCard />
-            </div>
+              <div className="gr-4 shadow mb-4">
+                <BlogCard />
+              </div>
+              <div className="gr-4 shadow mb-4">
+                <BlogCard />
+              </div>
+              <div className="gr-4 shadow mb-4">
+                <BlogCard />
+              </div>
+              <div className="gr-4 shadow mb-4">
+                <BlogCard />
+              </div>
+              <div className="gr-4 shadow mb-4">
+                <BlogCard />
+              </div>
             </div>
           </div>
         </div>

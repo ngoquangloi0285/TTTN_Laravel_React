@@ -526,7 +526,9 @@ a {
 /* Special Products End*/
 /* famous start */
 .famous-card {
+  border-radius: 10px;
   overflow: hidden;
+  margin-bottom: 30px;
 }
 
 .famous-card:hover .famous-content {

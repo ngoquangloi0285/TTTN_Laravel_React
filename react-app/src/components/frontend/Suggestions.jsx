@@ -8,11 +8,12 @@ const Suggestions = () => {
                 <Link>
                     <img style={
                         {
-                            "border-bottom": "10px solid"
+                            "border-bottom": "10px solid #000000"
                         }
                     }
                         className="img-fluid" src="images/tab.jpg" alt="" />
-                </Link>                <div className="famous-content shadow d-flex flex-column position-absolute">
+                </Link>
+                <div className="famous-content shadow d-flex flex-column position-absolute">
                     <h5>Big Screen</h5>
                     <h6>Smart Watch Series 7</h6>
                     <p>From $399or $16.62/mo. for 24 mo.*</p>

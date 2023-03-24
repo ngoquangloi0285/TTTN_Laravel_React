@@ -27,17 +27,17 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        //
-        $product = new Product();
-        $product->name = $request->name;
-        $product->price = $request->price;
-        $product->detail = $request->detail;
-        $product->save();
+    // public function store(Request $request)
+    // {
+    //     //
+    //     $product = new Product();
+    //     $product->name = $request->name;
+    //     $product->price = $request->price;
+    //     $product->detail = $request->detail;
+    //     $product->save();
 
-        return response()->json($product);
-    }
+    //     return response()->json($product);
+    // }
 
     /**
      * Display the specified resource.

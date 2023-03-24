@@ -141,6 +141,19 @@ const OurStore = () => {
                                         S (1)
                                     </label>
                                 </div>
+                                <h3 className="filter-title">
+                                    Inch
+                                </h3>
+                                <div className="form-check">
+                                    <input
+                                        className='form-check-input'
+                                        type="checkbox"
+                                        value=""
+                                        id="size-s" />
+                                    <label className='form-check-label' htmlFor="size-s">
+                                        5 inch
+                                    </label>
+                                </div>
                             </div>
                             <div className="filter-card mb-3">
                                 <h3 className="filter-title">

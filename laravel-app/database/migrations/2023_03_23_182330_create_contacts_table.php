@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('phone_contact', 255);
             $table->string('comments_contact', 255);
             $table->tinyInteger('status')->lenght(1)->unsigned()->nullable();
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

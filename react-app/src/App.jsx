@@ -31,7 +31,7 @@ function App() {
     <>
       <Header />
       <Routes>
-        <Route path='/' element={<AuthLayout />}>
+        {/* <Route path='/' element={<AuthLayout />}> */}
           <Route index element={<Home />} />
           <Route path='about' element={<About />} />
           <Route path='contact' element={<Contact />} />
@@ -41,7 +41,7 @@ function App() {
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="change-password" element={<ChangePasswordForm />} />
           <Route path="admin" element={<Dashboard />} />
-        </Route>
+        {/* </Route> */}
         <Route element={<GuestLayout />}>
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
