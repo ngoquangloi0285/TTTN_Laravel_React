@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [errors, setError] = useState({});
     const [status, setStatus] = useState([]);
+    const [permission, setPermission] = useState([]);
 
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);

@@ -14,7 +14,8 @@ const ProductCard = (props) => {
                 <Link className="product-card position-relative shadow ">
                     <div className="wishlist-icon position-absolute">
                         <Link>
-                            <img src="images/wish.svg" alt="wishlist" />
+                            <img src="images/wish.svg" alt="wishlist"
+                            />
                         </Link>
                     </div>
                     <div className="product-image">

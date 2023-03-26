@@ -18,9 +18,10 @@ return new class extends Migration
             $table->string('phone')->nullable()->unique();
             $table->string('address')->nullable();
             $table->string('gender')->nullable();
+            $table->string('avatar')->nullable();
+            $table->string('roles')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('roles')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

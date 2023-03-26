@@ -11,11 +11,8 @@ import NotFound from './pages/NotFound';
 import Dashboard from './components/backend/Dashboard'
 import Login from './pages/frontend/Login'
 import Signup from './pages/frontend/SingUp'
-import NewProduct from './pages/backend/Products/NewProduct'
-import EditProduct from './pages/backend/Products/EditProduct'
-import UpdateProduct from './pages/backend/Products/UpdateProduct'
-import TrashProduct from './pages/backend/Products/TrashProduct'
 import Product from './pages/backend/Products/Product'
+import NewProduct from './pages/backend/Products/NewProduct'
 import Wishlist from './pages/frontend/Wishlist'
 import Forgotpassword from './pages/frontend/Forgotpassword'
 import ResetPassword from './pages/frontend/ResetPassword'
@@ -31,17 +28,21 @@ function App() {
     <>
       <Header />
       <Routes>
-        {/* <Route path='/' element={<AuthLayout />}> */}
-          <Route index element={<Home />} />
-          <Route path='about' element={<About />} />
-          <Route path='contact' element={<Contact />} />
-          <Route path='blog' element={<Blog />} />
-          <Route path="store" element={<OurStore />} />
-          <Route path="compare-product" element={<CompareProduct />} />
-          <Route path="wishlist" element={<Wishlist />} />
-          <Route path="change-password" element={<ChangePasswordForm />} />
-          <Route path="admin" element={<Dashboard />} />
-        {/* </Route> */}
+        <Route index element={<Home />} />
+        <Route path='about' element={<About />} />
+        <Route path='contact' element={<Contact />} />
+        <Route path='blog' element={<Blog />} />
+        <Route path="store" element={<OurStore />} />
+        <Route path="compare-product" element={<CompareProduct />} />
+        <Route path="wishlist" element={<Wishlist />} />
+        <Route path="change-password" element={<ChangePasswordForm />} />
+        <Route path='/' element={<AuthLayout />}>
+          <Route path="admin" element={<Dashboard />} >
+            <Route path="product" element={<Product />} >
+              <Route path="new-product" element={<NewProduct />} />
+            </Route>
+          </Route>
+        </Route>
         <Route element={<GuestLayout />}>
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />

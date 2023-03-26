@@ -8,7 +8,7 @@ const Suggestions = () => {
                 <Link>
                     <img style={
                         {
-                            "border-bottom": "10px solid #000000"
+                            "border-bottom": "3px solid #000000"
                         }
                     }
                         className="img-fluid" src="images/tab.jpg" alt="" />
