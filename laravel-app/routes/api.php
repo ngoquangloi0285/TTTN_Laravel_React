@@ -22,6 +22,7 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 
 Route::prefix('v1')->group(function () {
     Route::post("/create-product", [ProductController::class,'store'])->name('product.create');
+    Route::get("/products", [ProductController::class,'index']);
     Route::post("/change-password", [ChangePassController::class,'ChangePassWord']);
 });
 

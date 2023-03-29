@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -11,7 +12,6 @@ use Illuminate\Support\Facades\Validator;
 
 class ChangePassController extends Controller
 {
-
     public function ChangePassWord(Request $request)
     {
         $user = Auth::user(); // Lấy thông tin người dùng đã đăng nhập
@@ -31,5 +31,4 @@ class ChangePassController extends Controller
             return response()->json(['status' => "Current password is incorrect"], 422);
         }
     }
-
 }

@@ -22,7 +22,7 @@ const ResetPassword = () => {
 
   useEffect(() => {
     setEmail(searchParams.get('email'));
-    console.log(email)
+    // console.log(email)
   }, [])
 
   const handleSubmit = async (e) => {
@@ -90,7 +90,6 @@ const ResetPassword = () => {
                       }
                     ></LoadingOverlay>
                     <button type='submit' className='button btn-login'>Reset Password</button>
-                    
                   </div>
                 </form>
               </div>

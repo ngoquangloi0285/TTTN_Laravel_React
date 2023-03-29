@@ -55,7 +55,7 @@ function Dashboard() {
               textDecoration: 'none',
             }}
           >
-            <Link className='text-white' to="/">LOGO</Link>
+            <Link className='text-white' to="admin">LOGO</Link>
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -115,7 +115,7 @@ function Dashboard() {
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             <Link className='text-white px-2' to="product" >Product</Link>
-            <Link className='text-white px-2' to="product" >Brand</Link>
+            <Link className='text-white px-2' to="brand" >Brand</Link>
             <Link className='text-white px-2' to="product" >Category</Link>
             <Link className='text-white px-2' to="product" >Blog</Link>
           </Box>

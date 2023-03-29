@@ -11,8 +11,7 @@ import NotFound from './pages/NotFound';
 import Dashboard from './components/backend/Dashboard'
 import Login from './pages/frontend/Login'
 import Signup from './pages/frontend/SingUp'
-import Product from './pages/backend/Products/Product'
-import NewProduct from './pages/backend/Products/NewProduct'
+import Product from './pages/backend/Product'
 import Wishlist from './pages/frontend/Wishlist'
 import Forgotpassword from './pages/frontend/Forgotpassword'
 import ResetPassword from './pages/frontend/ResetPassword'
@@ -22,6 +21,7 @@ import React from 'react';
 import Header from './components/frontend/Header';
 import Footer from './components/frontend/Footer';
 import ChangePasswordForm from './pages/frontend/ChangePassword';
+import Brand from './pages/backend/Brand';
 
 function App() {
   return (
@@ -38,9 +38,8 @@ function App() {
         <Route path="change-password" element={<ChangePasswordForm />} />
         <Route path='/' element={<AuthLayout />}>
           <Route path="admin" element={<Dashboard />} >
-            <Route path="product" element={<Product />} >
-              <Route path="new-product" element={<NewProduct />} />
-            </Route>
+            <Route path="product" element={<Product />} />
+            <Route path="brand" element={<Brand />} />
           </Route>
         </Route>
         <Route element={<GuestLayout />}>
