@@ -18,6 +18,11 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+        // Thêm khoá ngoại trỏ tới bảng products
+        Schema::table('products', function (Blueprint $table) {
+            $table->unsignedBigInteger('count_down_id')->nullable();
+            $table->foreign('count_down_id')->references('id')->on('count_down');
+        });
     }
 
     /**

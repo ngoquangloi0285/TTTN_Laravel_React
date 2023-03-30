@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\BrandController;
+use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ChangePassController;
+use App\Http\Controllers\Api\OptionController;
 use App\Http\Controllers\Api\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -21,8 +24,15 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 });
 
 Route::prefix('v1')->group(function () {
-    Route::post("/create-product", [ProductController::class,'store'])->name('product.create');
-    Route::get("/products", [ProductController::class,'index']);
-    Route::post("/change-password", [ChangePassController::class,'ChangePassWord']);
-});
+    // Product
+    Route::post("/create-product", [ProductController::class, 'store'])->name('product.create');
+    Route::get("/products", [ProductController::class, 'index']);
+    // Category
+    Route::get("/categorys", [CategoryController::class, 'index']);
+    // Brand
+    Route::get("/brands", [BrandController::class, 'index']);
+    // Option
+    Route::get("/options", [OptionController::class, 'index']);
 
+    Route::post("/change-password", [ChangePassController::class, 'ChangePassWord']);
+});
