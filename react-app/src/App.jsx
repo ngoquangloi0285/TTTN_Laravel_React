@@ -11,7 +11,7 @@ import NotFound from './pages/NotFound';
 import Dashboard from './components/backend/Dashboard'
 import Login from './pages/frontend/Login'
 import Signup from './pages/frontend/SingUp'
-import Product from './pages/backend/Product'
+import Product from './pages/backend/Product/Product'
 import Wishlist from './pages/frontend/Wishlist'
 import Forgotpassword from './pages/frontend/Forgotpassword'
 import ResetPassword from './pages/frontend/ResetPassword'

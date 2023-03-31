@@ -1,18 +1,20 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import DataTable from 'react-data-table-component';
 import LoadingOverlay from 'react-loading-overlay';
-import axios from '../../api/axios';
+import axios from '../../../api/axios';
 import { BsFillTrashFill } from 'react-icons/bs';
-import { AiFillDelete, AiFillEdit } from 'react-icons/ai';
-import { IoAddSharp } from 'react-icons/io5';
-import { FaTrashRestoreAlt } from 'react-icons/fa';
-import useAuthContext from '../../context/AuthContext';
+import { AiFillDelete, AiFillEdit, AiFillEye } from 'react-icons/ai';
+import useAuthContext from '../../../context/AuthContext';
+import NewProduct from './NewProduct';
+import { IoCreateOutline } from 'react-icons/io5';
+
 
 const Product = () => {
   const [records, setRecords] = useState([]);
   const [initialData, setInitialData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuthContext();
+  const [showForm, setShowForm] = useState(false);
 
   // useMemo() để tạo ra một mảng các đối tượng đại diện cho các cột của bảng dữ liệu.
   const columns = useMemo(
@@ -73,7 +75,15 @@ const Product = () => {
         cell: row => (
           <>
             <div>
-              <span className='text-warning mx-1'
+              {/* <span className='text-info mx-1'
+                style={
+                  {
+                    fontSize: '20px',
+                    cursor: 'pointer'
+                  }
+                }
+              ><AiFillEye /></span> */}
+              <span className='text-dark mx-1'
                 style={
                   {
                     fontSize: '20px',
@@ -129,6 +139,9 @@ const Product = () => {
       );
     });
   };
+  const toggleForm = () => {
+    setShowForm(!showForm);
+  };
 
   return (
     <>
@@ -136,17 +149,15 @@ const Product = () => {
         <div className="container-xxl">
           <div className="row">
             <p className='text-danger'>Hello, {user?.name}! You are working on Dashboard
-               <br/>and
-              Access will be recorded
+              <br />and
+              access will be recorded
             </p>
-            <h1 className='text-center text-dark my-3'>Product Dashboard</h1>
-            <div
-              style={{
-                display: 'flex',
-                flex: 1,
-                maxWidth: '30%',
-              }}
-            >
+            <h1 className='text-center text-dark mb-4'>Product Dashboard</h1>
+            <div style={{
+              display: 'flex',
+              flex: 1,
+              maxWidth: '30%',
+            }}>
               <input
                 type="text"
                 className="form-control"
@@ -154,43 +165,32 @@ const Product = () => {
                 onChange={handleFilter}
               />
             </div>
-            <div
-              className='d-flex align-items-center'
-              style={{
-                display: 'flex',
-                flex: 1,
-                maxWidth: '30%',
-              }}
-
-            >
-              <p className='text-dark my-0'>Actions:</p>
-              <span className='text-success'
-                style={
-                  {
-                    fontSize: '27px',
-                    cursor: 'pointer',
-                    marginBottom: '5px',
-                  }
-                }
-              ><IoAddSharp /></span>
-              <span className='text-danger'
-                style={
-                  {
-                    fontSize: '23px',
-                    cursor: 'pointer',
-                    marginBottom: '5px',
-                  }
-                }
-              ><FaTrashRestoreAlt /></span>
-              <span className='text-danger'
-                style={
-                  {
-                    fontSize: '30px',
-                    cursor: 'pointer',
-                    marginBottom: '5px',
-                  }
-                }
-              ><AiFillDelete /></span>
+            <div style={{
+              display: 'flex',
+              flex: 1,
+              maxWidth: '30%',
+            }}>
+              <div className='position-relative'>
+                <button className="btn btn-info text-white mx-2 d-flex align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWidthExample" aria-expanded="false" aria-controls="collapseWidthExample">
+                <IoCreateOutline className='fs-4'/> Add New Product
+                </button>
+                <div className="collapse collapse-horizontal-product position-absolute z-2" id="collapseWidthExample">
+                  <div className="card card-body "
+                    style={
+                      {
+                        minWidth: '1400px',
+                        minHeight: '600px',
+                      }
+                    }>
+                    <div className="p-2 text-dark">
+                      <NewProduct/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button type="button" className="btn btn-danger">
+                Trash <span>(0)</span>
+              </button>
             </div>
             <LoadingOverlay className='text-danger'
               spinner
