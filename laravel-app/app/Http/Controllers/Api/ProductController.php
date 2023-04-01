@@ -27,24 +27,20 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $product = new Product();
-        $product->name_product = $request->name;
-        $product->slug = Str::slug($product->name_product = $request->name, '-');
-        $product->summary = "summary";
-        $product->price = $request->price;
-        $product->detail = $request->detail;
-        $product->category_id = 1;
-        $product->brand_id = 1;
-        $product->user_id = 1;
-        $product->cost = 10;
-        $product->discount = 10;
-        $product->color = "red";
-        $product->inch = "5inch";
-        $product->total = 200;
-        $product->type = "hello";
-        $product->author = "admin";
-        $product->status = 1;
-        $product->save();
-        return response()->json(['status' => "Created Product Success"]);
+        $validate = $request->validate([
+            'nameProduct' => 'required|max:255',
+            'summary' => 'required',
+            'costProduct' => 'required|numeric|min:0',
+            'priceSale' => 'required|numeric|min:0',
+            'discount' => 'numeric|min:0',
+            'countDown' => 'numeric|min:0',
+            'image' => 'required',
+            'detail' => 'required',
+            'color' => 'required|max:255',
+            'inch' => 'required|max:255',
+            'category' => 'required|max:255',
+            'brand' => 'required|max:255',
+            'status' => 'required|in:active,inactive',
+        ]);
     }
 }

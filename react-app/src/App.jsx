@@ -18,8 +18,6 @@ import ResetPassword from './pages/frontend/ResetPassword'
 import AuthLayout from './Layout/AuthLayout';
 import GuestLayout from './Layout/GuestLayout';
 import React from 'react';
-import Header from './components/frontend/Header';
-import Footer from './components/frontend/Footer';
 import ChangePasswordForm from './pages/frontend/ChangePassword';
 import Brand from './pages/backend/Brand';
 import Shop from './components/frontend/Shop';
@@ -27,7 +25,6 @@ import Shop from './components/frontend/Shop';
 function App() {
   return (
     <>
-      {/* <Header /> */}
       <Routes>
         <Route path='/' element={<Shop />}>
           <Route index element={<Home />} />
@@ -55,9 +52,7 @@ function App() {
         </Route>
 
         <Route path="*" element={<NotFound />} />
-        
       </Routes>
-      {/* <Footer /> */}
     </>
   );
 }
