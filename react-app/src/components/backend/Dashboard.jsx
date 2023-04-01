@@ -57,7 +57,7 @@ function Dashboard() {
                 textDecoration: 'none',
               }}
             >
-              <Link className='text-white' to="admin">LOGO</Link>
+              <Link className='text-white' to="../admin">LOGO</Link>
             </Typography>
 
             <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>

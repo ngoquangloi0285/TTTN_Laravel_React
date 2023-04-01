@@ -923,7 +923,7 @@ footer .input-group-text {
 }
 .cancel {
   top: 10px;
-  right: 5%;
+  right: 5%;  
 }
 .cancel button:nth-child(2) {
   background-color: #e96875;

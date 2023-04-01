@@ -22,35 +22,42 @@ import Header from './components/frontend/Header';
 import Footer from './components/frontend/Footer';
 import ChangePasswordForm from './pages/frontend/ChangePassword';
 import Brand from './pages/backend/Brand';
+import Shop from './components/frontend/Shop';
 
 function App() {
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <Routes>
-        <Route index element={<Home />} />
-        <Route path='about' element={<About />} />
-        <Route path='contact' element={<Contact />} />
-        <Route path='blog' element={<Blog />} />
-        <Route path="store" element={<OurStore />} />
-        <Route path="compare-product" element={<CompareProduct />} />
-        <Route path="wishlist" element={<Wishlist />} />
-        <Route path="change-password" element={<ChangePasswordForm />} />
+        <Route path='/' element={<Shop />}>
+          <Route index element={<Home />} />
+
+          <Route path='about' element={<About />} />
+          <Route path='contact' element={<Contact />} />
+          <Route path='blog' element={<Blog />} />
+          <Route path="store" element={<OurStore />} />
+          <Route path="compare-product" element={<CompareProduct />} />
+          <Route path="wishlist" element={<Wishlist />} />
+          <Route path="change-password" element={<ChangePasswordForm />} />
+          <Route element={<GuestLayout />}>
+            <Route path="login" element={<Login />} />
+            <Route path="signup" element={<Signup />} />
+            <Route path="forgot-password" element={<Forgotpassword />} />
+            <Route path="password-reset/:token" element={<ResetPassword />} />
+          </Route>
+        </Route>
+
         <Route path='/' element={<AuthLayout />}>
           <Route path="admin" element={<Dashboard />} >
             <Route path="product" element={<Product />} />
             <Route path="brand" element={<Brand />} />
           </Route>
         </Route>
-        <Route element={<GuestLayout />}>
-          <Route path="login" element={<Login />} />
-          <Route path="signup" element={<Signup />} />
-          <Route path="forgot-password" element={<Forgotpassword />} />
-          <Route path="password-reset/:token" element={<ResetPassword />} />
-        </Route>
+
         <Route path="*" element={<NotFound />} />
+        
       </Routes>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }
