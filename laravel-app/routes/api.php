@@ -27,12 +27,11 @@ Route::prefix('v1')->group(function () {
     // Product
     Route::post("/create-product", [ProductController::class, 'store'])->name('product.create');
     Route::get("/products", [ProductController::class, 'index']);
+    Route::get('/update-total-product-count', [ProductController::class, 'updateTotalProductCount'])->name('totalProductCount');
     // Category
     Route::get("/categorys", [CategoryController::class, 'index']);
     // Brand
     Route::get("/brands", [BrandController::class, 'index']);
-    // Option
-    Route::get("/options", [OptionController::class, 'index']);
 
     Route::post("/change-password", [ChangePassController::class, 'ChangePassWord']);
 });

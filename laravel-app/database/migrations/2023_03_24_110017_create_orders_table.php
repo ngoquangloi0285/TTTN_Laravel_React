@@ -29,11 +29,6 @@ return new class extends Migration
             $table->decimal('price', 8, 2);
             $table->decimal('total_price', 8, 2);
             $table->timestamps();
-
-            $table->foreign('order_id')
-                ->references('id')
-                ->on('orders')
-                ->onDelete('cascade');
         });
     }
 

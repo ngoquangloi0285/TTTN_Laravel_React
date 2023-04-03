@@ -32,8 +32,7 @@ const Product = () => {
       {
         name: 'Image',
         selector: 'images',
-        cell: row => <img className='img img-fluid' src={row.images} alt={row.name_product} />,
-        sortable: false,
+        cell: row => <img className='img img-fluid img-thumbnail'  src={`http://localhost:8000/images/${row.images}`} alt={row.name_product} />,        sortable: false,
       },
       {
         name: 'Price',
@@ -124,7 +123,6 @@ const Product = () => {
         console.log(error);
       }
     };
-
     fetchData();
   }, []);
 

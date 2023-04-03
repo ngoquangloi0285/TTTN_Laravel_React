@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('category', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
             $table->string('name_category', 255);
             $table->string('slug', 255)->unique();
             $table->integer('parent_category')->unsigned()->nullable();
@@ -22,11 +21,6 @@ return new class extends Migration
             $table->tinyInteger('status')->lenght(1)->unsigned()->nullable();
             $table->timestamps();
             $table->softDeletes();
-
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('users')
-                ->onDelete('cascade');
         });
     }
 

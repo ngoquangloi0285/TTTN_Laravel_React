@@ -11,17 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('count_down', function (Blueprint $table) {
+        Schema::create('countdown', function (Blueprint $table) {
             $table->id();
-            $table->timestamp('target_date');
+            $table->unsignedBigInteger('product_id');
+            $table->dateTime('start_time')->nullable();
+            $table->dateTime('end_time')->nullable();
+            $table->string('author', 255);
             $table->tinyInteger('status')->lenght(1)->unsigned()->nullable();
             $table->timestamps();
-            $table->softDeletes();
-        });
-        // Thêm khoá ngoại trỏ tới bảng products
-        Schema::table('products', function (Blueprint $table) {
-            $table->unsignedBigInteger('count_down_id')->nullable();
-            $table->foreign('count_down_id')->references('id')->on('count_down');
         });
     }
 
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('count_down');
+        Schema::dropIfExists('countdown');
     }
 };
