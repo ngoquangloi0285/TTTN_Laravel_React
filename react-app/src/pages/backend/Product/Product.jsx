@@ -74,14 +74,6 @@ const Product = () => {
         cell: row => (
           <>
             <div>
-              {/* <span className='text-info mx-1'
-                style={
-                  {
-                    fontSize: '20px',
-                    cursor: 'pointer'
-                  }
-                }
-              ><AiFillEye /></span> */}
               <span className='text-dark mx-1'
                 style={
                   {
@@ -99,10 +91,6 @@ const Product = () => {
                 }
               ><BsFillTrashFill /></span>
             </div>
-            {/* <button onClick={() => handleEdit(row.id)}>Edit</button>
-            <button onClick={() => handleRestore(row.id)}>Restore</button>
-            <button onClick={() => handleDelete(row.id)}>Delete</button>
-            <button onClick={() => handlePermanentDelete(row.id)}>Permanent Delete</button> */}
           </>
         )
       }
@@ -136,9 +124,6 @@ const Product = () => {
         record.name_product.toLowerCase().includes(value.toLowerCase())
       );
     });
-  };
-  const toggleForm = () => {
-    setShowForm(!showForm);
   };
 
   return (

@@ -97,8 +97,8 @@ class ProductController extends Controller
 
         // Trả về thông tin sản phẩm đã tạo và thông báo thành công
         return response()->json([
-            'success' => 'Created Successfully',
-            'error' => 'Created Error',
+            'success' => 'Created Successfully!, hihi',
+            'error' => 'Created Error! huhu',
             'product' => $product
         ]);
     }

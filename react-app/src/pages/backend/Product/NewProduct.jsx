@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../../api/axios';
+import moment from 'moment-timezone';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import useAuthContext from '../../../context/AuthContext';
@@ -15,21 +16,56 @@ const NewProduct = () => {
     const [isLoading, setIsLoading] = useState(false);
     // cho phép upload nhiều hình
     const [files, setFiles] = useState([]);
+
+    const [previewUrls, setPreviewUrls] = useState([]);
+
     const handleUpload = (event) => {
+        event.preventDefault();
         const fileList = event.target.files;
-        setFiles([...files, ...fileList]);
+        const newFiles = Array.from(fileList);
+        const shouldAddFiles = newFiles.filter(file => !files.some(f => f.name === file.name));
+        setFiles([...files, ...shouldAddFiles]);
+
+        const newPreviewUrls = shouldAddFiles.map(file => URL.createObjectURL(file));
+        setPreviewUrls([...previewUrls, ...newPreviewUrls]);
     };
-    // hiển thị ảnh upload tạm thời
+
     const renderPreview = () => {
-        return files.map((file) => {
-            const url = URL.createObjectURL(file);
+        return previewUrls.map((url) => {
             return (
                 <div className='col-4' key={url}>
-                    <img className='img-thumbnail' src={url} alt={file.name} />
+                    <img className='img-thumbnail' src={url} alt='Preview' />
                 </div>
             );
         });
     };
+
+    const clearImageUrls = () => {
+        previewUrls.forEach((url) => URL.revokeObjectURL(url));
+        setPreviewUrls([]);
+        setFiles([]);
+    };
+
+    const ClearUpPhotos = () => {
+        document.getElementById("file").value = "";
+        clearImageUrls();
+    };
+
+    const ClearUp = (e) => {
+        document.getElementById("category").value = "";
+        document.getElementById("brand").value = "";
+        setNameProduct("");
+        setSummary("");
+        setCostProduct("");
+        setPriceSale("");
+        setDiscount("");
+        setColor("");
+        setInch("");
+        setContent("");
+        document.getElementById("file").value = "";
+        document.getElementById("status").value = "";
+        clearImageUrls();
+    }
 
     const handleContentChange = (value) => {
         setContent(value);
@@ -56,34 +92,6 @@ const NewProduct = () => {
             });
     }, []);
 
-
-    const clearImageUrls = () => {
-        files.forEach((file) => URL.revokeObjectURL(file));
-        setFiles([]);
-    };
-
-    const ClearUp = (e) => {
-        document.getElementById("category").value = "";
-        document.getElementById("brand").value = "";
-        setNameProduct("");
-        setSummary("");
-        setCostProduct("");
-        setPriceSale("");
-        setDiscount("");
-        setColor("");
-        setInch("");
-        setStartTime("");
-        setEndTime("");
-        setContent("");
-        document.getElementById("file").value = "";
-        document.getElementById("status").value = "";
-        clearImageUrls();
-    }
-    const ClearUpPhotos = (e) => {
-        document.getElementById("file").value = "";
-        clearImageUrls();
-    }
-
     // Khai báo state cho các trường nhập liệu
     const [nameProduct, setNameProduct] = useState();
     const [summary, setSummary] = useState();
@@ -92,8 +100,13 @@ const NewProduct = () => {
     const [discount, setDiscount] = useState();
     const [color, setColor] = useState();
     const [inch, setInch] = useState();
-    const [startTime, setStartTime] = useState();
-    const [endTime, setEndTime] = useState();
+
+    const timeZone = moment.tz.guess();
+    const now = moment().tz(timeZone).format('YYYY-MM-DDTHH:mm:ss');
+
+    const [startTime, setStartTime] = useState(now.slice(0, 16));
+    const [endTime, setEndTime] = useState(now.slice(0, 16));
+
     const [content, setContent] = useState('');
 
     // Khai báo state cho thông báo lỗi
@@ -157,15 +170,50 @@ const NewProduct = () => {
         if (!costProduct) {
             newErrors.costProduct = "Vui lòng nhập giá góc.";
         }
+        if (isNaN(costProduct)) {
+            newErrors.costProduct = "Giá gốc phải là số.";
+        }
         if (!priceSale) {
             newErrors.priceSale = "Vui lòng nhập giá bán.";
+        }
+        if (isNaN(priceSale)) {
+            newErrors.priceSale = "Giá bán phải là số.";
+        }
+        if (isNaN(discount)) {
+            newErrors.discount = "Giảm giá phải là số.";
+        } else if (discount <= 0) {
+            newErrors.discount = "Giảm giá phải lớn hơn 0.";
+        } else if (discount > 100) {
+            newErrors.discount = "Giảm giá phải nhỏ hơn hoặc bằng 100.";
         }
         if (!color) {
             newErrors.color = "Vui lòng nhập màu.";
         }
         if (!inch) {
-            newErrors.inch = "Vui lòng nhập icnh.";
+            newErrors.inch = "Vui lòng số icnh.";
         }
+        if (isNaN(inch)) {
+            newErrors.inch = "Inch phải là số.";
+        }
+
+        const nowDate = moment().tz(moment.tz.guess());
+        const startDate = moment(startTime + ':00.000Z').tz(moment.tz.guess());
+        const endDate = moment(endTime + ':00.000Z').tz(moment.tz.guess());
+
+        if (startDate < nowDate.startOf('day')) {
+            newErrors.startTime = 'Start time phải là ngày hiện tại hoặc sau ngày hiện tại.';
+        }
+        if (endDate <= nowDate) {
+            newErrors.endTime = 'End time không được nhỏ hơn ngày hiện tại.';
+        } else if (endDate.diff(startDate, 'days') > 30) {
+            newErrors.endTime = 'End time không được quá 1 tháng so với start time.';
+        } else if (endDate <= startDate) {
+            newErrors.endTime = 'End time không được nhỏ hơn hoặc bằng Start time.';
+        } else if (endDate.isSame(startDate)) {
+            newErrors.endTime = 'End time không được bằng với start time.';
+        }
+
+
         if (!content) {
             newErrors.content = "Vui lòng nhập chi tiết sản phẩm.";
         }
@@ -178,11 +226,10 @@ const NewProduct = () => {
 
         // Kiểm tra các giá trị khác và thêm thông báo lỗi tương ứng vào object `newErrors`
         if (Object.keys(newErrors).length > 0) {
-            setIsLoading(true);
             setError(newErrors);
             setTimeout(() => {
                 setError("");
-            }, 10000); // Hiển thị thông báo lỗi trong 3 giây
+            }, 10000); // Hiển thị thông báo lỗi trong 10 giây
             setIsLoading(false);
             return;
         }
@@ -195,7 +242,7 @@ const NewProduct = () => {
             });
             setIsLoading(false);
             setStatus(response.data.success)
-
+            ClearUp();
             console.log(response.data);
         } catch (error) {
             setIsLoading(false);
@@ -217,10 +264,11 @@ const NewProduct = () => {
                             </div>
                         </div>
                         {status && (
-                            <div className="alert alert-success" role="alert">
+                            <div className="alert alert-success show text-center fs-4" role="alert">
                                 {status}
                             </div>
                         )}
+
                         <div className='mb-2 text-center position-absolute cancel'>
                             <button className="btn btn-success text-white mx-2" type="submit">
                                 <IoCreateOutline className='fs-4' />
@@ -293,7 +341,6 @@ const NewProduct = () => {
                         </div>
                     </div>
                     <div className="col-5">
-                        <label className='form-label fw-bold' htmlFor="floatingTextarea">Price:</label>
                         <div className="row">
                             <div className="col-4">
                                 <div className="mb-2">
@@ -333,11 +380,20 @@ const NewProduct = () => {
                             </div>
                             <div className="col-4">
                                 <div className="mb-2">
-                                    <label className='form-label fw-bold' htmlFor="discount">Discount(-%):</label>
+                                    <label className='form-label fw-bold' htmlFor="discount">Discount(%):</label>
                                     <input className='form-control'
                                         value={discount}
                                         onChange={(e) => setDiscount(e.target.value)}
-                                        id='discount' type="text" placeholder='Enter discount' />
+                                        id='discount' maxLength={2} type="text" placeholder='Enter discount %' />
+                                    {errors.discount && (
+                                        <div className="alert alert-danger"
+                                            style={
+                                                { fontSize: '14px' }
+                                            }
+                                            role="alert">
+                                            {errors.discount}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -375,20 +431,52 @@ const NewProduct = () => {
                                     </div>
                                 )}
                             </div>
-                            <div className="col-4">
-                                <div className="mb-2">
-                                    <label className='form-label fw-bold' htmlFor="startTime">Start Time:</label>
-                                    <input className='form-control'
-                                        value={startTime}
-                                        onChange={(e) => setStartTime(e.target.value)}
-                                        id='startTime' type="date" />
+                            <div className="row my-3">
+                                <div className="col-6">
+                                    <div className="mb-2">
+                                        <label className='form-label fw-bold' htmlFor="startTime">Start Time:</label>
+                                        <input
+                                            className='form-control'
+                                            value={startTime}
+                                            onChange={(e) => setStartTime(e.target.value)}
+                                            id='startTime'
+                                            type="datetime-local"
+                                        />
+                                        {errors.startTime && (
+                                            <div
+                                                className="alert alert-danger"
+                                                style={{
+                                                    fontSize: '14px'
+                                                }}
+                                                role="alert"
+                                            >
+                                                {errors.startTime}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="mb-2">
-                                    <label className='form-label fw-bold' htmlFor="endTime">End Time:</label>
-                                    <input className='form-control'
-                                        value={endTime}
-                                        onChange={(e) => setEndTime(e.target.value)}
-                                        id='endTime' type="date" />
+                                <div className="col-6">
+                                    <div className="mb-2">
+                                        <label className='form-label fw-bold' htmlFor="endTime">End Time:</label>
+                                        <input
+                                            className='form-control'
+                                            value={endTime}
+                                            onChange={(e) => setEndTime(e.target.value)}
+                                            id='endTime'
+                                            type="datetime-local"
+                                        />
+                                        {errors.endTime && (
+                                            <div
+                                                className="alert alert-danger"
+                                                style={{
+                                                    fontSize: '14px'
+                                                }}
+                                                role="alert"
+                                            >
+                                                {errors.endTime}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
