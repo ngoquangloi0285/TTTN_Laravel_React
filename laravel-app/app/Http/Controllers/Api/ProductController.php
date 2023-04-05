@@ -8,8 +8,12 @@ use App\Models\Options;
 use App\Models\Product;
 use App\Models\ProductImages;
 use App\Models\TotalProduct;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Intervention\Image\ImageManagerStatic as Image;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -29,37 +33,40 @@ class ProductController extends Controller
         return response()->json($products);
     }
 
-
-    public function store(Request $request)
+    public function createProduct(Request $request)
     {
-        $product = new Product();
-        $product->name_product = $request['nameProduct'];
-        $product->slug = Str::slug($product->name_product, '-');
-        $product->category_id = $request['category'];
-        $product->brand_id = $request['brand'];
-        $product->summary = $request['summary'];
-        $product->cost = $request['costProduct'];
-        $product->price = $request['priceSale'];
-        $product->discount = $request['discount'];
-        $product->color = $request['color'];
-        $product->inch = $request['inch'];
-        $product->detail = $request['detail'];
+        $product = Product::create([
+            'name_product' => $request['nameProduct'],
+            'slug' => Str::slug($request['nameProduct'], '-'),
+            'category_id' => $request['category'],
+            'brand_id' => $request['brand'],
+            'summary' => $request['summary'],
+            'cost' => $request['costProduct'],
+            'price' => $request['priceSale'],
+            'discount' => $request['discount'],
+            'color' => $request['color'],
+            'inch' => $request['inch'],
+            'detail' => $request['detail'],
+            // Lưu tên của tài khoản đang đăng nhập vào trường author của sản phẩm
+            'author' => $request->user()->name,
+            'status' => $request['status']
+        ]);
 
-        // Lưu tên của tài khoản đang đăng nhập vào trường author của sản phẩm
-        $product->author = $request->user()->name;
-        $product->status = $request['status'];
+        // $product->save();
 
-        $product->save();
-
-        // Lưu trữ hình ảnh sản phẩm
         if ($request->hasFile('images')) {
             $files = $request->file('images');
             $paths = [];
             $count = count($files);
 
             foreach ($files as $key => $file) {
-                $path = $product->name_product . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
-                $file->move('images/', $path);
+                $path = $request['nameProduct'] . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
+                $image = Image::make($file);
+                $image->resize(800, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                });
+                Storage::disk('public')->put('images/' . $path, (string) $image->encode());
                 $paths[] = $path;
 
                 // Lưu ảnh đầu tiên vào trường images của bảng products
@@ -75,6 +82,7 @@ class ProductController extends Controller
                     $productImage->save();
                 }
             }
+
             // Lưu thông tin options của sản phẩm vào bảng Options
             $options = new Options();
             $options->product_id = $product->id;
@@ -93,6 +101,11 @@ class ProductController extends Controller
                 $countdown->status = $request['status'];
                 $countdown->save();
             }
+        } else {
+            return response()->json([
+                'error' => 'Created Error! huhu',
+                'product' => $product
+            ]);
         }
 
         // Trả về thông tin sản phẩm đã tạo và thông báo thành công
@@ -102,6 +115,29 @@ class ProductController extends Controller
             'product' => $product
         ]);
     }
+
+
+    public function softDelete($id)
+    {
+        $product = Product::find($id);
+
+        if (!$product) {
+            return response()->json(['error' => 'Product not found.'], 404);
+        }
+
+        $product->deleted_at = Carbon::now('Asia/Ho_Chi_Minh');
+        $product->save();
+
+        return response()->json(['message' => 'Product has been softly deleted.']);
+    }
+
+
+
+
+
+
+
+
 
 
 

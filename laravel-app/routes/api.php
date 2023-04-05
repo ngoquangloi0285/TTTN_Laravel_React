@@ -25,8 +25,9 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 
 Route::prefix('v1')->group(function () {
     // Product
-    Route::post("/create-product", [ProductController::class, 'store'])->name('product.create');
+    Route::post("/create-product", [ProductController::class, 'createProduct'])->name('product.create');
     Route::get("/products", [ProductController::class, 'index']);
+    Route::delete('/products/{id}/soft-delete', [ProductController::class, 'softDelete'])->name('product.soft-delete');
     Route::get('/update-total-product-count', [ProductController::class, 'updateTotalProductCount'])->name('totalProductCount');
     // Category
     Route::get("/categorys", [CategoryController::class, 'index']);

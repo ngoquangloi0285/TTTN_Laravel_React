@@ -15,6 +15,7 @@ return new class extends Migration
             $table->integer('inch');
             $table->string('author', 255);
             $table->timestamps();
+            $table->softDeletes();
         });
 
     }
