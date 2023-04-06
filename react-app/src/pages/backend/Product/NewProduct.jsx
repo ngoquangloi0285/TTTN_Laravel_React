@@ -508,18 +508,19 @@ const NewProduct = () => {
                             </div>
                         </div>
                         <label className='form-label fw-bold' htmlFor="detail">Detail:</label>
+                        {errors.content && (
+                            <div className="alert alert-danger"
+                                style={
+                                    { fontSize: '14px' }
+                                }
+                                role="alert">
+                                {errors.content}
+                            </div>
+                        )}
                         <div className="form-floating mb-2">
                             <div className="" >
                                 <ReactQuill value={content} onChange={handleContentChange} />
-                                {errors.content && (
-                                    <div className="alert alert-danger"
-                                        style={
-                                            { fontSize: '14px' }
-                                        }
-                                        role="alert">
-                                        {errors.content}
-                                    </div>
-                                )}
+
                             </div>
                         </div>
                     </div>

@@ -47,9 +47,8 @@ function App() {
 
         <Route path='/' element={<AuthLayout />}>
           <Route path="admin" element={<Dashboard />} >
-            <Route path="product" element={<Product />} >
-              <Route path="edit/:id" element={<EditProduct />} />
-            </Route>
+            <Route path="product" element={<Product />} />
+            <Route path="product/edit/:id" element={<EditProduct />} />
             <Route path="brand" element={<Brand />} />
           </Route>
         </Route>

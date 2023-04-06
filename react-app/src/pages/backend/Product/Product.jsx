@@ -132,7 +132,7 @@ const Product = () => {
       });
       console.log(response.data);
       console.log(`ID của sản phẩm để chỉnh sửa: ${id}`);
-      navigate(`./edit/${id}`); // chuyển trang và truyền ID theo
+      navigate(`edit/${id}`); // chuyển trang và truyền ID theo
     } catch (e) {
       console.log(e);
     }
@@ -212,7 +212,7 @@ const Product = () => {
                 <button className="btn btn-info text-white mx-2 d-flex align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWidthExample" aria-expanded="false" aria-controls="collapseWidthExample">
                   <IoCreateOutline className='fs-4' /> Add New Product
                 </button>
-                <div className="collapse collapse-horizontal-product position-absolute z-2" id="collapseWidthExample">
+                <div className="collapse collapse-horizontal-product1 position-absolute z-2" id="collapseWidthExample">
                   <div className="card card-body "
                     style={
                       {

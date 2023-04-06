@@ -922,7 +922,7 @@ footer .input-group-text {
 /* BACKEND */
 
 /* product */
-.collapse-horizontal-product {
+.collapse-horizontal-product1 {
   margin-top: -40px;
   left: -450px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
@@ -933,12 +933,23 @@ footer .input-group-text {
   top: 10px;
   right: 5%;
 }
+.cancel-edit {
+  top: 10px;
+  right: 2%;
+}
 
 .cancel button:nth-child(2) {
   background-color: #e96875;
 }
 
 .cancel button:nth-child(2):hover {
+  background-color: #e61f32;
+}
+.cancel-edit button:nth-child(2) {
+  background-color: #e96875;
+}
+
+.cancel-edit button:nth-child(2):hover {
   background-color: #e61f32;
 }
 
@@ -997,5 +1008,23 @@ footer .input-group-text {
 .ql-editor {
   min-height: 200px;
 }
+.link-edit {
+  border-bottom: 1px solid #ffff;
+  color: white;
+  text-decoration: none;
+  padding: 3px 5px;
+}
 
+.link-edit:hover {
+  opacity: 0.7;
+  color: #000;
+}
+.btn-edit {
+  color: #FFF;
+  font-weight: 500;
+  font-size: 20px;
+}
+/* .btn-edit:hover {
+  opacity: 0.8;
+} */
 /* product end */
