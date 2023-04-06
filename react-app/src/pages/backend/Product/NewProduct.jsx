@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../../api/axios';
+import { Toast, Container } from 'react-bootstrap';
 import moment from 'moment-timezone';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -10,15 +11,35 @@ import { IoCreateOutline } from 'react-icons/io5';
 import { AiOutlineClear } from 'react-icons/ai';
 
 const NewProduct = () => {
+    const { user } = useAuthContext();
     const [categories, setCategories] = useState([]);
     const [brands, setBrands] = useState([]);
-    const { user } = useAuthContext();
     const [isLoading, setIsLoading] = useState(false);
-    // cho phép upload nhiều hình
     const [files, setFiles] = useState([]);
-
     const [previewUrls, setPreviewUrls] = useState([]);
 
+    const [nameProduct, setNameProduct] = useState();
+    const [summary, setSummary] = useState();
+    const [costProduct, setCostProduct] = useState();
+    const [priceSale, setPriceSale] = useState();
+    const [discount, setDiscount] = useState();
+    const [color, setColor] = useState();
+    const [inch, setInch] = useState();
+
+    const timeZone = moment.tz.guess();
+    const now = moment().tz(timeZone).format('YYYY-MM-DDTHH:mm:ss');
+
+    const [startTime, setStartTime] = useState(now.slice(0, 16));
+    const [endTime, setEndTime] = useState(now.slice(0, 16));
+
+    const [content, setContent] = useState('');
+
+    const [showCategoryToast, setShowCategoryToast] = useState(false);
+    const [showBrandToast, setShowBrandToast] = useState(false);
+
+    const [errors, setError] = useState([]);
+
+    const [status, setStatus] = useState(null);
     const handleUpload = (event) => {
         event.preventDefault();
         const fileList = event.target.files;
@@ -61,6 +82,8 @@ const NewProduct = () => {
         setDiscount("");
         setColor("");
         setInch("");
+        setStartTime(now.slice(0, 16))
+        setEndTime(now.slice(0, 16))
         setContent("");
         document.getElementById("file").value = "";
         document.getElementById("status").value = "";
@@ -75,44 +98,31 @@ const NewProduct = () => {
     };
 
     useEffect(() => {
-        axios.get('api/v1/categorys')
+        axios.get('api/category/v1/category')
             .then(response => {
+                if (response.data.length === 0) {
+                    setShowCategoryToast(true);
+                    setTimeout(() => setShowCategoryToast(false), 10000);
+                }
                 setCategories(response.data);
             })
             .catch(error => {
                 console.log(error);
             });
 
-        axios.get('api/v1/brands')
+        axios.get('api/brands/v1/brands')
             .then(response => {
+                if (response.data.length === 0) {
+                    setShowBrandToast(true);
+                    setTimeout(() => setShowBrandToast(false), 10000);
+                }
                 setBrands(response.data);
             })
             .catch(error => {
-                console.log(error);
+                // console.log(error);
             });
     }, []);
 
-    // Khai báo state cho các trường nhập liệu
-    const [nameProduct, setNameProduct] = useState();
-    const [summary, setSummary] = useState();
-    const [costProduct, setCostProduct] = useState();
-    const [priceSale, setPriceSale] = useState();
-    const [discount, setDiscount] = useState();
-    const [color, setColor] = useState();
-    const [inch, setInch] = useState();
-
-    const timeZone = moment.tz.guess();
-    const now = moment().tz(timeZone).format('YYYY-MM-DDTHH:mm:ss');
-
-    const [startTime, setStartTime] = useState(now.slice(0, 16));
-    const [endTime, setEndTime] = useState(now.slice(0, 16));
-
-    const [content, setContent] = useState('');
-
-    // Khai báo state cho thông báo lỗi
-    const [errors, setError] = useState([]);
-
-    const [status, setStatus] = useState(null);
 
 
     // Xử lý khi người dùng ấn nút Submit
@@ -235,7 +245,7 @@ const NewProduct = () => {
         }
 
         try {
-            const response = await axios.post('/api/v1/create-product', formData, {
+            const response = await axios.post('/api/product/v1/create-product', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -252,6 +262,14 @@ const NewProduct = () => {
             }
         }
     };
+    useEffect(() => {
+        if (status) {
+            setTimeout(() => {
+                setStatus(null);
+            }, 10000);
+        }
+    }, [status]);
+
 
     return (
         <>
@@ -264,11 +282,10 @@ const NewProduct = () => {
                             </div>
                         </div>
                         {status && (
-                            <div className="alert alert-success show text-center fs-4" role="alert">
+                            <div className="alert1 alert-success1 show1 text-center fs-4" role="alert">
                                 {status}
                             </div>
                         )}
-
                         <div className='mb-2 text-center position-absolute cancel'>
                             <button className="btn btn-success text-white mx-2" type="submit">
                                 <IoCreateOutline className='fs-4' />
@@ -301,6 +318,11 @@ const NewProduct = () => {
                         </div>
 
                         <label className='form-label fw-bold' htmlFor="category">Category Product:</label>
+                        {showCategoryToast && (
+                            <Toast bg="warning" delay={5000} autohide onClose={() => setShowCategoryToast(false)}>
+                                <Toast.Body className='text-danger fw-bold fs-6'>Category has no data</Toast.Body>
+                            </Toast>
+                        )}
                         <select className="form-select mb-2" id='category' aria-label="Default select example">
                             <option value="" selected>Select Category</option>
                             {categories.map(category => (
@@ -314,6 +336,11 @@ const NewProduct = () => {
                         )}
 
                         <label className='form-label fw-bold' htmlFor="brand">Brand Product:</label>
+                        {showBrandToast && (
+                            <Toast bg="warning" delay={5000} autohide onClose={() => setShowBrandToast(false)}>
+                                <Toast.Body className='text-danger fw-bold fs-6'>Brand has no data</Toast.Body>
+                            </Toast>
+                        )}
                         <select className="form-select mb-2" id="brand" aria-label="Default select example">
                             <option value="" selected>Select Brand</option>
                             {brands.map(brand => (
@@ -539,7 +566,7 @@ const NewProduct = () => {
                             </div>
                         )}
                         <br />
-                        <div className="row">
+                        <div className="row mt-5">
                             <div className="col-6">
                                 <button className="btn btn-danger d-flex text-white mx-2" type="button" onClick={ClearUp}>
                                     <AiOutlineClear className='fs-4' />

@@ -15,6 +15,7 @@
     "helmet": "^6.0.1",
     "moment-timezone": "^0.5.43",
     "react": "^18.2.0",
+    "react-bootstrap": "^2.7.2",
     "react-data-table-component": "^7.5.3",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",

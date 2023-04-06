@@ -98,7 +98,7 @@ export const AuthProvider = ({ children }) => {
         });
         setIsLoading(true);
         try {
-            await axios.post('/api/v1/change-password', { ...data });
+            await axios.post('/api/change-password', { ...data });
             setIsLoading(false);
             logout();
             setStatus("Change Password Success");

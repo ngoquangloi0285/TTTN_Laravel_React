@@ -97,6 +97,7 @@ a {
 a {
   margin: 0;
 }
+
 .header-link:hover {
   color: #19A7CE !important;
 }
@@ -170,28 +171,33 @@ a {
   color: #000 !important;
   margin-top: 3px auto;
 }
+
 .header-upper-links .dropdown-item .icon-item {
   height: 100%;
   margin-bottom: 5px;
   font-size: 19px;
   color: #19A7CE;
 }
+
 .header-upper-links .dropdown-item:hover .icon-item {
   height: 100%;
   color: #000;
   font-size: 20px;
 }
+
 .header-upper-links .dropdown-item:hover {
   background-color: #EEF1FF;
   color: #19A7CE !important;
   border-top-right-radius: 5px;
   border-top-left-radius: 5px;
 }
+
 .header-btn {
   background-color: #FFF;
   border: none;
   color: #000;
 }
+
 .header-upper-links .dropdown ul li a {
   color: #000;
 }
@@ -909,6 +915,7 @@ footer .input-group-text {
   color: white;
   padding: 8px 17px;
 }
+
 /* Footer Part End Here*/
 
 
@@ -921,48 +928,74 @@ footer .input-group-text {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   border-radius: 10px;
 }
+
 .cancel {
   top: 10px;
-  right: 5%;  
+  right: 5%;
 }
+
 .cancel button:nth-child(2) {
   background-color: #e96875;
 }
+
 .cancel button:nth-child(2):hover {
   background-color: #e61f32;
 }
-.alert {
+
+.alert1 {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
   padding: 1rem;
   margin-bottom: 1rem;
   border: 1px solid transparent;
   border-radius: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
 }
 
-.alert-success {
+.alert-success1 {
   color: #155724;
   background-color: #d4edda;
   border-color: #c3e6cb;
 }
-.alert-error {
+
+.alert-error1 {
   color: #e93737;
-  background-color: #d4edda;
-  border-color: #c3e6cb;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
 }
 
-.alert-success:not(:last-child) {
+.alert-success1:not(:last-child) {
   margin-bottom: 0;
 }
 
-.alert-success.show {
-  animation: fadein 0.3s ease-in-out forwards;
+.alert-dismissible .close {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  padding: 0;
+  line-height: 1;
+  color: inherit;
 }
 
-@keyframes fadein {
+.alert1.show1 {
+  opacity: 1;
+}
+
+@keyframes fadeout {
   from {
-      opacity: 0;
+    opacity: 1;
   }
+
   to {
-      opacity: 1;
+    opacity: 0;
   }
 }
+.ql-editor {
+  min-height: 200px;
+}
+
 /* product end */

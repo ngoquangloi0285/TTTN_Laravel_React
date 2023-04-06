@@ -7,6 +7,10 @@ import { AiFillDelete, AiFillEdit, AiFillEye } from 'react-icons/ai';
 import useAuthContext from '../../../context/AuthContext';
 import NewProduct from './NewProduct';
 import { IoCreateOutline } from 'react-icons/io5';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import EditProduct from './EditProduct';
+import { Outlet, useNavigate } from 'react-router-dom';
 
 
 const Product = () => {
@@ -32,7 +36,7 @@ const Product = () => {
       {
         name: 'Image',
         selector: 'images',
-        cell: row => <img className='img img-fluid img-thumbnail'  src={`http://localhost:8000/images/${row.images}`} alt={row.name_product} />,        sortable: false,
+        cell: row => <img className='img img-fluid img-thumbnail' src={`http://localhost:8000/storage/images/${row.images}`} alt={row.name_product} />, sortable: false,
       },
       {
         name: 'Price',
@@ -81,7 +85,8 @@ const Product = () => {
                     cursor: 'pointer'
                   }
                 }
-              ><AiFillEdit /></span>
+              ><AiFillEdit onClick={() => handleEdit(row.id)} />
+              </span>
               <span className='text-danger mx-1'
                 style={
                   {
@@ -89,6 +94,7 @@ const Product = () => {
                     cursor: 'pointer'
                   }
                 }
+                onClick={() => handleDelete(row.id)}
               ><BsFillTrashFill /></span>
             </div>
           </>
@@ -98,21 +104,60 @@ const Product = () => {
     []
   );
 
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get('/api/product/v1/products');
+      setIsLoading(false);
+      setRecords(response.data);
+      setInitialData(response.data);
+    } catch (error) {
+      setIsLoading(false);
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const response = await axios.get('/api/v1/products');
-        setIsLoading(false);
-        setRecords(response.data);
-        setInitialData(response.data);
-      } catch (error) {
-        setIsLoading(false);
-        console.log(error);
-      }
-    };
     fetchData();
   }, []);
+
+  const navigate = useNavigate();
+  const handleEdit = async (id) => {
+    const encodedId = encodeURIComponent(id);
+    try {
+      const response = await axios.get(`/api/product/v1/products/${encodedId}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log(response.data);
+      console.log(`ID của sản phẩm để chỉnh sửa: ${id}`);
+      navigate(`./edit/${id}`); // chuyển trang và truyền ID theo
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const response = await axios.delete(`/api/product/v1/products/${id}/soft-delete`, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      await fetchData();
+      if (response.status === 200) {
+        toast.success('Product has been softly deleted.')
+      } else {
+        toast.error('Failed to delete product.')
+      }
+      console.log(`ID của sản phẩm để xóa tạm: ${id}`);
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to delete product.')
+    }
+  };
+
 
   const handleFilter = e => {
     const { value } = e.target;
@@ -126,6 +171,15 @@ const Product = () => {
     });
   };
 
+  const LoadPage = async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btn-loadpage');
+    btn.innerHTML = "Loading page...";
+    await fetchData();
+    btn.innerHTML = "Load page";
+  }
+
+
   return (
     <>
       <div className="product-wrapper home-wrapper-2 py-5">
@@ -136,6 +190,7 @@ const Product = () => {
               access will be recorded
             </p>
             <h1 className='text-center text-dark mb-4'>Product Dashboard</h1>
+            <Outlet />
             <div style={{
               display: 'flex',
               flex: 1,
@@ -155,7 +210,7 @@ const Product = () => {
             }}>
               <div className='position-relative'>
                 <button className="btn btn-info text-white mx-2 d-flex align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWidthExample" aria-expanded="false" aria-controls="collapseWidthExample">
-                <IoCreateOutline className='fs-4'/> Add New Product
+                  <IoCreateOutline className='fs-4' /> Add New Product
                 </button>
                 <div className="collapse collapse-horizontal-product position-absolute z-2" id="collapseWidthExample">
                   <div className="card card-body "
@@ -166,7 +221,7 @@ const Product = () => {
                       }
                     }>
                     <div className="p-2 text-dark">
-                      <NewProduct/>
+                      <NewProduct />
                     </div>
                   </div>
                 </div>
@@ -191,8 +246,15 @@ const Product = () => {
               paginationRowsPerPageOptions={[10, 25, 50, 100]}
             />
           </div>
+          {
+            initialData &&
+            <button type="button" id='btn-loadpage' onClick={LoadPage} className="btn btn-dark">
+              Load page
+            </button>
+          }
         </div>
       </div>
+      <ToastContainer />
     </>
   );
 };

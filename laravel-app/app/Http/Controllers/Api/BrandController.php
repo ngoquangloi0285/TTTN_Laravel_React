@@ -2,15 +2,50 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Brand;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class BrandController extends Controller
 {
-    public function index() {
-        $data = Brand::get();
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $brand = Brand::get();
+        return $brand;
+    }
 
-        return response()->json($data);
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        //
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Brand $brand)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Brand $brand)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Brand $brand)
+    {
+        //
     }
 }

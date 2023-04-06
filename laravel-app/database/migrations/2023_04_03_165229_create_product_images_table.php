@@ -16,8 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('product_id');
             $table->string('image');
             $table->string('author', 255);
+            $table->tinyInteger('status')->lenght(1)->unsigned()->nullable();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

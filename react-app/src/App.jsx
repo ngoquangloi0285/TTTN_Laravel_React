@@ -21,6 +21,7 @@ import React from 'react';
 import ChangePasswordForm from './pages/frontend/ChangePassword';
 import Brand from './pages/backend/Brand';
 import Shop from './components/frontend/Shop';
+import EditProduct from './pages/backend/Product/EditProduct';
 
 function App() {
   return (
@@ -46,7 +47,9 @@ function App() {
 
         <Route path='/' element={<AuthLayout />}>
           <Route path="admin" element={<Dashboard />} >
-            <Route path="product" element={<Product />} />
+            <Route path="product" element={<Product />} >
+              <Route path="edit/:id" element={<EditProduct />} />
+            </Route>
             <Route path="brand" element={<Brand />} />
           </Route>
         </Route>

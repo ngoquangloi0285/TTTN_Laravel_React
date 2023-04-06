@@ -14,8 +14,8 @@ return new class extends Migration
             $table->string('color');
             $table->integer('inch');
             $table->string('author', 255);
+            $table->tinyInteger('status')->lenght(1)->unsigned()->nullable();
             $table->timestamps();
-            $table->softDeletes();
         });
 
     }

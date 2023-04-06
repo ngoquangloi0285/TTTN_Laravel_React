@@ -2,38 +2,36 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Product;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\CountDown;
 use App\Models\Options;
-use App\Models\Product;
 use App\Models\ProductImages;
-use App\Models\TotalProduct;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Exception;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-
-    public function index(Request $request)
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
     {
-        $search = $request->input('search');
-
         $query = Product::query();
-
-        if ($search) {
-            $query->where('name_product', 'like', "%$search%");
-        }
 
         $products = $query->get();
 
         return response()->json($products);
     }
 
-    public function createProduct(Request $request)
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
     {
         $product = Product::create([
             'name_product' => $request['nameProduct'],
@@ -60,7 +58,7 @@ class ProductController extends Controller
             $count = count($files);
 
             foreach ($files as $key => $file) {
-                $path = $request['nameProduct'] . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
+                $path = $product->name_product . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
                 $image = Image::make($file);
                 $image->resize(800, null, function ($constraint) {
                     $constraint->aspectRatio();
@@ -79,6 +77,7 @@ class ProductController extends Controller
                     $productImage->product_id = $product->id;
                     $productImage->image = $path;
                     $productImage->author = $request->user()->name;
+                    $productImage->status = $request['status'];
                     $productImage->save();
                 }
             }
@@ -89,6 +88,7 @@ class ProductController extends Controller
             $options->color = $product->color;
             $options->inch = $product->inch;
             $options->author = $request->user()->name;
+            $options->status = $request['status'];
             $options->save();
 
             // Lưu thông tin countdown của sản phẩm vào bảng CountDown (nếu có request)
@@ -116,43 +116,64 @@ class ProductController extends Controller
         ]);
     }
 
-
-    public function softDelete($id)
+    /**
+     * Display the specified resource.
+     */
+    public function show(Product $product)
     {
-        $product = Product::find($id);
-
-        if (!$product) {
-            return response()->json(['error' => 'Product not found.'], 404);
-        }
-
-        $product->deleted_at = Carbon::now('Asia/Ho_Chi_Minh');
-        $product->save();
-
-        return response()->json(['message' => 'Product has been softly deleted.']);
+        return $product;
     }
 
 
 
-
-
-
-
-
-
-
-
-    public function updateTotalProductCount()
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Product $product)
     {
-        // Lấy ra bản ghi đầu tiên trong bảng total_product
-        $totalProduct = TotalProduct::first();
+        //
+    }
 
-        // Đếm tổng số sản phẩm trong bảng product
-        $productCount = Product::count();
+    /**
+     * Destroy
+     */
 
-        // Gán giá trị vào trường product_count của bản ghi total_product
-        $totalProduct->product_count = $productCount;
-        $totalProduct->save();
+    public function destroy(Product $product)
+    {
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+        $product->deleted_at = $now;
+        $product->status = 0;
 
-        return response()->json("Update total product successfully");
+        if ($product->save()) {
+            $option = Options::where('product_id', $product->id)->update(['status' => 0]);
+            $countdown = CountDown::where('product_id', $product->id)->update(['status' => 0]);
+            $images = ProductImages::where('product_id', $product->id)->update(['status' => 0]);
+
+            return response()->json(['message' => 'Product has been softly deleted.']);
+        } else {
+            return response()->json(['message' => 'Failed to delete product.']);
+        }
+    }
+    /**
+     * Remove
+     */
+    public function remove(Product $product)
+    {
+        $product->forceDelete();
+        return response()->json(['message' => 'Xóa vĩnh viễn thành công']);
+    }
+    /**
+     * Trash
+     */
+    public function trash()
+    {
+        return $products = Product::onlyTrashed()->paginate(25);
+    }
+    /**
+     * Restore
+     */
+    public function restore($id)
+    {
+        return  Product::withTrashed()->find($id)->restore();
     }
 }

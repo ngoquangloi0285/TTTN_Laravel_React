@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class CountDown extends Model
 {
     use HasFactory;
-    protected $table = 'countdown';
-    use SoftDeletes;
+    // use SoftDeletes;
 
+    protected $table = 'countdown';
+    // protected $dates = ['deleted_at'];
 }
