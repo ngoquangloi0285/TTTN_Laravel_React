@@ -130,8 +130,8 @@ const Product = () => {
           'Content-Type': 'application/json'
         }
       });
-      console.log(response.data);
-      console.log(`ID của sản phẩm để chỉnh sửa: ${id}`);
+      // console.log(response.data);
+      // console.log(`ID của sản phẩm để chỉnh sửa: ${id}`);
       navigate(`edit/${id}`); // chuyển trang và truyền ID theo
     } catch (e) {
       console.log(e);

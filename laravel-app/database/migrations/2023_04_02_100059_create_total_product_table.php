@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('total_product', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedInteger('id');
             $table->unsignedBigInteger('product_count')->default(0);
             $table->timestamps();
             $table->softDeletes();

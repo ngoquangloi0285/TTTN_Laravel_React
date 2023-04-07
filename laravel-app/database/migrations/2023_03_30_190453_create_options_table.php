@@ -9,7 +9,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('options', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedInteger('id');
             $table->unsignedBigInteger('product_id');
             $table->string('color');
             $table->integer('inch');

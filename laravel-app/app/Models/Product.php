@@ -11,6 +11,7 @@ class Product extends Model
     use HasFactory;
     use SoftDeletes;
     protected $fillable = [
+        'product_id',
         'name_product',
         'category_id',
         'brand_id',
@@ -25,7 +26,7 @@ class Product extends Model
         'author',
         'status'
     ];
-    
+
     protected $dates = ['deleted_at'];
 
     public function images()

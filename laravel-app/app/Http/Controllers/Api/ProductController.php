@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\Helper;
 use App\Models\Product;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -33,7 +34,12 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        /** Generate id */
+        $helper = new Helper();
+        // $id = $helper->Id(new Product, 'id', 10, 'nql');
+        $id = str_pad(random_int(0, 9999999999), 10, '0', STR_PAD_LEFT);
         $product = Product::create([
+            'product_id' => $id,
             'name_product' => $request['nameProduct'],
             'slug' => Str::slug($request['nameProduct'], '-'),
             'category_id' => $request['category'],
@@ -45,10 +51,10 @@ class ProductController extends Controller
             'color' => $request['color'],
             'inch' => $request['inch'],
             'detail' => $request['detail'],
-            // Lưu tên của tài khoản đang đăng nhập vào trường author của sản phẩm
             'author' => $request->user()->name,
             'status' => $request['status']
         ]);
+
 
         // $product->save();
 
