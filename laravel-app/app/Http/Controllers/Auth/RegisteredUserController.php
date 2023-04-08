@@ -26,7 +26,10 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        $id = random_int(0, 9999999999);
+        $id_formatted = str_replace([' ', '.', ','], '#', sprintf('%010d', $id));
         $user = User::create([
+            'user_id' => $id,
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),

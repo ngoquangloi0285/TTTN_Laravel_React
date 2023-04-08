@@ -25,7 +25,7 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 
 Route::prefix('product/v1')->group(function () {
     // Lấy danh sách sản phẩm
-    Route::get('products', [ProductController::class, 'index'])->name('products.index');
+    Route::get('products', [ProductController::class, 'index_admin'])->name('products.index');
     // Lấy thông tin sản phẩm theo id
     Route::get('products/{product}', [ProductController::class, 'show'])->name('products.show');
     // Tạo sản phẩm mới

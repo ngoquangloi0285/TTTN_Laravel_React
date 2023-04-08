@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('news', function (Blueprint $table) {
-            $table->unsignedInteger('id');
+            $table->id();
+            $table->string('news_id', 255);
             $table->string('title_news', 255);
             $table->string('content_news', 255);
             $table->string('images', 255)->nullable();
