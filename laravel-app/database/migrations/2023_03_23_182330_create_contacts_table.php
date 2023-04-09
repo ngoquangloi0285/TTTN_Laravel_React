@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('contact', function (Blueprint $table) {
-            $table->id();
-            $table->string('contact_id', 255);
+            $table->id('id');
+            $table->unsignedBigInteger('contact_id');
             $table->string('name_contact', 255);
             $table->string('email_contact', 255);
             $table->string('phone_contact', 255);
             $table->string('comments_contact', 255);
-            $table->tinyInteger('status')->lenght(1)->unsigned()->nullable();
+            $table->tinyInteger('status')->unsigned()->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

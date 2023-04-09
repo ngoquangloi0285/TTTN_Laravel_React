@@ -11,6 +11,7 @@ use App\Models\Options;
 use App\Models\ProductImages;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Storage;
@@ -28,7 +29,7 @@ class ProductController extends Controller
 
         return response()->json($products);
     }
-    
+
     public function index_homepage(Request $request)
     {
         $perPage = $request->input('perPage', 10);
@@ -67,9 +68,8 @@ class ProductController extends Controller
         } else {
             /** Generate id */
             $id = random_int(0, 9999999999);
-            $id_formatted = str_replace([' ', '.', ','], '#', sprintf('%010d', $id));
             $product = Product::create([
-                'product_id' => $id_formatted,
+                'product_id' => $id,
                 'name_product' => $request['nameProduct'],
                 'slug' => Str::slug($request['nameProduct'], '-'),
                 'category_id' => $request['category'],
@@ -84,10 +84,6 @@ class ProductController extends Controller
                 'author' => $request->user()->name,
                 'status' => $request['status']
             ]);
-
-
-
-            // $product->save();
 
             if ($request->hasFile('images')) {
                 $files = $request->file('images');
@@ -155,8 +151,6 @@ class ProductController extends Controller
     {
         return $product;
     }
-
-
 
     /**
      * Update the specified resource in storage.

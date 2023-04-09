@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('countdown', function (Blueprint $table) {
-            $table->id();
+            $table->id('id');
             $table->unsignedBigInteger('product_id');
             $table->dateTime('start_time')->nullable();
             $table->dateTime('end_time')->nullable();
             $table->string('author', 255);
-            $table->tinyInteger('status')->lenght(1)->unsigned()->nullable();
+            $table->tinyInteger('status')->unsigned()->nullable();
             $table->timestamps();
         });
     }

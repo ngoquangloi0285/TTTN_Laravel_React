@@ -12,19 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('orders', function (Blueprint $table) {
-            $table->id();
-            $table->string('order_id', 255);
+            $table->id('id');
+            $table->unsignedBigInteger('orders_id');
             $table->unsignedBigInteger('user_id')->unsigned();
             $table->unsignedBigInteger('product_id')->unsigned();
             $table->integer('quantity');
             $table->decimal('total_price', 8, 2);
-            $table->tinyInteger('status')->lenght(1)->unsigned()->nullable();
+            $table->tinyInteger('status')->unsigned()->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
         Schema::create('order_details', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('order_id');
+            $table->id('id');
+            $table->unsignedBigInteger('orders_id');
             $table->unsignedBigInteger('product_id');
             $table->integer('quantity');
             $table->decimal('price', 8, 2);

@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
-            $table->id();
-            $table->string('product_id', 255);
+            $table->id('id');
+            $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('category_id');
             $table->unsignedBigInteger('brand_id');
             $table->string('name_product', 255);
@@ -29,7 +29,7 @@ return new class extends Migration
             $table->integer('total')->unsigned()->nullable();
             $table->string('type', 255)->nullable();
             $table->string('author', 255);
-            $table->tinyInteger('status')->lenght(1)->unsigned()->nullable();
+            $table->tinyInteger('status')->unsigned()->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

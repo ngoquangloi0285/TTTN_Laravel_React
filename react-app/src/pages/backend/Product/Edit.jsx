@@ -11,7 +11,8 @@ import { Toast } from 'react-bootstrap';
 import ReactQuill from 'react-quill';
 export default function Edit(props) {
     // 
-    var getProduct = props.product;
+    const getProduct = props.product;
+    console.log(getProduct)
     const { user } = useAuthContext();
 
     const [categories, setCategories] = useState([]);
@@ -40,11 +41,11 @@ export default function Edit(props) {
     }, [getProduct]);
 
     //   tìm id category trùng với id trong bảng category
-    const category = categories.find(c => c.id === getProduct.category_id);
+    const category = categories.find(c => c.category_id === getProduct.category_id);
     // khi trùng id thì lấy name_category ra
     const categoryName = category ? category.name_category : '';
     //   tìm id category trùng với id trong bảng category
-    const brand = brands.find(c => c.id === getProduct.brand_id);
+    const brand = brands.find(c => c.brand_id === getProduct.brand_id);
     // khi trùng id thì lấy name_brands ra
     const brandName = brand ? brand.name : '';
 
@@ -326,15 +327,15 @@ export default function Edit(props) {
                                 {status}
                             </div>
                         )}
-                        <div className='mb-2 text-center position-absolute cancel-edit'>
+                        <div className='mb-2 text-center position-absolute cancel'>
                             <button className="btn btn-success text-white mx-2" type="submit">
                                 <IoCreateOutline className='fs-4' />
                                 Update Product
                             </button>
-                            <button className="btn text-white mx-2" type="button" data-bs-toggle="collapse" data-bs-target="#editProduct" aria-expanded="false" aria-controls="collapseWidthExample">
+                            <Link to="../product" className="btn text-white mx-2" type="button" data-bs-toggle="collapse" data-bs-target="#editProduct" aria-expanded="false" aria-controls="collapseWidthExample">
                                 <ImCancelCircle className='fs-4' />
                                 Cancel
-                            </button>
+                            </Link>
                         </div>
                         <LoadingOverlay className='text-danger'
                             spinner
@@ -364,7 +365,7 @@ export default function Edit(props) {
                             </Toast>
                         )}
                         <select className="form-select mb-2" id='category' aria-label="Default select example">
-                            <option value={category ? category.id : ""} selected>
+                            <option value={category ? category.category_id : ""} selected>
                                 {categoryName ? `Selected: ${categoryName}` : 'Select category'}
                             </option>
                             {categories.map(category => (

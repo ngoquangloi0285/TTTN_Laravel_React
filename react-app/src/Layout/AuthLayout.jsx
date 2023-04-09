@@ -3,16 +3,7 @@ import useAuthContext from '../context/AuthContext'
 
 const AuthLayout = () => {
     const { user } = useAuthContext();
-    // if (!user) {
-    //     return <>
-    //         <div>
-    //             {/* {alert('Please login')} */}
-    //             <Navigate to="/login" />
-    //         </div>
-    //     </>
-    // }
-    // return <Outlet/>
-    return user ? <Outlet /> : <Navigate to="/login" />
+    return user ? <Outlet /> : <Navigate to="/admin/login" />
 }
 export default AuthLayout;
 

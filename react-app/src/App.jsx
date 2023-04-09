@@ -17,13 +17,17 @@ import Forgotpassword from './pages/frontend/Forgotpassword'
 import ResetPassword from './pages/frontend/ResetPassword'
 import AuthLayout from './Layout/AuthLayout';
 import GuestLayout from './Layout/GuestLayout';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ChangePasswordForm from './pages/frontend/ChangePassword';
 import Brand from './pages/backend/Brand';
 import Shop from './components/frontend/Shop';
 import EditProduct from './pages/backend/Product/EditProduct';
+import LoginAdmin from './pages/backend/LoginAdmin';
+import MasterLayout from './components/backend/Layouts/MasterLayout';
+import NewProduct from './pages/backend/Product/NewProduct';
 
 function App() {
+
   return (
     <>
       <Routes>
@@ -37,6 +41,7 @@ function App() {
           <Route path="compare-product" element={<CompareProduct />} />
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="change-password" element={<ChangePasswordForm />} />
+
           <Route element={<GuestLayout />}>
             <Route path="login" element={<Login />} />
             <Route path="signup" element={<Signup />} />
@@ -46,8 +51,14 @@ function App() {
         </Route>
 
         <Route path='/' element={<AuthLayout />}>
-          <Route path="admin" element={<Dashboard />} >
+          {/* <Route path="admin" element={<Dashboard />} >
             <Route path="product" element={<Product />} />
+            <Route path="product/edit/:id" element={<EditProduct />} />
+            <Route path="brand" element={<Brand />} />
+          </Route> */}
+          <Route path="admin" element={<MasterLayout />} >
+            <Route path="product" element={<Product />} />
+            <Route path="product/new" element={<NewProduct />} />
             <Route path="product/edit/:id" element={<EditProduct />} />
             <Route path="brand" element={<Brand />} />
           </Route>

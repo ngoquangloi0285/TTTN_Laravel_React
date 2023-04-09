@@ -12,15 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('brands', function (Blueprint $table) {
-            $table->id();
-            $table->string('brand_id', 255);
+            $table->id('id');
+            $table->unsignedBigInteger('brand_id');
             $table->string('name');
             $table->string('slug')->unique();
             $table->string('author', 255);
-            $table->tinyInteger('status')->lenght(1)->unsigned()->nullable();
+            $table->tinyInteger('status')->unsigned()->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
+
     }
 
     /**

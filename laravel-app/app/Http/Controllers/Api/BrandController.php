@@ -11,10 +11,16 @@ class BrandController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $brand = Brand::get();
-        return $brand;
+        if ($request->has('id')) {
+            $id = $request->input('id');
+            $brand = Brand::findOrFail($id);
+            return $brand;
+        } else {
+            $brands = Brand::get();
+            return $brands;
+        }
     }
 
     /**

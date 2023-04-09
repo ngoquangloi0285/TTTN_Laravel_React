@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('news', function (Blueprint $table) {
-            $table->id();
-            $table->string('news_id', 255);
+            $table->id('id');
+            $table->unsignedBigInteger('news_id');
             $table->string('title_news', 255);
             $table->string('content_news', 255);
             $table->string('images', 255)->nullable();
             $table->unsignedBigInteger('category_id');
             $table->string('author', 255);
-            $table->tinyInteger('status')->lenght(1)->unsigned()->nullable();
+            $table->tinyInteger('status')->unsigned()->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

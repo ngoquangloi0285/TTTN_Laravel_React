@@ -1,25 +1,36 @@
-import React from "react";
-import { NavLink, Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { BsCartCheck, BsSearch } from "react-icons/bs";
 import { BiLogOut } from "react-icons/bi";
 import { RiAccountCircleLine } from "react-icons/ri";
 import useAuthContext from "../../context/AuthContext";
-import { AiFillDashboard, AiOutlineDashboard } from "react-icons/ai";
+import { useLocation } from "wouter";
+import { AiOutlineDashboard } from "react-icons/ai";
 import { MdSwitchAccount } from "react-icons/md";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Header = () => {
-  const { user } = useAuthContext();
-  const { logout } = useAuthContext();
+  const { user, logout } = useAuthContext();
+  const [location] = useLocation();
+
   return (
     <>
+      {`The current page is: ${location}`}
       {/* header top */}
+      <ToastContainer />
       <header className="header-top-strip py-3">
         <div className="container-xxl">
           <div className="row">
             <div className="col-6">
-              <h5 className="mb-0 text-warning">
-                Welcome to Our web page!
-              </h5>
+              {
+                user ? <h5 className="mb-0 text-warning">
+                  Welcome to Our web page!
+                </h5> :
+                  <h5 className="mb-0 text-warning">
+                    Bạn chưa đặng nhập!
+                  </h5>
+              }
             </div>
             <div className="col-6">
               <p className="text-end text-white mb-0">
@@ -95,7 +106,7 @@ const Header = () => {
                             </span>
                           </button>
                           <ul className="dropdown-menu">
-                            
+
                             <li>
                               <Link className="dropdown-item" to="#">
                                 Profile <MdSwitchAccount className="icon-item" />
