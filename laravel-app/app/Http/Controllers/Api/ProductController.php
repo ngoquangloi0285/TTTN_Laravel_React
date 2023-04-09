@@ -59,10 +59,14 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $product = Product::where('name_product', $request['nameProduct'])->first();
+        $product = Product::where([
+            ['name_product', $request['nameProduct']],
+            ['slug', Str::slug($request['nameProduct'], '-')]
+        ])->first();
+
         if ($product) {
             return response()->json([
-                'error' => 'Product name already exists',
+                'error' => 'Product with this name already exists, please choose another name.',
                 'product' => $product
             ], 505);
         } else {

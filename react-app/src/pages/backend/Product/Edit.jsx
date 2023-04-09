@@ -332,9 +332,9 @@ export default function Edit(props) {
                                 <IoCreateOutline className='fs-4' />
                                 Update Product
                             </button>
-                            <Link to="../product" className="btn text-white mx-2" type="button" data-bs-toggle="collapse" data-bs-target="#editProduct" aria-expanded="false" aria-controls="collapseWidthExample">
+                            <Link to="../product" className="btn text-white mx-2" type="button">
                                 <ImCancelCircle className='fs-4' />
-                                Cancel
+                                To back product
                             </Link>
                         </div>
                         <LoadingOverlay className='text-danger'

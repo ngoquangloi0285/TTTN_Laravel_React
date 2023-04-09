@@ -4,7 +4,7 @@ import { BsFillTrashFill } from 'react-icons/bs';
 import { GrEdit } from 'react-icons/gr';
 import { IoCreateOutline } from 'react-icons/io5';
 import { FiTrash2 } from 'react-icons/fi';
-import { AiFillDelete, AiFillEdit, AiFillEye } from 'react-icons/ai';
+import { AiFillDelete, AiFillEdit, AiFillEye,AiOutlineEye } from 'react-icons/ai';
 import axios from '../../../api/axios';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { Link, useNavigate } from 'react-router-dom';
@@ -14,6 +14,11 @@ import LoadingOverlay from 'react-loading-overlay';
 
 import LRU from 'lru-cache';
 import useAuthContext from '../../../context/AuthContext';
+import { Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
+import { Button } from 'react-bootstrap';
+import Modal from 'react-modal';
+import DOMPurify from 'dompurify';
+import ReactHtmlParser from 'react-html-parser';
 
 
 export default function DataGridDemo() {
@@ -74,6 +79,26 @@ export default function DataGridDemo() {
       //   type: 'number',
       //   editable: true,
       // },
+      // {
+      //   field: 'qrCode',
+      //   headerName: 'QR Code',
+      //   width: 200,
+      //   renderCell: (params) => (
+      //     <button onClick={() => setIsModalOpen(true)}>View QR Code</button>
+      //   ),
+      // },
+      {
+        field: 'detail', headerName: 'Detail',
+        renderCell: (params) => (
+          <Button className=''
+            variant="contained"
+            color="primary"
+            onClick={() => handleClickOpen(params.row)}
+          >
+          <AiOutlineEye style={{height: 'auto', fontSize: '26px',}} className='text-info'/>  View
+          </Button>
+        ),
+      },
       {
         field: 'author',
         headerName: 'Author',
@@ -126,13 +151,28 @@ export default function DataGridDemo() {
       },
     ]
   )
+  // Xử lý hiện QR Code 
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
 
+
+  // xử lý hiện modal chi tiết sản phẩm
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = (product) => {
+    setSelectedProduct(product);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  // xử lý load product
   const [isLoading, setIsLoading] = useState(false);
   const [records, setRecords] = useState([]);
   const [initialData, setInitialData] = useState([]);
-  const { user } = useAuthContext();
-  const [showForm, setShowForm] = useState(false);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -150,6 +190,8 @@ export default function DataGridDemo() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // lọc sản phẩm theo tên
   const handleFilter = e => {
     const { value } = e.target;
     setRecords(prevRecords => {
@@ -165,6 +207,7 @@ export default function DataGridDemo() {
   // handle action
   const cache = new LRU({ max: 100 }); // Lưu trữ tối đa 100 giá trị
 
+  // Edit product
   const navigate = useNavigate();
   const handleEdit = async (id) => {
     const encodedId = encodeURIComponent(id);
@@ -188,6 +231,7 @@ export default function DataGridDemo() {
     }
   };
 
+  // Xóa tạm product
   const handleDelete = async (id) => {
     try {
       await axios.delete(`/api/product/v1/products/${id}/soft-delete`, {
@@ -210,6 +254,7 @@ export default function DataGridDemo() {
     }
   };
 
+  // laod lại bảng data product
   const LoadPage = async (e) => {
     e.preventDefault();
     const btn = document.getElementById('btn-loadpage');
@@ -217,9 +262,19 @@ export default function DataGridDemo() {
     await fetchData();
     btn.innerHTML = "Load page";
   }
+  // Xử lý chuỗi từ trường detail khi lưu ở dạng html tránh in nhầm mã đọc 
+  const cleanHtml = (dirtyHtml) => {
+    return DOMPurify.sanitize(dirtyHtml, { USE_PROFILES: { html: true } });
+  }
 
   return (
     <>
+      {/* Hiện QR Code */}
+
+
+
+
+      {/* Hiện QR Code end*/}
       <div className="container-xxl">
         <div className="row">
           <input
@@ -238,6 +293,26 @@ export default function DataGridDemo() {
               <FiTrash2 className='fs-4' /> Trash <span>(0)</span>
             </Link>
           </div>
+          {/* Hiện QR CODE */}
+          {/* <Modal
+            isOpen={isModalOpen}
+            onRequestClose={() => setIsModalOpen(false)}
+            contentLabel="QR Code Modal"
+            style={{ content: { width: '300px', height: '300px' } }}
+            className="modal-qrcode"
+          >
+            <img 
+            className='img img-fluid'
+              style={{ width: '100%', height: 'auto' }}
+              src={`https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(
+                'qr-code-data'
+              )}`}
+              alt="QR code"
+            />
+          </Modal> */}
+          {/* Hiện QR CODE END */}
+
+          {/* hiện data product */}
           <Box sx={{ height: 400, width: '100%' }}>
             <DataGrid
               rows={records}
@@ -259,17 +334,52 @@ export default function DataGridDemo() {
               onFilterModelChange={(model) => console.log(model)}
             />
           </Box>
+          {/* hiện data product end*/}
+
+          {/* Hiển thị modal - chi tiết sản phẩm*/}
+          <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>Product Detail</DialogTitle>
+            <DialogContent className="dialog-content">
+              {selectedProduct && (
+                <>
+                  <Typography className="product-name" variant="h6">{selectedProduct.name_product}</Typography>
+                  <Typography className="product-info">{`Category: ${selectedProduct.category_id}`}</Typography>
+                  <Typography className="product-info">{`Brand: ${selectedProduct.brand_id}`}</Typography>
+                  <Typography className="product-info">{`Summary: ${selectedProduct.summary}`}</Typography>
+                  <Typography className="product-info">{`Cost: $${selectedProduct.cost}`}</Typography>
+                  <Typography className="product-info">{`Price: $${selectedProduct.price}`}</Typography>
+                  <Typography className="product-info">{`Discount: $${selectedProduct.discount}`}</Typography>
+                  <Typography className="product-info">{`Color: ${selectedProduct.color}`}</Typography>
+                  <Typography className="product-info">{`Inch: ${selectedProduct.inch}`}</Typography>
+                  <Typography className="product-title">Detail:</Typography>
+                  <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedProduct.detail) }} />
+                  <img className="product-image" src={`http://localhost:8000/storage/images/${selectedProduct.images}`} alt={selectedProduct.images} />
+                  {/* ... Hiển thị các thông tin khác của sản phẩm ... */}
+                </>
+              )}
+            </DialogContent>
+
+            <DialogActions>
+              <Button onClick={handleClose} color="primary">
+                Close
+              </Button>
+            </DialogActions>
+          </Dialog>
+          {/* Hiển thị modal - chi tiết sản phẩm end*/}
+
           <LoadingOverlay className='text-danger'
             spinner
             active={isLoading}
             text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
             }
           ></LoadingOverlay>
+
           <div className="col-3">
             <button type="button" id='btn-loadpage' onClick={LoadPage} className="btn btn-dark">
               Load page
             </button>
           </div>
+
           <ToastContainer />
         </div>
       </div>
