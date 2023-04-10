@@ -4,7 +4,7 @@ import { BsFillTrashFill } from 'react-icons/bs';
 import { GrEdit } from 'react-icons/gr';
 import { IoCreateOutline } from 'react-icons/io5';
 import { FiTrash2 } from 'react-icons/fi';
-import { AiFillDelete, AiFillEdit, AiFillEye,AiOutlineEye } from 'react-icons/ai';
+import { AiFillDelete, AiFillEdit, AiFillEye, AiOutlineEye } from 'react-icons/ai';
 import axios from '../../../api/axios';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { Link, useNavigate } from 'react-router-dom';
@@ -19,6 +19,7 @@ import { Button } from 'react-bootstrap';
 import Modal from 'react-modal';
 import DOMPurify from 'dompurify';
 import ReactHtmlParser from 'react-html-parser';
+import Meta from '../../../components/frontend/Meta';
 
 
 export default function DataGridDemo() {
@@ -39,7 +40,7 @@ export default function DataGridDemo() {
         editable: true,
       },
       {
-        field: 'images',
+        field: 'image',
         headerName: 'Image',
         sortable: false,
         cellClassName: 'custom-cell',
@@ -95,7 +96,7 @@ export default function DataGridDemo() {
             color="primary"
             onClick={() => handleClickOpen(params.row)}
           >
-          <AiOutlineEye style={{height: 'auto', fontSize: '26px',}} className='text-info'/>  View
+            <AiOutlineEye style={{ height: 'auto', fontSize: '26px', }} className='text-info' />  View
           </Button>
         ),
       },
@@ -269,12 +270,13 @@ export default function DataGridDemo() {
 
   return (
     <>
-      {/* Hiện QR Code */}
-
-
-
-
-      {/* Hiện QR Code end*/}
+      <Meta title={"Product"} />
+      <LoadingOverlay className='text-danger'
+        spinner
+        active={isLoading}
+        text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
+        }
+      ></LoadingOverlay>
       <div className="container-xxl">
         <div className="row">
           <input
@@ -313,14 +315,14 @@ export default function DataGridDemo() {
           {/* Hiện QR CODE END */}
 
           {/* hiện data product */}
-          <Box sx={{ height: 400, width: '100%' }}>
+          <Box sx={{ height: 600, width: '100%' }}>
             <DataGrid
               rows={records}
               columns={columns}
               initialState={{
                 pagination: {
                   paginationModel: {
-                    pageSize: 5,
+                    pageSize: 10,
                   },
                 },
               }}
@@ -337,7 +339,7 @@ export default function DataGridDemo() {
           {/* hiện data product end*/}
 
           {/* Hiển thị modal - chi tiết sản phẩm*/}
-          <Dialog open={open} onClose={handleClose}>
+          <Dialog open={open} onClose={handleClose} className="dialog">
             <DialogTitle>Product Detail</DialogTitle>
             <DialogContent className="dialog-content">
               {selectedProduct && (
@@ -353,7 +355,7 @@ export default function DataGridDemo() {
                   <Typography className="product-info">{`Inch: ${selectedProduct.inch}`}</Typography>
                   <Typography className="product-title">Detail:</Typography>
                   <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedProduct.detail) }} />
-                  <img className="product-image" src={`http://localhost:8000/storage/images/${selectedProduct.images}`} alt={selectedProduct.images} />
+                  <img className="product-image" src={`http://localhost:8000/storage/images/${selectedProduct.image}`} alt={selectedProduct.images} />
                   {/* ... Hiển thị các thông tin khác của sản phẩm ... */}
                 </>
               )}
@@ -367,12 +369,7 @@ export default function DataGridDemo() {
           </Dialog>
           {/* Hiển thị modal - chi tiết sản phẩm end*/}
 
-          <LoadingOverlay className='text-danger'
-            spinner
-            active={isLoading}
-            text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
-            }
-          ></LoadingOverlay>
+
 
           <div className="col-3">
             <button type="button" id='btn-loadpage' onClick={LoadPage} className="btn btn-dark">

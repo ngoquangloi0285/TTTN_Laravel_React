@@ -9,80 +9,78 @@ import moment from 'moment-timezone';
 import useAuthContext from '../../../context/AuthContext';
 import { Toast } from 'react-bootstrap';
 import ReactQuill from 'react-quill';
+import Meta from '../../../components/frontend/Meta';
+
 export default function Edit(props) {
-    // 
+    // data product
     const getProduct = props.product;
-    console.log(getProduct)
+
     const { user } = useAuthContext();
+    const timeZone = moment.tz.guess();
+    const now = moment().tz(timeZone).format('YYYY-MM-DDTHH:mm:ss');
+    const [isLoading, setIsLoading] = useState(false);
 
     const [categories, setCategories] = useState([]);
     const getCategories = async () => {
+        setIsLoading(true)
         try {
             const response = await axios.get('/api/category/v1/category');
+            setIsLoading(false)
             setCategories(response.data);
         } catch (error) {
+            setIsLoading(false)
             console.error(error);
         }
     };
-    const [brands, setBrands] = useState([]);
-    const getBrands = async () => {
-        try {
-            const response = await axios.get('/api/category/v1/brands');
-            setBrands(response.data);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-    useEffect(() => {
-        if (getProduct) {
-            getCategories();
-            getBrands();
-        }
-    }, [getProduct]);
-
     //   tìm id category trùng với id trong bảng category
     const category = categories.find(c => c.category_id === getProduct.category_id);
     // khi trùng id thì lấy name_category ra
     const categoryName = category ? category.name_category : '';
-    //   tìm id category trùng với id trong bảng category
+
+    const [brands, setBrands] = useState([]);
+    const getBrands = async () => {
+        setIsLoading(true)
+        try {
+            const response = await axios.get('/api/category/v1/brands');
+            setIsLoading(false)
+            setBrands(response.data);
+
+        } catch (error) {
+            setIsLoading(false)
+
+            console.error(error);
+        }
+    };
+    //   tìm id brands trùng với id trong bảng category
     const brand = brands.find(c => c.brand_id === getProduct.brand_id);
     // khi trùng id thì lấy name_brands ra
     const brandName = brand ? brand.name : '';
 
+    const [artTimeArr, setStartTimeArr] = useState([]);
+
+    const getStart_EndTime = async () => {
+        setIsLoading(true)
+        try {
+            const response = await axios.get('/api/countdown/v1/countdown');
+            setIsLoading(false)
+            setStartTimeArr(response.data);
+        } catch (error) {
+            setIsLoading(false)
+            console.error(error);
+        }
+    };
+
+    const start_end_time = artTimeArr.find(c => c.product_id === getProduct.product_id);
+    // const getStart_Time = start_end_time ? new Date(start_end_time.start_time).toISOString().slice(0, 16) : '';
+    // const getEnd_Time = start_end_time ? new Date(start_end_time.end_time).toISOString().slice(0, 16) : '';
+    const getStart_Time = start_end_time ? start_end_time.start_time : '';
+    const getEnd_Time = start_end_time ? start_end_time.end_time : '';
 
 
 
-    const [isLoading, setIsLoading] = useState(false);
     const [files, setFiles] = useState([]);
     const [previewUrls, setPreviewUrls] = useState([]);
 
-    const [nameProduct, setNameProduct] = useState(getProduct.name_product || '');
-
-    useEffect(() => {
-        setNameProduct(props.product.name_product);
-
-    }, [props.product]);
-    const [summary, setSummary] = useState();
-    const [costProduct, setCostProduct] = useState();
-    const [priceSale, setPriceSale] = useState();
-    const [discount, setDiscount] = useState();
-    const [color, setColor] = useState();
-    const [inch, setInch] = useState();
-
-    const timeZone = moment.tz.guess();
-    const now = moment().tz(timeZone).format('YYYY-MM-DDTHH:mm:ss');
-
-    const [startTime, setStartTime] = useState(now.slice(0, 16));
-    const [endTime, setEndTime] = useState(now.slice(0, 16));
-
-    const [content, setContent] = useState('');
-
-    const [showCategoryToast, setShowCategoryToast] = useState(false);
-    const [showBrandToast, setShowBrandToast] = useState(false);
-
-    const [errors, setError] = useState([]);
-
-    const [status, setStatus] = useState(null);
     const handleUpload = (event) => {
         event.preventDefault();
         const fileList = event.target.files;
@@ -93,7 +91,6 @@ export default function Edit(props) {
         const newPreviewUrls = shouldAddFiles.map(file => URL.createObjectURL(file));
         setPreviewUrls([...previewUrls, ...newPreviewUrls]);
     };
-
     const renderPreview = () => {
         return previewUrls.map((url) => {
             return (
@@ -103,6 +100,67 @@ export default function Edit(props) {
             );
         });
     };
+
+    const [arrImages, setArrImages] = useState([]);
+
+    const getProduct_Images = async () => {
+        setIsLoading(true)
+        try {
+            const response = await axios.get('/api/images/v1/images');
+            setIsLoading(false)
+            setArrImages(response.data);
+            console.log(response.data)
+        } catch (error) {
+            setIsLoading(false)
+            console.error(error);
+        }
+    };
+    console.log('arrImages:', arrImages); // có dữ liệu
+    const image_0 = getProduct;
+    const images = arrImages.filter(c => c.product_id === getProduct.product_id);
+    images.unshift(image_0);
+
+
+    useEffect(() => {
+        if (getProduct) {
+            getCategories();
+            getBrands();
+            getStart_EndTime();
+            getProduct_Images();
+        }
+    }, [getProduct]);
+
+    const ToBack = () => {
+        setNameProduct(props.product.name_product);
+        setSummary(props.product.summary);
+        setCostProduct(props.product.cost);
+        setPriceSale(props.product.price);
+        setDiscount(props.product.discount);
+        setColor(props.product.color);
+        setInch(props.product.inch);
+        setContent(props.product.detail);
+        document.getElementById("category").selectedIndex = 0;
+        document.getElementById("brand").selectedIndex = 0;
+    }
+    useEffect(() => {
+        ToBack();
+    }, [props.product]);
+
+    const [nameProduct, setNameProduct] = useState();
+    const [summary, setSummary] = useState();
+    const [costProduct, setCostProduct] = useState();
+    const [priceSale, setPriceSale] = useState();
+    const [discount, setDiscount] = useState();
+    const [color, setColor] = useState();
+    const [inch, setInch] = useState();
+    const [startTime, setStartTime] = useState(now.slice(0, 16));
+    const [endTime, setEndTime] = useState(now.slice(0, 16));
+    const [content, setContent] = useState('');
+    const [showCategoryToast, setShowCategoryToast] = useState(false);
+    const [showBrandToast, setShowBrandToast] = useState(false);
+
+    const [errors, setError] = useState([]);
+    const [status, setStatus] = useState(null);
 
     const clearImageUrls = () => {
         previewUrls.forEach((url) => URL.revokeObjectURL(url));
@@ -116,20 +174,7 @@ export default function Edit(props) {
     };
 
     const ClearUp = (e) => {
-        document.getElementById("category").value = "";
-        document.getElementById("brand").value = "";
-        setNameProduct("");
-        setSummary("");
-        setCostProduct("");
-        setPriceSale("");
-        setDiscount("");
-        setColor("");
-        setInch("");
-        setStartTime(now.slice(0, 16))
-        setEndTime(now.slice(0, 16))
-        setContent("");
-        document.getElementById("file").value = "";
-        document.getElementById("status").value = "";
+        ToBack();
         clearImageUrls();
     }
 
@@ -166,6 +211,10 @@ export default function Edit(props) {
             });
     }, []);
 
+    // kiểm tra các trường đã được thay đổi hay chưa
+    const Changed = () => {
+        const isNameProductChanged = nameProduct !== props.product.name_product;
+    }
     // Xử lý khi người dùng ấn nút Submit
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -252,7 +301,7 @@ export default function Edit(props) {
         const endDate = moment(endTime + ':00.000Z').tz(moment.tz.guess());
 
         if (startDate < nowDate.startOf('day')) {
-            newErrors.startTime = 'Start time phải là ngày hiện tại hoặc sau ngày hiện tại.';
+            newErrors.startTime = 'Vui lòng chỉnh sửa Start time phải là ngày hiện tại hoặc sau ngày hiện tại.';
         }
         if (endDate <= nowDate) {
             newErrors.endTime = 'End time không được nhỏ hơn ngày hiện tại.';
@@ -285,21 +334,23 @@ export default function Edit(props) {
             return;
         }
 
-        try {
-            const response = await axios.post('/api/product/v1/create-product', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
+        if (Changed) {
+            try {
+                const response = await axios.post('/api/product/v1/create-product', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+                setIsLoading(false);
+                setStatus(response.data.success)
+                ClearUp();
+                console.log(response.data);
+            } catch (error) {
+                setIsLoading(false);
+                if (error.response) {
+                    setStatus(error.data.error)
+                    setError(error.response.data.errors);
                 }
-            });
-            setIsLoading(false);
-            setStatus(response.data.success)
-            ClearUp();
-            console.log(response.data);
-        } catch (error) {
-            setIsLoading(false);
-            if (error.response) {
-                setStatus(error.data.error)
-                setError(error.response.data.errors);
             }
         }
     };
@@ -310,8 +361,10 @@ export default function Edit(props) {
             }, 10000);
         }
     }, [status]);
+
     return (
         <>
+            <Meta title={"Edit Product"} />
             <form action=""
                 onSubmit={handleSubmit}
             >
@@ -349,8 +402,8 @@ export default function Edit(props) {
                             <label className='form-label fw-bold' htmlFor="nameproduct">Name Product:</label>
                             <input
                                 value={nameProduct}
-                                // onChange={(e) => setNameProduct(e.target.value)}
-                                className='form-control' id='nameProduct' type="text" placeholder='Enter Product Name' />
+                                onChange={(e) => setNameProduct(e.target.value)}
+                                className='form-control text-edit' id='nameProduct' type="text" placeholder='Enter Product Name' />
                             {errors.nameProduct && (
                                 <div className="alert alert-danger" role="alert">
                                     {errors.nameProduct}
@@ -507,12 +560,16 @@ export default function Edit(props) {
                                 <div className="col-6">
                                     <div className="mb-2">
                                         <label className='form-label fw-bold' htmlFor="startTime">Start Time:</label>
+                                        <p className='m-0'>selected end time: </p>
+                                        <strong>{getStart_Time}</strong>
                                         <input
-                                            className='form-control'
+                                            className='form-control mt-2'
                                             value={startTime}
                                             onChange={(e) => setStartTime(e.target.value)}
                                             id='startTime'
                                             type="datetime-local"
+                                            min="1970-01-01T00:00" // thời điểm tối thiểu có thể chọn
+                                            max="9999-12-31T23:59" // thời điểm tối đa có thể chọn
                                         />
                                         {errors.startTime && (
                                             <div
@@ -530,12 +587,16 @@ export default function Edit(props) {
                                 <div className="col-6">
                                     <div className="mb-2">
                                         <label className='form-label fw-bold' htmlFor="endTime">End Time:</label>
+                                        <p className='m-0'>selected end time: </p>
+                                        <strong>{getEnd_Time}</strong>
                                         <input
-                                            className='form-control'
+                                            className='form-control mt-2'
                                             value={endTime}
                                             onChange={(e) => setEndTime(e.target.value)}
                                             id='endTime'
                                             type="datetime-local"
+                                            min="1970-01-01T00:00" // thời điểm tối thiểu có thể chọn
+                                            max="9999-12-31T23:59" // thời điểm tối đa có thể chọn
                                         />
                                         {errors.endTime && (
                                             <div
@@ -584,6 +645,22 @@ export default function Edit(props) {
                         )}
                         <div className="row">
                             {renderPreview()}
+                            {
+                                images === null ? "" :
+                                    <div style={{ width: '100%' }}>
+                                        <h4 className='mt-3'>Images selected: </h4>
+                                        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+                                            {images.map((image, index) => (
+                                                <img className='img img-fluid img-thumbnail'
+                                                    key={index}
+                                                    style={{ width: '100px', height: '100px', margin: '5px', objectFit: 'cover' }}
+                                                    src={`http://localhost:8000/storage/images/${image.image}`}
+                                                    alt={image.image}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                            }
                         </div>
                         <br />
                         {
@@ -612,16 +689,12 @@ export default function Edit(props) {
                             </div>
                         )}
                         <br />
-                        <div className="row mt-5">
-                            <div className="col-6">
-                                <button className="btn btn-danger d-flex text-white mx-2" type="button"
-                                    onClick={ClearUp}
-                                >
-                                    <AiOutlineClear className='fs-4' />
-                                    Clear up
-                                </button>
-                            </div>
-                        </div>
+                        <button className="btn btn-danger d-flex text-white mx-2" type="button"
+                            onClick={ClearUp}
+                        >
+                            <AiOutlineClear className='fs-4' />
+                            Back to the original
+                        </button>
                     </div>
                 </div>
             </form>

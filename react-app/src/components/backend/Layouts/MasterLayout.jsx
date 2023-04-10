@@ -4,11 +4,13 @@ import { Link, Outlet } from 'react-router-dom';
 import '../../../assets/dist/css/adminlte.min.css'
 import useAuthContext from '../../../context/AuthContext';
 import { BiLogOutCircle } from 'react-icons/bi';
+import Meta from '../../frontend/Meta';
 
 const MasterLayout = () => {
     const { user, logout } = useAuthContext();
     return (
         <>
+            <Meta title={"Dashboard"} />
             <div className="hold-transition sidebar-mini layout-fixed">
                 <div className="wrapper">
                     {/* Navbar */}

@@ -3,8 +3,10 @@
 use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ChangePassController;
+use App\Http\Controllers\Api\CountDownController;
 use App\Http\Controllers\Api\OptionController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ProductImagesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -49,11 +51,17 @@ Route::prefix('category/v1')->group(function () {
     Route::get("/category", [CategoryController::class, 'index']);
     // Brand
     Route::get("/brands", [BrandController::class, 'index']);
-
 });
 Route::prefix('brands/v1')->group(function () {
     // Brand
     Route::get("/brands", [BrandController::class, 'index']);
-
+});
+Route::prefix('countdown/v1')->group(function () {
+    // Brand
+    Route::get("/countdown", [CountDownController::class, 'index']);
+});
+Route::prefix('images/v1')->group(function () {
+    // Brand
+    Route::get("/images", [ProductImagesController::class, 'index']);
 });
 Route::post("/change-password", [ChangePassController::class, 'ChangePassWord']);

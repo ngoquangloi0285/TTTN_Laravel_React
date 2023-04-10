@@ -1005,8 +1005,8 @@ footer .input-group-text {
 }
 
 .link-edit {
-  border-bottom: 1px solid #ffff;
-  color: white;
+  border-bottom: 1px solid #e40808;
+  font-weight: 600;
   text-decoration: none;
   padding: 3px 5px;
 }
@@ -1088,5 +1088,12 @@ footer .input-group-text {
   background-color: white;
   border: 2px solid #d4d4d4;
 }
+.css-1t1j96h-MuiPaper-root-MuiDialog-paper {
+  max-width: none !important;
+}
 
+/* .dialog-content {
+  max-height: 80vh;
+  overflow-y: auto;
+} */
 /* product end */

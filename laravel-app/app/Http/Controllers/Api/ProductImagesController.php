@@ -2,25 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Brand;
 use App\Http\Controllers\Controller;
+use App\Models\ProductImages;
 use Illuminate\Http\Request;
 
-class BrandController extends Controller
+class ProductImagesController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        if ($request->has('id')) {
-            $id = $request('id');
-            $brand = Brand::findOrFail($id);
-            return $brand;
-        } else {
-            $brands = Brand::get();
-            return $brands;
-        }
+        $product_images = ProductImages::get();
+        return $product_images;
     }
 
     /**
@@ -34,7 +28,7 @@ class BrandController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Brand $brand)
+    public function show(ProductImages $brand)
     {
         //
     }
@@ -42,7 +36,7 @@ class BrandController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Brand $brand)
+    public function update(Request $request, ProductImages $brand)
     {
         //
     }
@@ -50,7 +44,7 @@ class BrandController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Brand $brand)
+    public function destroy(ProductImages $brand)
     {
         //
     }

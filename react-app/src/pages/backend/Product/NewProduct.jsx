@@ -11,7 +11,8 @@ import { IoCreateOutline } from 'react-icons/io5';
 import { AiOutlineClear } from 'react-icons/ai';
 import { Link } from 'react-router-dom';
 import Meta from '../../../components/frontend/Meta';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const NewProduct = () => {
     const { user } = useAuthContext();
@@ -29,9 +30,8 @@ const NewProduct = () => {
     const [color, setColor] = useState();
     const [inch, setInch] = useState();
 
-    const timeZone = moment.tz.guess();
+    const timeZone = 'America/New_York';
     const now = moment().tz(timeZone).format('YYYY-MM-DDTHH:mm:ss');
-
     const [startTime, setStartTime] = useState(now.slice(0, 16));
     const [endTime, setEndTime] = useState(now.slice(0, 16));
 
@@ -258,12 +258,14 @@ const NewProduct = () => {
             setIsLoading(false);
             if (response.status === 201) {
                 setStatus(response.data.status)
+                toast.success(response.data.status);
             }
             ClearUp();
         } catch (error) {
             setIsLoading(false);
             if (error.response && error.response.data && error.response.data.error) {
                 setError(error.response.data.error);
+                toast.success(error.response.data.error);
             }
         }
     };
@@ -288,7 +290,7 @@ const NewProduct = () => {
                                     <label className='form-label fw-bold' htmlFor="author">Author: <span className='text-danger'>{user?.name}</span></label>
                                 </div>
                             </div>
-                            {status && (
+                            {/* {status && (
                                 <div className="alert1 alert-success1 show1 text-center fs-4" role="alert">
                                     {status}
                                 </div>
@@ -297,7 +299,7 @@ const NewProduct = () => {
                                 <div className="alert1 alert-error1 show1 text-center fs-4" role="alert">
                                     {error}
                                 </div>
-                            )}
+                            )} */}
 
                             <div className='mb-2 text-center position-absolute cancel'>
                                 <button className="btn btn-success text-white mx-2" type="submit">
@@ -590,6 +592,7 @@ const NewProduct = () => {
                             </div>
                         </div>
                     </div>
+                    <ToastContainer />
                 </form>
             </div>
 

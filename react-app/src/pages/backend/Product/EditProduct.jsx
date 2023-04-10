@@ -8,6 +8,7 @@ const EditProduct = () => {
     const { id } = useParams(); // lấy ID từ URL
     const encodedId = encodeURIComponent(id);
     const [product, setProduct] = useState({});
+    const [product_ID, setProduct_ID] = useState(null);
 
     const getProduct = async () => {
         try {
@@ -35,7 +36,9 @@ const EditProduct = () => {
                             borderBottom: '1px solid #000'
                         }
                     }
-                >Edit product with ID: {encodedId}</h4>
+                >Edit product with product code: {product.product_id}
+                </h4>
+                
                 {/* <div className="row">
                     <div className="col-12">
                         <button className="btn btn-warning btn-edit mx-2 d-flex align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#editProduct" aria-expanded="false" aria-controls="collapseWidthExample">
@@ -44,7 +47,7 @@ const EditProduct = () => {
                     </div>
                 </div> */}
                 <Link
-                    className='link-edit'
+                    className='link-edit text-dark'
                     to='../product'>Back Product</Link>
                 <Edit product={product} />
             </div>

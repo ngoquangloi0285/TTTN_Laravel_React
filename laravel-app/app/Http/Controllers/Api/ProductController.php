@@ -72,8 +72,12 @@ class ProductController extends Controller
         } else {
             /** Generate id */
             $id = random_int(0, 9999999999);
+            $product_id = str_pad($id, 10, '0', STR_PAD_LEFT);
+            if (strlen($product_id) > 10) {
+                $product_id = substr($product_id, 0, 10);
+            }
             $product = Product::create([
-                'product_id' => $id,
+                'product_id' => $product_id,
                 'name_product' => $request['nameProduct'],
                 'slug' => Str::slug($request['nameProduct'], '-'),
                 'category_id' => $request['category'],
