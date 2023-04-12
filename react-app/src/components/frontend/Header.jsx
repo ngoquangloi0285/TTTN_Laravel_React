@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
-import { BsCartCheck, BsSearch } from "react-icons/bs";
+import { BsCartCheck, BsSearch, BsShop } from "react-icons/bs";
 import { BiLogOut } from "react-icons/bi";
 import { RiAccountCircleLine } from "react-icons/ri";
 import useAuthContext from "../../context/AuthContext";
@@ -16,7 +16,7 @@ const Header = () => {
 
   return (
     <>
-      {`The current page is: ${location}`}
+      {/* {`The current page is: ${location}`} */}
       {/* header top */}
       <ToastContainer />
       <header className="header-top-strip py-3">
@@ -51,12 +51,19 @@ const Header = () => {
           <div className="row align-items-center">
             <div className="col-2">
               <Link to="/" className="text-white">
-                <h2 className="mb-0 header-link">Dev ALTT</h2>
+                <h2 className="mb-0 header-link d-flex align-items-center">
+                  <BsShop style={{
+                    fontSize: '3rem'
+                  }}/>
+                  E-Shop</h2>
               </Link>
             </div>
             <div className="col-5">
               <div className="input-group">
                 <input
+                  style={{
+                    height: '49.6px',
+                  }}
                   type="text"
                   className="form-control py-2"
                   placeholder="Search Product Here..."

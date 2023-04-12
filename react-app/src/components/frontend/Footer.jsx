@@ -16,6 +16,9 @@ const Footer = () => {
             <div className="col-7">
               <div className="input-group">
                 <input
+                style={{
+                  height: '41.6px',
+                }}
                   type="text"
                   class="form-control py-2"
                   placeholder="Your Email Address..."

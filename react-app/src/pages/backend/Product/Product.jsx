@@ -131,14 +131,14 @@ export default function DataGridDemo() {
         sortable: false,
         renderCell: (params) => (
           <>
-            <span
+            <Link
               className='mx-1'
               style={{ fontSize: '20px', cursor: 'pointer' }}
               title='Edit'
-              onClick={() => handleEdit(params.id)}
+              to={`edit/${params.id}`}
             >
               <GrEdit />
-            </span>
+            </Link>
             <span
               className='text-danger mx-1'
               style={{ fontSize: '20px', cursor: 'pointer' }}
@@ -155,8 +155,6 @@ export default function DataGridDemo() {
   // Xử lý hiện QR Code 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-
-
   // xử lý hiện modal chi tiết sản phẩm
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [open, setOpen] = useState(false);
@@ -170,32 +168,69 @@ export default function DataGridDemo() {
     setOpen(false);
   };
 
-  // xử lý load product
   const [isLoading, setIsLoading] = useState(false);
   const [records, setRecords] = useState([]);
   const [initialData, setInitialData] = useState([]);
+  const [countTrash, setCountTrash] = useState(0);
 
   const fetchData = async () => {
     setIsLoading(true);
     try {
       const response = await axios.get('/api/product/v1/products');
-      setIsLoading(false);
       setRecords(response.data);
       setInitialData(response.data);
-    } catch (error) {
       setIsLoading(false);
+    } catch (error) {
       console.log(error);
+      setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const fetchTrash = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get('/api/product/v1/trash');
+      setCountTrash(response.data.length);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error);
+      setIsLoading(false);
+    }
+  };
 
-  // lọc sản phẩm theo tên
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`/api/product/v1/products/${id}/soft-delete`, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      toast.success('Product has been softly deleted.');
+      updateData();
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to delete product.');
+    }
+  };
+
+  const updateData = async () => {
+    try {
+      const [productsResponse, trashResponse] = await Promise.all([
+        axios.get('/api/product/v1/products'),
+        axios.get('/api/product/v1/trash')
+      ]);
+      setRecords(productsResponse.data);
+      setInitialData(productsResponse.data);
+      setCountTrash(trashResponse.data.length);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleFilter = e => {
     const { value } = e.target;
     setRecords(prevRecords => {
+      // nếu thanh search không có dữ liệu thì tự động load lại danh sách
       if (value === '') {
         return [...initialData];
       }
@@ -205,68 +240,19 @@ export default function DataGridDemo() {
     });
   };
 
-  // handle action
-  const cache = new LRU({ max: 100 }); // Lưu trữ tối đa 100 giá trị
-
-  // Edit product
-  const navigate = useNavigate();
-  const handleEdit = async (id) => {
-    const encodedId = encodeURIComponent(id);
-    try {
-      let data = cache.get(encodedId); // Kiểm tra cache xem giá trị đã có chưa
-      if (!data) {
-        const response = await axios.get(`/api/product/v1/products/${encodedId}`, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        data = response.data;
-        cache.set(encodedId, data); // Lưu giá trị vào cache
-        // console.log("cache:", cache.dump());
-      }
-      // console.log(data);
-      // console.log(`ID của sản phẩm để chỉnh sửa: ${id}`);
-      navigate(`edit/${id}`); // chuyển trang và truyền ID theo
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  // Xóa tạm product
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`/api/product/v1/products/${id}/soft-delete`, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      const products = cache.get('products');
-      if (products) {
-        // Tìm và cập nhật sản phẩm đã bị xóa trong cache
-        const updatedProducts = products.filter((product) => product.id !== id);
-        cache.set('products', updatedProducts);
-      }
-      toast.success('Product has been softly deleted.');
-      console.log(`ID của sản phẩm để xóa tạm: ${id}`);
-      fetchData(); // Cập nhật lại bảng sản phẩm
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to delete product.');
-    }
-  };
-
-  // laod lại bảng data product
   const LoadPage = async (e) => {
     e.preventDefault();
     const btn = document.getElementById('btn-loadpage');
     btn.innerHTML = "Loading page...";
     await fetchData();
     btn.innerHTML = "Load page";
-  }
-  // Xử lý chuỗi từ trường detail khi lưu ở dạng html tránh in nhầm mã đọc 
-  const cleanHtml = (dirtyHtml) => {
-    return DOMPurify.sanitize(dirtyHtml, { USE_PROFILES: { html: true } });
-  }
+  };
+
+  useEffect(() => {
+    fetchData();
+    fetchTrash();
+  }, []);
+
 
   return (
     <>
@@ -291,8 +277,8 @@ export default function DataGridDemo() {
             </Link>
           </div>
           <div className="col-3 d-flex">
-            <Link to="new" className="btn btn-danger mb-3 text-white d-flex align-items-center" type="button">
-              <FiTrash2 className='fs-4' /> Trash <span>(0)</span>
+            <Link to="trash" className="btn btn-danger mb-3 text-white d-flex align-items-center" type="button">
+              <FiTrash2 className='fs-4' /> Trash <span>( {countTrash} )</span>
             </Link>
           </div>
           {/* Hiện QR CODE */}
@@ -339,7 +325,7 @@ export default function DataGridDemo() {
           {/* hiện data product end*/}
 
           {/* Hiển thị modal - chi tiết sản phẩm*/}
-          <Dialog open={open} onClose={handleClose} className="dialog">
+          <Dialog open={open} onClose={handleClose} className="dialog" maxWidth="xl" maxHeight="lg">
             <DialogTitle>Product Detail</DialogTitle>
             <DialogContent className="dialog-content">
               {selectedProduct && (

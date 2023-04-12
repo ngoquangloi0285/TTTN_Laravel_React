@@ -30,20 +30,22 @@ Route::prefix('product/v1')->group(function () {
     Route::get('products', [ProductController::class, 'index_admin'])->name('products.index');
     // Lấy thông tin sản phẩm theo id
     Route::get('products/{product}', [ProductController::class, 'show'])->name('products.show');
+    // Lấy thông tin sản phẩm theo id
+    Route::get('edit/{id}', [ProductController::class, 'edit'])->name('products.edit');
     // Tạo sản phẩm mới
     Route::post("/create-product", [ProductController::class, 'store'])->name('product.store');
     // Cập nhật sp phuong thuc PUT
-    Route::put('products/{product}', [ProductController::class, 'update'])->name('products.update');
+    Route::post('/update/{id}', [ProductController::class, 'update'])->name('products.update');
     // Cập nhật sp phuong thuc PATCH
     Route::patch('products/{product}', [ProductController::class, 'update'])->name('products.update');
     // Xóa tạm SP
     Route::delete('products/{product}/soft-delete', [ProductController::class, 'destroy'])->name('products.destroy');
     // Khôi phục SP với ID
-    Route::get('/products.restore/{id}', [ProductController::class, 'restore']);
+    Route::get('/restore/{id}', [ProductController::class, 'restore'])->name('products.restore');
     // Lấy tất cả SP trong đã xóa tạm
-    Route::get('/products.trash', [ProductController::class, 'trash']);
+    Route::get('/trash', [ProductController::class, 'trash'])->name('products.trash');
     // Xóa vĩnh viễn SP
-    Route::delete('products.remove/{product}', [ProductController::class, 'remove'])->name('products.remove');
+    Route::delete('/remove/{id}', [ProductController::class, 'remove'])->name('products.remove');
 });
 
 Route::prefix('category/v1')->group(function () {

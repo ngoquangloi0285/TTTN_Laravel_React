@@ -34,6 +34,7 @@
     "react-slideshow-image": "^4.2.1",
     "react-toastify": "^9.1.2",
     "styled-components": "^5.3.9",
+    "sweetalert2": "^11.7.3",
     "web-vitals": "^2.1.4",
     "wouter": "^2.10.0"
   },

@@ -163,7 +163,7 @@ const NewProduct = () => {
         formData.append('status', status);
         // quét files images
         files.forEach(file => formData.append('images[]', file));
-
+        console.log(formData)
         setIsLoading(true);
         setErrors([]);
         setStatus(null)
@@ -256,7 +256,7 @@ const NewProduct = () => {
                 }
             });
             setIsLoading(false);
-            if (response.status === 201) {
+            if (response.status === 200) {
                 setStatus(response.data.status)
                 toast.success(response.data.status);
             }
@@ -265,7 +265,7 @@ const NewProduct = () => {
             setIsLoading(false);
             if (error.response && error.response.data && error.response.data.error) {
                 setError(error.response.data.error);
-                toast.success(error.response.data.error);
+                toast.error(error.response.data.error);
             }
         }
     };

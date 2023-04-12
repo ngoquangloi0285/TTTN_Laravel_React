@@ -13,8 +13,14 @@ class CountDownController extends Controller
      */
     public function index(Request $request)
     {
-        $countdown = CountDown::get();
-        return $countdown;
+        if ($request->has('id')) {
+            $id = $request('id');
+            $countdown= CountDown::findOrFail($id);
+            return $countdown;
+        } else {
+            $countdown = CountDown::get();
+            return $countdown;
+        }
     }
 
     /**

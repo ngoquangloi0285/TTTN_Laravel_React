@@ -1,6 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
-import Layout from './components/frontend/Layout';
 import Home from './pages/frontend/Home'
 import OurStore from './pages/frontend/OurStore'
 import About from './pages/frontend/About'
@@ -17,14 +16,12 @@ import Forgotpassword from './pages/frontend/Forgotpassword'
 import ResetPassword from './pages/frontend/ResetPassword'
 import AuthLayout from './Layout/AuthLayout';
 import GuestLayout from './Layout/GuestLayout';
-import React, { useEffect, useState } from 'react';
 import ChangePasswordForm from './pages/frontend/ChangePassword';
-import Brand from './pages/backend/Brand';
 import Shop from './components/frontend/Shop';
-import EditProduct from './pages/backend/Product/EditProduct';
-import LoginAdmin from './pages/backend/LoginAdmin';
+import Edit from './pages/backend/Product/Edit';
 import MasterLayout from './components/backend/Layouts/MasterLayout';
 import NewProduct from './pages/backend/Product/NewProduct';
+import Trash from './pages/backend/Product/Trash';
 
 function App() {
 
@@ -51,16 +48,11 @@ function App() {
         </Route>
 
         <Route path='/' element={<AuthLayout />}>
-          {/* <Route path="admin" element={<Dashboard />} >
-            <Route path="product" element={<Product />} />
-            <Route path="product/edit/:id" element={<EditProduct />} />
-            <Route path="brand" element={<Brand />} />
-          </Route> */}
           <Route path="admin" element={<MasterLayout />} >
             <Route path="product" element={<Product />} />
             <Route path="product/new" element={<NewProduct />} />
-            <Route path="product/edit/:id" element={<EditProduct />} />
-            <Route path="brand" element={<Brand />} />
+            <Route path="product/edit/:id" element={<Edit />} />
+            <Route path="product/trash" element={<Trash />} />
           </Route>
         </Route>
 
