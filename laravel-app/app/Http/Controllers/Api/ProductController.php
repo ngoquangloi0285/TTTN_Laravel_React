@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\Helper;
 use App\Models\Product;
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\CountDown;
 use App\Models\Options;
@@ -89,6 +90,7 @@ class ProductController extends Controller
                 'discount' => $request['discount'],
                 'color' => $request['color'],
                 'inch' => $request['inch'],
+                'total' => $request['total'],
                 'detail' => $request['detail'],
                 'author' => $request->user()->name,
                 'status' => $request['status']
@@ -141,7 +143,8 @@ class ProductController extends Controller
                     $countdown->end_time = $request['end_time'];
                     $countdown->author = $request->user()->name;
                     $countdown->status = $request['status'];
-                    $countdown->save();
+                    if ($countdown->save()) {
+                    }
                 }
             }
 
@@ -212,8 +215,9 @@ class ProductController extends Controller
      * Destroy
      */
 
-    public function destroy(Product $product)
+    public function destroy($id)
     {
+        $product = Product::find($id);
         $now = Carbon::now('Asia/Ho_Chi_Minh');
         $product->deleted_at = $now;
         $product->status = 0;
@@ -240,6 +244,11 @@ class ProductController extends Controller
 
         if (!$product) {
             return response()->json(['message' => 'Product not found.'], 404);
+        }
+        // kiểm tra bảng category_id có tồn tại dữ liệu trong bảng category hay không
+        $category = Category::find($product->category_id);
+        if (!$category) {
+            return response()->json(['message' => 'Category not found.'], 404);
         }
         // tìm id có trong danh sách xóa tạm không
         if ($product->trashed()) {

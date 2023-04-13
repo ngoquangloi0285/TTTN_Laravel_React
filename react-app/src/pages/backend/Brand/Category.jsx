@@ -28,68 +28,59 @@ export default function DataGridDemo() {
       {
         field: 'id',
         headerName: 'ID',
+        align: 'center'
       },
       {
-        field: 'product_id',
-        headerName: 'Product Code',
+        field: 'category_id',
+        headerName: 'Category Code',
         editable: true,
+        width: 200, // Thêm thuộc tính width vào đây
+        align: 'center'
       },
       {
-        field: 'name_product',
+        field: 'name_category',
         headerName: 'Name',
         editable: true,
+        width: 100, // Thêm thuộc tính width vào đây
+        align: 'center'
       },
       {
         field: 'image',
         headerName: 'Image',
         sortable: false,
         cellClassName: 'custom-cell',
+        width: 100, // Thêm thuộc tính width vào đây
+        align: 'center',
         renderCell: (params) => (
           <img
             className='img img-fluid img-thumbnail'
             src={`http://localhost:8000/storage/images/${params.value}`}
-            alt={params.row.name_product}
+            alt={params.row.name_category}
             style={{ width: '100%', height: 'auto' }} // Thêm CSS cho hình ảnh
           />
         ),
       },
       {
-        field: 'price',
-        headerName: 'Price',
+        field: 'parent_category',
+        headerName: 'Parent category',
         type: 'number',
         editable: true,
-        valueFormatter: (params) => `$${params.value}`,
+        width: 150, // Thêm thuộc tính width vào đây
+        align: 'center',
+        valueFormatter: (params) => {
+          if (params.value === 0) {
+            return 'Level 1';
+          } else if (params.value === 1) {
+            return 'Level 2';
+          } else {
+            return `${params.value}`;
+          }
+        },
       },
-      {
-        field: 'cost',
-        headerName: 'Cost',
-        type: 'number',
-        editable: true,
-        valueFormatter: (params) => `$${params.value}`,
-      },
-      {
-        field: 'discount',
-        headerName: 'Discount',
-        type: 'number',
-        editable: true,
-        valueFormatter: (params) => `$${params.value}`,
-      },
-      // {
-      //   field: 'total',
-      //   headerName: 'Total',
-      //   type: 'number',
-      //   editable: true,
-      // },
-      // {
-      //   field: 'qrCode',
-      //   headerName: 'QR Code',
-      //   width: 200,
-      //   renderCell: (params) => (
-      //     <button onClick={() => setIsModalOpen(true)}>View QR Code</button>
-      //   ),
-      // },
       {
         field: 'detail', headerName: 'Detail',
+        width: 100, // Thêm thuộc tính width vào đây
+        align: 'center',
         renderCell: (params) => (
           <Button className=''
             variant="contained"
@@ -103,11 +94,15 @@ export default function DataGridDemo() {
       {
         field: 'author',
         headerName: 'Author',
+        width: 100, // Thêm thuộc tính width vào đây
+        align: 'center',
         editable: true,
       },
       {
         field: 'status',
         headerName: 'Status',
+        width: 100, // Thêm thuộc tính width vào đây
+        align: 'center',
         renderCell: (params) => {
           const statusStyle = {
             padding: '5px',
@@ -129,13 +124,15 @@ export default function DataGridDemo() {
         field: 'actions',
         headerName: 'Actions',
         sortable: false,
+        width: 100, // Thêm thuộc tính width vào đây
+        align: 'center',
         renderCell: (params) => (
           <>
             <Link
               className='mx-1'
               style={{ fontSize: '20px', cursor: 'pointer' }}
               title='Edit'
-              to={`edit-product/${params.id}`}
+              to={`edit/${params.id}`}
             >
               <GrEdit />
             </Link>
@@ -152,15 +149,13 @@ export default function DataGridDemo() {
       },
     ]
   )
-  // Xử lý hiện QR Code 
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // xử lý hiện modal chi tiết sản phẩm
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [open, setOpen] = useState(false);
 
   const handleClickOpen = (product) => {
-    setSelectedProduct(product);
+    setSelectedCategory(product);
     setOpen(true);
   };
 
@@ -176,7 +171,7 @@ export default function DataGridDemo() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('/api/product/v1/products');
+      const response = await axios.get('/api/category/v1/category');
       setRecords(response.data);
       setInitialData(response.data);
       setIsLoading(false);
@@ -189,7 +184,7 @@ export default function DataGridDemo() {
   const fetchTrash = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('/api/product/v1/trash');
+      const response = await axios.get('/api/category/v1/trash');
       setCountTrash(response.data.length);
       setIsLoading(false);
     } catch (error) {
@@ -200,24 +195,29 @@ export default function DataGridDemo() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/api/product/v1/products/${id}/soft-delete`, {
+      const response = await axios.delete(`/api/category/v1/soft-delete/${id}`, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
-      toast.success('Product has been softly deleted.');
+      if (response.data.message.includes('products')) {
+        toast.success('Category and its products have been softly deleted.');
+      } else {
+        toast.success('Category has been softly deleted.');
+      }
       updateData();
     } catch (error) {
       console.error(error);
-      toast.error('Failed to delete product.');
+      toast.error('Failed to delete category or its products.');
     }
   };
+
 
   const updateData = async () => {
     try {
       const [productsResponse, trashResponse] = await Promise.all([
-        axios.get('/api/product/v1/products'),
-        axios.get('/api/product/v1/trash')
+        axios.get('/api/category/v1/category'),
+        axios.get('/api/category/v1/trash')
       ]);
       setRecords(productsResponse.data);
       setInitialData(productsResponse.data);
@@ -235,7 +235,7 @@ export default function DataGridDemo() {
         return [...initialData];
       }
       return prevRecords.filter(record =>
-        record.name_product.toLowerCase().includes(value.toLowerCase())
+        record.name_category.toLowerCase().includes(value.toLowerCase())
       );
     });
   };
@@ -266,43 +266,31 @@ export default function DataGridDemo() {
 
   return (
     <>
-      <Meta title={"Product"} />
+      <Meta title={"Category"} />
+      <LoadingOverlay className='text-danger'
+        spinner
+        active={isLoading}
+        text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
+        }
+      ></LoadingOverlay>
       <div className="container-xxl">
         <div className="row">
           <input
             type="text"
             className="form-control my-3"
-            placeholder="Search Product..."
+            placeholder="Search Category..."
             onChange={handleFilter}
           />
           <div className="col-3">
-            <Link to="create-product" className="btn btn-info mb-3 text-white d-flex align-items-center" type="button">
-              <IoCreateOutline className='fs-4' /> Add New Product
+            <Link to="create-category" className="btn btn-info mb-3 text-white d-flex align-items-center" type="button">
+              <IoCreateOutline className='fs-4' /> Add New Category
             </Link>
           </div>
           <div className="col-3 d-flex">
-            <Link to="trash-product" className="btn btn-danger mb-3 text-white d-flex align-items-center" type="button">
+            <Link to="trash-category" className="btn btn-danger mb-3 text-white d-flex align-items-center" type="button">
               <FiTrash2 className='fs-4' /> Trash <span>( {!countTrash ? "0" : countTrash} )</span>
             </Link>
           </div>
-          {/* Hiện QR CODE */}
-          {/* <Modal
-            isOpen={isModalOpen}
-            onRequestClose={() => setIsModalOpen(false)}
-            contentLabel="QR Code Modal"
-            style={{ content: { width: '300px', height: '300px' } }}
-            className="modal-qrcode"
-          >
-            <img 
-            className='img img-fluid'
-              style={{ width: '100%', height: 'auto' }}
-              src={`https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(
-                'qr-code-data'
-              )}`}
-              alt="QR code"
-            />
-          </Modal> */}
-          {/* Hiện QR CODE END */}
 
           {/* hiện data product */}
           <Box sx={{ height: 600, width: '100%' }}>
@@ -330,23 +318,15 @@ export default function DataGridDemo() {
 
           {/* Hiển thị modal - chi tiết sản phẩm*/}
           <Dialog open={open} onClose={handleClose} className="dialog" maxWidth="xl" maxHeight="lg">
-            <DialogTitle>Product Detail</DialogTitle>
+            <DialogTitle>Category Detail</DialogTitle>
             <DialogContent className="dialog-content">
-              {selectedProduct && (
+              {selectedCategory && (
                 <>
-                  <Typography className="product-name" variant="h6">{selectedProduct.name_product}</Typography>
-                  <Typography className="product-info">{`Category: ${selectedProduct.category_id}`}</Typography>
-                  <Typography className="product-info">{`Brand: ${selectedProduct.brand_id}`}</Typography>
-                  <Typography className="product-info">{`Summary: ${selectedProduct.summary}`}</Typography>
-                  <Typography className="product-info">{`Cost: $${selectedProduct.cost}`}</Typography>
-                  <Typography className="product-info">{`Price: $${selectedProduct.price}`}</Typography>
-                  <Typography className="product-info">{`Discount: $${selectedProduct.discount}`}</Typography>
-                  <Typography className="product-info">{`Color: ${selectedProduct.color}`}</Typography>
-                  <Typography className="product-info">{`Inch: ${selectedProduct.inch}`}</Typography>
-                  <Typography className="product-title">Detail:</Typography>
-                  <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedProduct.detail) }} />
-                  <img className="product-image" src={`http://localhost:8000/storage/images/${selectedProduct.image}`} alt={selectedProduct.images} />
-                  {/* ... Hiển thị các thông tin khác của sản phẩm ... */}
+                  <Typography className="product-name" variant="h6">{selectedCategory.name_category}</Typography>
+                  <Typography className="product-info">{`Category: ${selectedCategory.category_id}`}</Typography>
+                  <Typography className="product-info">{`Parent: ${selectedCategory.parent_category}`}</Typography>
+                  <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedCategory.detail) }} />
+                  <img className="product-image" src={`http://localhost:8000/storage/images/${selectedCategory.image}`} alt={selectedCategory.images} />
                 </>
               )}
             </DialogContent>
@@ -358,8 +338,6 @@ export default function DataGridDemo() {
             </DialogActions>
           </Dialog>
           {/* Hiển thị modal - chi tiết sản phẩm end*/}
-
-
 
           <div className="col-3">
             <button type="button" id='btn-loadpage' onClick={LoadPage} className="btn btn-dark">

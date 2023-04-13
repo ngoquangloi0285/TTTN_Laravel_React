@@ -10,7 +10,20 @@ class Category extends Model
 {
     use HasFactory;
     use SoftDeletes;
-    
+
     protected $table = 'category';
+    protected $fillable = [
+        'category_id',
+        'name_category',
+        'slug',
+        'parent_category',
+        'author',
+        'status'
+    ];
     protected $dates = ['deleted_at'];
+    
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
 }

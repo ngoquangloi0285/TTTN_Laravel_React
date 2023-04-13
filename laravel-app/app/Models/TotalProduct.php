@@ -9,11 +9,7 @@ class TotalProduct extends Model
 {
     use HasFactory;
     protected $table = 'total_product';
-
-    protected $fillable = ['product_count'];
-
-    public function products()
-    {
-        return $this->belongsTo(Product::class, 'product_count');
-    }
+    protected $fillable = [
+        'product_count'
+    ];
 }

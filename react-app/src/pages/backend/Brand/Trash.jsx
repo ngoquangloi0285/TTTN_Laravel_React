@@ -29,22 +29,29 @@ export default function DataGridDemo() {
             {
                 field: 'id',
                 headerName: 'ID',
+                align: 'center'
             },
             {
-                field: 'product_id',
-                headerName: 'Product Code',
+                field: 'category_id',
+                headerName: 'Category Code',
                 editable: true,
+                width: 200, // Thêm thuộc tính width vào đây
+                align: 'center'
             },
             {
-                field: 'name_product',
+                field: 'name_category',
                 headerName: 'Name',
                 editable: true,
+                width: 100, // Thêm thuộc tính width vào đây
+                align: 'center'
             },
             {
                 field: 'image',
                 headerName: 'Image',
                 sortable: false,
                 cellClassName: 'custom-cell',
+                width: 100, // Thêm thuộc tính width vào đây
+                align: 'center',
                 renderCell: (params) => (
                     <img
                         className='img img-fluid img-thumbnail'
@@ -55,28 +62,26 @@ export default function DataGridDemo() {
                 ),
             },
             {
-                field: 'price',
-                headerName: 'Price',
+                field: 'parent_category',
+                headerName: 'Parent category',
                 type: 'number',
                 editable: true,
-                valueFormatter: (params) => `$${params.value}`,
-            },
-            {
-                field: 'cost',
-                headerName: 'Cost',
-                type: 'number',
-                editable: true,
-                valueFormatter: (params) => `$${params.value}`,
-            },
-            {
-                field: 'discount',
-                headerName: 'Discount',
-                type: 'number',
-                editable: true,
-                valueFormatter: (params) => `$${params.value}`,
+                width: 150, // Thêm thuộc tính width vào đây
+                align: 'center',
+                valueFormatter: (params) => {
+                    if (params.value === 0) {
+                        return 'Level 1';
+                    } else if (params.value === 1) {
+                        return 'Level 2';
+                    } else {
+                        return `${params.value}`;
+                    }
+                },
             },
             {
                 field: 'detail', headerName: 'Detail',
+                width: 100, // Thêm thuộc tính width vào đây
+                align: 'center',
                 renderCell: (params) => (
                     <Button className=''
                         variant="contained"
@@ -90,11 +95,15 @@ export default function DataGridDemo() {
             {
                 field: 'author',
                 headerName: 'Author',
+                width: 100, // Thêm thuộc tính width vào đây
+                align: 'center',
                 editable: true,
             },
             {
                 field: 'status',
                 headerName: 'Status',
+                width: 100, // Thêm thuộc tính width vào đây
+                align: 'center',
                 renderCell: (params) => {
                     const statusStyle = {
                         padding: '5px',
@@ -165,14 +174,14 @@ export default function DataGridDemo() {
     const fetchData = useCallback(async () => {
         setIsLoading(true);
         try {
-            const response = await axios.get('/api/product/v1/trash');
+            const response = await axios.get('/api/category/v1/trash');
             setIsLoading(false);
             setRecords(response.data);
             setInitialData(response.data);
             setCountTrash(response.data.length);
         } catch (error) {
             setIsLoading(false);
-            toast.error('Failed to load products.');
+            toast.error(error);
         }
     }, []);
 
@@ -185,7 +194,7 @@ export default function DataGridDemo() {
 
     const handleRestore = useCallback(async (id) => {
         try {
-            await axios.get(`/api/product/v1/restore/${id}`, {
+            await axios.get(`/api/category/v1/restore/${id}`, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -201,7 +210,7 @@ export default function DataGridDemo() {
             fetchData(); // Cập nhật lại bảng sản phẩm
         } catch (error) {
             console.error(error);
-            toast.error('Failed to delete product.');
+            toast.error(error);
         }
     }, [fetchData, cache]);
 
@@ -265,7 +274,13 @@ export default function DataGridDemo() {
     }
     return (
         <>
-            <Meta title={"Trash Product"} />
+            <Meta title={"Trash Category"} />
+            <LoadingOverlay className='text-danger'
+                spinner
+                active={isLoading}
+                text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
+                }
+            ></LoadingOverlay>
             <div className="container-xxl">
                 <div className="row">
                     <input

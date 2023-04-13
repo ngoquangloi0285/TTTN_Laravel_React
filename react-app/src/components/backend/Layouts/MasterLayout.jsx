@@ -5,6 +5,7 @@ import '../../../assets/dist/css/adminlte.min.css'
 import useAuthContext from '../../../context/AuthContext';
 import { BiLogOutCircle } from 'react-icons/bi';
 import Meta from '../../frontend/Meta';
+import { AiOutlineEye } from 'react-icons/ai';
 
 const MasterLayout = () => {
     const { user, logout } = useAuthContext();
@@ -57,9 +58,25 @@ const MasterLayout = () => {
                                         </Link>
                                         <ul className="nav nav-treeview">
                                             <li className="nav-item">
-                                                <Link to="product" className="nav-link">
-                                                    <i className="far fa-circle nav-icon" />
-                                                    <p>Product</p>
+                                                <Link to="product" className="nav-link d-flex">
+                                                    {/* <i className="far fa-circle nav-icon" /> */}
+                                                    <AiOutlineEye style={{ height: 'auto', fontSize: '26px', }} className='text-info' />
+                                                    <p>Product View</p>
+                                                </Link>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li className="nav-item">
+                                        <Link to="#" className="nav-link">
+                                            <i className="nav-icon fas fa-tachometer-alt" />
+                                            <p>Category<i className="right fas fa-angle-left" /></p>
+                                        </Link>
+                                        <ul className="nav nav-treeview">
+                                            <li className="nav-item">
+                                                <Link to="category" className="nav-link d-flex">
+                                                    {/* <i className="far fa-circle nav-icon" /> */}
+                                                    <AiOutlineEye style={{ height: 'auto', fontSize: '26px', }} className='text-info' />
+                                                    <p>Category View</p>
                                                 </Link>
                                             </li>
                                         </ul>

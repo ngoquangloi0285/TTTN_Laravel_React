@@ -45,7 +45,10 @@ export const AuthProvider = ({ children }) => {
             }
             if (e.response.status === 401) {
                 setError("Invalid email or password");
+            } if (e.response.status === 404) {
+                setError("Bạn đã đăng nhập");
             }
+
         }
         return promise;
     }

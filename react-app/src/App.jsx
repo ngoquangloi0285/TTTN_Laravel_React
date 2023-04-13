@@ -10,7 +10,6 @@ import NotFound from './pages/NotFound';
 import Dashboard from './components/backend/Dashboard'
 import Login from './pages/frontend/Login'
 import Signup from './pages/frontend/SingUp'
-import Product from './pages/backend/Product/Product'
 import Wishlist from './pages/frontend/Wishlist'
 import Forgotpassword from './pages/frontend/Forgotpassword'
 import ResetPassword from './pages/frontend/ResetPassword'
@@ -18,10 +17,15 @@ import AuthLayout from './Layout/AuthLayout';
 import GuestLayout from './Layout/GuestLayout';
 import ChangePasswordForm from './pages/frontend/ChangePassword';
 import Shop from './components/frontend/Shop';
-import Edit from './pages/backend/Product/Edit';
 import MasterLayout from './components/backend/Layouts/MasterLayout';
+import Category from './pages/backend/Category/Category'
+import Product from './pages/backend/Product/Product'
+import EditProduct from './pages/backend/Product/Edit';
+import EditCategory from './pages/backend/Category/Edit';
 import NewProduct from './pages/backend/Product/NewProduct';
-import Trash from './pages/backend/Product/Trash';
+import NewCategory from './pages/backend/Category/NewCategory';
+import TrashProduct from './pages/backend/Product/Trash';
+import TrashCategory from './pages/backend/Category/Trash';
 
 function App() {
 
@@ -49,10 +53,16 @@ function App() {
 
         <Route path='/' element={<AuthLayout />}>
           <Route path="admin" element={<MasterLayout />} >
+            {/* Product */}
             <Route path="product" element={<Product />} />
-            <Route path="product/new" element={<NewProduct />} />
-            <Route path="product/edit/:id" element={<Edit />} />
-            <Route path="product/trash" element={<Trash />} />
+            <Route path="product/create-product" element={<NewProduct />} />
+            <Route path="product/edit-product/:id" element={<EditProduct />} />
+            <Route path="product/trash-product" element={<TrashProduct />} />
+            {/* Category */}
+            <Route path="category" element={<Category />} />
+            <Route path="category/create-category" element={<NewCategory />} />
+            <Route path="category/edit-category/:id" element={<EditCategory />} />
+            <Route path="category/trash-category" element={<TrashCategory />} />
           </Route>
         </Route>
 

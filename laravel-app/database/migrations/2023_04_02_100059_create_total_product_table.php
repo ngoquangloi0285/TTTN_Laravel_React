@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('total_product', function (Blueprint $table) {
             $table->id('id');
             $table->unsignedBigInteger('product_count')->default(0);
+            $table->tinyInteger('status')->unsigned()->nullable();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

@@ -29,6 +29,7 @@ const NewProduct = () => {
     const [discount, setDiscount] = useState();
     const [color, setColor] = useState();
     const [inch, setInch] = useState();
+    const [total, setTotal] = useState();
 
     const timeZone = 'America/New_York';
     const now = moment().tz(timeZone).format('YYYY-MM-DDTHH:mm:ss');
@@ -145,25 +146,9 @@ const NewProduct = () => {
         const endTime = document.getElementById("endTime").value;
         const color = document.getElementById("color").value;
         const inch = document.getElementById("inch").value;
+        const total = document.getElementById("total").value;
 
-        // chèn dữ liệu
-        const formData = new FormData();
-        formData.append('nameProduct', nameProduct);
-        formData.append('category', category);
-        formData.append('brand', brand);
-        formData.append('summary', summary);
-        formData.append('costProduct', costProduct);
-        formData.append('priceSale', priceSale);
-        formData.append('discount', discount);
-        formData.append('color', color);
-        formData.append('inch', inch);
-        formData.append('start_time', startTime);
-        formData.append('end_time', endTime);
-        formData.append('detail', content);
-        formData.append('status', status);
-        // quét files images
-        files.forEach(file => formData.append('images[]', file));
-        console.log(formData)
+
         setIsLoading(true);
         setErrors([]);
         setStatus(null)
@@ -210,6 +195,9 @@ const NewProduct = () => {
         if (isNaN(inch)) {
             newErrors.inch = "Inch phải là số.";
         }
+        if (isNaN(total)) {
+            newErrors.total = "Total phải là số.";
+        }
 
         const nowDate = moment().tz(moment.tz.guess());
         const startDate = moment(startTime + ':00.000Z').tz(moment.tz.guess());
@@ -248,7 +236,25 @@ const NewProduct = () => {
             setIsLoading(false);
             return;
         }
-
+        // chèn dữ liệu
+        const formData = new FormData();
+        formData.append('nameProduct', nameProduct);
+        formData.append('category', category);
+        formData.append('brand', brand);
+        formData.append('summary', summary);
+        formData.append('costProduct', costProduct);
+        formData.append('priceSale', priceSale);
+        formData.append('discount', discount);
+        formData.append('color', color);
+        formData.append('inch', inch);
+        formData.append('total', total);
+        formData.append('start_time', startTime);
+        formData.append('end_time', endTime);
+        formData.append('detail', content);
+        formData.append('status', status);
+        // quét files images
+        files.forEach(file => formData.append('images[]', file));
+        console.log(formData)
         try {
             const response = await axios.post('/api/product/v1/create-product', formData, {
                 headers: {
@@ -471,6 +477,22 @@ const NewProduct = () => {
                                             }
                                             role="alert">
                                             {errors.inch}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="col-4">
+                                    <label className='form-label fw-bold' htmlFor="inch">Total:</label>
+                                    <input className='form-control'
+                                        value={total}
+                                        onChange={(e) => setTotal(e.target.value)}
+                                        id='total' type="text" placeholder='Enter total' />
+                                    {errors.total && (
+                                        <div className="alert alert-danger"
+                                            style={
+                                                { fontSize: '14px' }
+                                            }
+                                            role="alert">
+                                            {errors.total}
                                         </div>
                                     )}
                                 </div>
