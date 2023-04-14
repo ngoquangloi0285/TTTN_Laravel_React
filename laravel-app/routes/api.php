@@ -35,7 +35,7 @@ Route::prefix('product/v1')->group(function () {
     // Tạo sản phẩm mới
     Route::post("create-product", [ProductController::class, 'store'])->name('product.store');
     // Cập nhật sp phuong thuc PUT
-    Route::post('update/{id}', [ProductController::class, 'update'])->name('products.update');
+    Route::put('update/{id}', [ProductController::class, 'update'])->name('products.update');
     // Cập nhật sp phuong thuc PATCH
     Route::patch('products/{product}', [ProductController::class, 'update'])->name('products.update');
     // Xóa tạm SP
@@ -53,8 +53,12 @@ Route::prefix('category/v1')->group(function () {
     Route::get("category", [CategoryController::class, 'index']);
     // Lấy thông tin sản phẩm theo id
     Route::get('category/{id}', [CategoryController::class, 'show'])->name('category.show');
+    // Lấy thông tin sản phẩm theo id
+    Route::get('edit/{id}', [CategoryController::class, 'edit'])->name('category.edit');
     // Tạo sản phẩm mới
     Route::post("create-category", [CategoryController::class, 'store'])->name('category.store');
+    // Cập nhật sp phuong thuc PUT
+    Route::post('update/{id}', [CategoryController::class, 'update'])->name('category.update')->middleware('cors');
     // Xóa tạm SP
     Route::delete('soft-delete/{id}', [CategoryController::class, 'destroy'])->name('category.destroy');
     // Khôi phục SP với ID
@@ -64,6 +68,7 @@ Route::prefix('category/v1')->group(function () {
     // Xóa vĩnh viễn SP
     Route::delete('/remove/{id}', [CategoryController::class, 'remove'])->name('category.remove');
 });
+
 Route::prefix('brands/v1')->group(function () {
     // Brand
     Route::get("/brands", [BrandController::class, 'index']);

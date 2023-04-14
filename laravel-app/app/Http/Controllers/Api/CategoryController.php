@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\ProductImages;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManagerStatic as Image;
@@ -100,9 +101,78 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Category $category)
+    public function edit($id)
     {
-        //
+        $data = Category::find($id);
+
+        if ($data) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Edit category ' . $data->id . ' ready!',
+                'category' => $data,
+            ],);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'No Category Found',
+            ]);
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $category = Category::find($id);
+        if (!$category) {
+            return response()->json([
+                'status' => 404,
+                'error' => 'Category not exists',
+            ]);
+        } else {
+            $category->name_category = $request['nameCategory'];
+            $category->slug = Str::slug($request['nameCategory'], '-');
+            $category->parent_category = $request['parent_category'];
+            $category->author = $request->user()->name;
+            $category->status = $request['status'];
+
+            if ($request->hasFile('images')) {
+                $files = $request->file('images');
+                $paths = [];
+
+                if ($category->image && Storage::disk('public')->exists('images/' . $category->image)) {
+                    Storage::disk('public')->delete('images/' . $category->image);
+                } else {
+                    return response()->json([
+                        'status' => 404,
+                        'error' => 'Image not exists',
+                    ]);
+                }
+
+                foreach ($files as $key => $file) {
+                    $path = $request['nameCategory'] . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
+                    $image = Image::make($file);
+                    $image->resize(800, null, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize();
+                    });
+                    Storage::disk('public')->put('images/' . $path, (string) $image->encode());
+                    $paths[] = $path;
+
+                    // Lưu ảnh đầu tiên vào trường images của bảng products
+                    if ($key == 0) {
+                        $category->image = $path;
+                    }
+                }
+            }
+
+            // Lưu thay đổi vào CSDL
+            $category->save();
+
+            // Trả về thông tin sản phẩm đã tạo và thông báo thành công
+            return response()->json([
+                'status' => 'Updated Successfully!',
+                'category' => $category
+            ], 200);
+        }
     }
 
     /**
