@@ -17,14 +17,23 @@ import AuthLayout from './Layout/AuthLayout';
 import GuestLayout from './Layout/GuestLayout';
 import ChangePasswordForm from './pages/frontend/ChangePassword';
 import Shop from './components/frontend/Shop';
+
+// Backend
 import MasterLayout from './components/backend/Layouts/MasterLayout';
-import Category from './pages/backend/Category/Category'
+// Route Brand
+import Brand from './pages/backend/Brand/Brand'
+import NewBrand from './pages/backend/Brand/NewBrand'
+import EditBrand from './pages/backend/Brand/Edit'
+import TrashBrand from './pages/backend/Brand/Trash'
+// Route Product
 import Product from './pages/backend/Product/Product'
 import EditProduct from './pages/backend/Product/Edit';
-import EditCategory from './pages/backend/Category/Edit';
 import NewProduct from './pages/backend/Product/NewProduct';
-import NewCategory from './pages/backend/Category/NewCategory';
 import TrashProduct from './pages/backend/Product/Trash';
+// Route Category
+import Category from './pages/backend/Category/Category'
+import EditCategory from './pages/backend/Category/Edit';
+import NewCategory from './pages/backend/Category/NewCategory';
 import TrashCategory from './pages/backend/Category/Trash';
 
 function App() {
@@ -63,6 +72,11 @@ function App() {
             <Route path="category/create-category" element={<NewCategory />} />
             <Route path="category/edit-category/:id" element={<EditCategory />} />
             <Route path="category/trash-category" element={<TrashCategory />} />
+            {/* Brand */}
+            <Route path="brand" element={<Brand />} />
+            <Route path="brand/create-brand" element={<NewBrand />} />
+            <Route path="brand/edit-brand/:id" element={<EditBrand />} />
+            <Route path="brand/trash-brand" element={<TrashBrand />} />
           </Route>
         </Route>
 

@@ -8,22 +8,23 @@ import useAuthContext from '../../../context/AuthContext';
 import LoadingOverlay from 'react-loading-overlay';
 import { ImCancelCircle } from 'react-icons/im';
 import { IoCreateOutline } from 'react-icons/io5';
-import { AiOutlineClear } from 'react-icons/ai';
+import { AiOutlineClear, AiOutlineRollback } from 'react-icons/ai';
 import { Link } from 'react-router-dom';
 import Meta from '../../../components/frontend/Meta';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Swal from 'sweetalert2';
 
-const NewProduct = () => {
+const NewBrand = () => {
     const { user } = useAuthContext();
     const [categories, setCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [files, setFiles] = useState([]);
     const [previewUrls, setPreviewUrls] = useState([]);
 
-    const [nameCategory, setNameCategory] = useState();
-    const [category, setCategory] = useState();
-    const [showCategoryToast, setShowCategoryToast] = useState(false);
+    const [nameBrand, setNameBrand] = useState();
+    const [brand, setBand] = useState();
+    const [showBrandToast, setShowBrandToast] = useState(false);
 
     const [errors, setErrors] = useState([]);
     const [error, setError] = useState([]);
@@ -62,19 +63,20 @@ const NewProduct = () => {
     };
 
     const ClearUp = (e) => {
-        setNameCategory("");
+        setNameBrand("");
+        setBand("");
         document.getElementById("file").value = "";
         document.getElementById("status").value = "";
         clearImageUrls();
     }
 
     useEffect(() => {
-        axios.get('api/category/v1/category')
+        axios.get('api/brand/v1/brand')
             .then(response => {
                 setIsLoading(false);
                 if (response.data.length === 0) {
-                    setShowCategoryToast(true);
-                    setTimeout(() => setShowCategoryToast(false), 10000);
+                    setShowBrandToast(true);
+                    setTimeout(() => setShowBrandToast(false), 10000);
                 }
                 setCategories(response.data);
             })
@@ -93,10 +95,10 @@ const NewProduct = () => {
 
         // định nghĩa lỗi
         const newErrors = {};
-        if (!nameCategory) {
+        if (!nameBrand) {
             newErrors.nameCategory = "Vui lòng nhập tên danh mục.";
         }
-        if (!category) {
+        if (!brand) {
             newErrors.category = "Vui lòng chọn danh mục cha.";
         }
         if (files.length > 1) {
@@ -117,31 +119,37 @@ const NewProduct = () => {
         }
         // chèn dữ liệu
         const formData = new FormData();
-        formData.append('nameCategory', nameCategory);
-        formData.append('parent_category', category);
+        formData.append('nameBrand', nameBrand);
+        formData.append('parent_brand', brand);
         formData.append('status', option_status);
         files.forEach(file => formData.append('images[]', file));
 
         console.log(formData)
         try {
             btn.innerHTML = "Creating...";
-            const response = await axios.post('/api/category/v1/create-category', formData, {
+            const response = await axios.post('/api/brand/v1/create-brand', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
             setIsLoading(false);
-            btn.innerHTML = "Create New Category";
+            btn.innerHTML = "Create New Brand";
             if (response.status === 200) {
                 setStatus(response.data.status)
-                toast.success(response.data.status);
+                // toast.success(response.data.status);
+                // Nếu thành công, hiển thị thông báo thành công
+                Swal.fire('Create new Brand successfully!', response.data.message, 'success');
             }
+            ClearUp();
         } catch (error) {
             setIsLoading(false);
-            if (error.response && error.response.data && error.response.data.error) {
-                setError(error.response.data.error);
-                toast.error(error.response.data.error);
+            // Nếu xảy ra lỗi, hiển thị thông báo lỗi
+            if (error.response.status === 500) {
+                Swal.fire('Error!', error.response.data.error, 'error');
+            } else {
+                Swal.fire('Error!', 'Failed to create new Brand.', 'error');
             }
+            btn.innerHTML = "Create New Brand";
         }
     };
 
@@ -162,7 +170,7 @@ const NewProduct = () => {
 
     return (
         <>
-            <Meta title={"Create Product"} />
+            <Meta title={"Create Brand"} />
             <div className="row">
                 <form action="" onSubmit={handleSubmit}>
                     <div className="row">
@@ -172,48 +180,47 @@ const NewProduct = () => {
                                     <label className='form-label fw-bold' htmlFor="author">Author: <span className='text-danger'>{user?.name}</span></label>
                                 </div>
                             </div>
-                            <div className='mb-2 text-center position-absolute cancel'>
-                                <button className="btn btn-success text-white mx-2" type="submit" id='btn_create'>
-                                    <IoCreateOutline className='fs-4' />
-                                    Create new category
-                                </button>
-                                <Link to="../category" className="btn text-white mx-2" type="button">
-                                    <ImCancelCircle className='fs-4' />
-                                    To back category
-                                </Link>
-                            </div>
+                            <button className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
+                                <IoCreateOutline className='fs-4' />
+                                Create new Brand
+                            </button>
+                            <Link to="../brand" className="btn btn-info text-white mr-2" type="button">
+                                <AiOutlineRollback className='fs-4' />
+                                Back Brand
+                            </Link>
                         </div>
                         <div className="col-4">
                             <div className="mb-2">
-                                <label className='form-label fw-bold' htmlFor="name_category">Name Category:</label>
+                                <label className='form-label fw-bold' htmlFor="name_category">Name Brand:</label>
                                 <input
-                                    value={nameCategory}
-                                    onChange={(e) => setNameCategory(e.target.value)}
-                                    className='form-control' id='name_category' type="text" placeholder='Enter Category Name' />
+                                    value={nameBrand}
+                                    onChange={(e) => setNameBrand(e.target.value)}
+                                    className='form-control' id='name_category' type="text" placeholder='Enter Brand Name' />
                                 {errors.nameCategory && (
                                     <div className="alert alert-danger" role="alert">
                                         {errors.nameCategory}
                                     </div>
                                 )}
                             </div>
-                            <label className='form-label fw-bold' htmlFor="category">Parent Category:</label>
+                            <label className='form-label fw-bold' htmlFor="category">Parent Brand:</label>
 
-                            <select className="form-select mb-2" id='category' value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Default select example">
-                                <option value="" selected>Select Category</option>
+                            <select className="form-select mb-2" id='category' value={brand} onChange={(e) => setBand(e.target.value)} aria-label="Default select example">
+                                <option value="" selected>Select Brand</option>
+                                <option value="0">Select Parent</option>
                                 {categories.map(category => (
                                     <option key={category.id} value={category.id}>{category.name_category}</option>
                                 ))}
                             </select>
-                            category: {category}
+                            category: {brand}
 
                             {errors.category && (
                                 <div className="alert alert-danger" role="alert">
                                     {errors.category}
                                 </div>
                             )}
-                            {showCategoryToast && (
-                                <Toast bg="warning" delay={5000} autohide onClose={() => setShowCategoryToast(false)} style={{ width: "100%", height: "50px" }}>
-                                    <Toast.Body className='my-toast fw-bold fs-6'>Category has no data</Toast.Body>
+                            {showBrandToast && (
+                                <Toast bg="warning" delay={5000} autohide onClose={() => setShowBrandToast(false)} style={{ width: "100%", height: "50px" }}>
+                                    <Toast.Body className='my-toast fw-bold fs-6'>Brand has no data</Toast.Body>
                                 </Toast>
                             )}
                         </div>
@@ -260,6 +267,15 @@ const NewProduct = () => {
                                 </div>
                             )}
                             <br />
+                            <button className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
+                                <IoCreateOutline className='fs-4' />
+                                Create new Brand
+                            </button>
+                            <Link to="../brand" className="btn btn-info text-white mr-2" type="button">
+                                <AiOutlineRollback className='fs-4' />
+                                Back Brand
+                            </Link>
+                            <br />
                             <div className="row my-5">
                                 <div className="col-6">
                                     <button className="btn btn-danger d-flex text-white mx-2" type="button" onClick={ClearUp}>
@@ -278,4 +294,4 @@ const NewProduct = () => {
     );
 };
 
-export default NewProduct;
+export default NewBrand;

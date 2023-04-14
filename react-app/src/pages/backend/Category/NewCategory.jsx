@@ -8,11 +8,12 @@ import useAuthContext from '../../../context/AuthContext';
 import LoadingOverlay from 'react-loading-overlay';
 import { ImCancelCircle } from 'react-icons/im';
 import { IoCreateOutline } from 'react-icons/io5';
-import { AiOutlineClear } from 'react-icons/ai';
+import { AiOutlineClear, AiOutlineRollback } from 'react-icons/ai';
 import { Link } from 'react-router-dom';
 import Meta from '../../../components/frontend/Meta';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Swal from 'sweetalert2';
 
 const NewProduct = () => {
     const { user } = useAuthContext();
@@ -63,6 +64,7 @@ const NewProduct = () => {
 
     const ClearUp = (e) => {
         setNameCategory("");
+        setCategory("");
         document.getElementById("file").value = "";
         document.getElementById("status").value = "";
         clearImageUrls();
@@ -134,14 +136,20 @@ const NewProduct = () => {
             btn.innerHTML = "Create New Category";
             if (response.status === 200) {
                 setStatus(response.data.status)
-                toast.success(response.data.status);
+                // toast.success(response.data.status);
+                // Nếu thành công, hiển thị thông báo thành công
+                Swal.fire('Create new Category successfully!', response.data.message, 'success');
             }
+            ClearUp();
         } catch (error) {
             setIsLoading(false);
-            if (error.response && error.response.data && error.response.data.error) {
-                setError(error.response.data.error);
-                toast.error(error.response.data.error);
+            // Nếu xảy ra lỗi, hiển thị thông báo lỗi
+            if (error.response.status === 500) {
+                Swal.fire('Error!', error.response.data.error, 'error');
+            } else {
+                Swal.fire('Error!', 'Failed to create new Category.', 'error');
             }
+            btn.innerHTML = "Create New Category";
         }
     };
 
@@ -172,16 +180,14 @@ const NewProduct = () => {
                                     <label className='form-label fw-bold' htmlFor="author">Author: <span className='text-danger'>{user?.name}</span></label>
                                 </div>
                             </div>
-                            <div className='mb-2 text-center position-absolute cancel'>
-                                <button className="btn btn-success text-white mx-2" type="submit" id='btn_create'>
-                                    <IoCreateOutline className='fs-4' />
-                                    Create new category
-                                </button>
-                                <Link to="../category" className="btn text-white mx-2" type="button">
-                                    <ImCancelCircle className='fs-4' />
-                                    To back category
-                                </Link>
-                            </div>
+                            <button className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
+                                <IoCreateOutline className='fs-4' />
+                                Create new category
+                            </button>
+                            <Link to="../category" className="btn btn-info text-white mr-2" type="button">
+                                <AiOutlineRollback className='fs-4' />
+                                Back Category
+                            </Link>
                         </div>
                         <div className="col-4">
                             <div className="mb-2">
@@ -200,6 +206,7 @@ const NewProduct = () => {
 
                             <select className="form-select mb-2" id='category' value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Default select example">
                                 <option value="" selected>Select Category</option>
+                                <option value="0">Select Parent</option>
                                 {categories.map(category => (
                                     <option key={category.id} value={category.id}>{category.name_category}</option>
                                 ))}
@@ -259,6 +266,15 @@ const NewProduct = () => {
                                     {errors.status}
                                 </div>
                             )}
+                            <br />
+                            <button className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
+                                <IoCreateOutline className='fs-4' />
+                                Create new category
+                            </button>
+                            <Link to="../category" className="btn btn-info text-white mr-2" type="button">
+                                <AiOutlineRollback className='fs-4' />
+                                Back Category
+                            </Link>
                             <br />
                             <div className="row my-5">
                                 <div className="col-6">

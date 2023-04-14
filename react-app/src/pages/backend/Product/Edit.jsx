@@ -100,8 +100,8 @@ export default function Edit(props) {
     };
 
     const [arrImages, setArrImages] = useState([]);
-    const image_0 = product;
     const images = arrImages.filter(c => c.product_id === product.product_id);
+    const image_0 = product;
     images.unshift(image_0);
 
     const clearImageUrls = () => {

@@ -81,6 +81,21 @@ const MasterLayout = () => {
                                             </li>
                                         </ul>
                                     </li>
+                                    <li className="nav-item">
+                                        <Link to="#" className="nav-link">
+                                            <i className="nav-icon fas fa-tachometer-alt" />
+                                            <p>Brand<i className="right fas fa-angle-left" /></p>
+                                        </Link>
+                                        <ul className="nav nav-treeview">
+                                            <li className="nav-item">
+                                                <Link to="brand" className="nav-link d-flex">
+                                                    {/* <i className="far fa-circle nav-icon" /> */}
+                                                    <AiOutlineEye style={{ height: 'auto', fontSize: '26px', }} className='text-info' />
+                                                    <p>Brand View</p>
+                                                </Link>
+                                            </li>
+                                        </ul>
+                                    </li>
                                 </ul>
 
 

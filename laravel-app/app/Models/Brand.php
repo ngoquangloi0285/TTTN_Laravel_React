@@ -12,5 +12,18 @@ class Brand extends Model
     use SoftDeletes;
 
     protected $table = 'brands';
-    // protected $dates = ['deleted_at'];
+    protected $fillable = [
+        'brand_id',
+        'name',
+        'slug',
+        'parent_brand',
+        'author',
+        'status'
+    ];
+    protected $dates = ['deleted_at'];
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
 }

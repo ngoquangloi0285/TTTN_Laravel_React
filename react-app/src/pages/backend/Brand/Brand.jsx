@@ -20,6 +20,7 @@ import Modal from 'react-modal';
 import DOMPurify from 'dompurify';
 import ReactHtmlParser from 'react-html-parser';
 import Meta from '../../../components/frontend/Meta';
+import Swal from 'sweetalert2';
 
 
 export default function DataGridDemo() {
@@ -31,17 +32,17 @@ export default function DataGridDemo() {
         align: 'center'
       },
       {
-        field: 'category_id',
-        headerName: 'Category Code',
+        field: 'brand_id',
+        headerName: 'Brand Code',
         editable: true,
-        width: 200, // Thêm thuộc tính width vào đây
+        width: 150, // Thêm thuộc tính width vào đây
         align: 'center'
       },
       {
-        field: 'name_category',
+        field: 'name',
         headerName: 'Name',
         editable: true,
-        width: 100, // Thêm thuộc tính width vào đây
+        width: 150, // Thêm thuộc tính width vào đây
         align: 'center'
       },
       {
@@ -61,8 +62,8 @@ export default function DataGridDemo() {
         ),
       },
       {
-        field: 'parent_category',
-        headerName: 'Parent category',
+        field: 'parent_brand',
+        headerName: 'Parent Brand',
         type: 'number',
         editable: true,
         width: 150, // Thêm thuộc tính width vào đây
@@ -132,7 +133,7 @@ export default function DataGridDemo() {
               className='mx-1'
               style={{ fontSize: '20px', cursor: 'pointer' }}
               title='Edit'
-              to={`edit/${params.id}`}
+              to={`edit-brand/${params.id}`}
             >
               <GrEdit />
             </Link>
@@ -151,11 +152,11 @@ export default function DataGridDemo() {
   )
 
   // xử lý hiện modal chi tiết sản phẩm
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedBrand, setSelectedBrand] = useState(null);
   const [open, setOpen] = useState(false);
 
-  const handleClickOpen = (product) => {
-    setSelectedCategory(product);
+  const handleClickOpen = (brand) => {
+    setSelectedBrand(brand);
     setOpen(true);
   };
 
@@ -171,7 +172,7 @@ export default function DataGridDemo() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('/api/category/v1/category');
+      const response = await axios.get('/api/brand/v1/brand');
       setRecords(response.data);
       setInitialData(response.data);
       setIsLoading(false);
@@ -184,7 +185,7 @@ export default function DataGridDemo() {
   const fetchTrash = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('/api/category/v1/trash');
+      const response = await axios.get('/api/brand/v1/trash');
       setCountTrash(response.data.length);
       setIsLoading(false);
     } catch (error) {
@@ -195,18 +196,30 @@ export default function DataGridDemo() {
 
   const handleDelete = async (id) => {
     try {
-      const response = await axios.delete(`/api/category/v1/soft-delete/${id}`, {
+      const response = await axios.delete(`/api/brand/v1/soft-delete/${id}`, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
+      setIsLoading(false);
       if (response.data.message.includes('products')) {
-        toast.success('Category and its products have been softly deleted.');
+        // toast.success('Category and its products have been softly deleted.');
+        Swal.fire(
+          'Delete Category Successfully',
+          response.data.message,
+          'success'
+        )
       } else {
-        toast.success('Category has been softly deleted.');
+        // toast.success('Category has been softly deleted.');
+        Swal.fire(
+          'Delete Category Successfully',
+          response.data.message,
+          'success'
+        )
       }
       updateData();
     } catch (error) {
+      setIsLoading(false);
       console.error(error);
       toast.error('Failed to delete category or its products.');
     }
@@ -215,14 +228,16 @@ export default function DataGridDemo() {
 
   const updateData = async () => {
     try {
-      const [productsResponse, trashResponse] = await Promise.all([
-        axios.get('/api/category/v1/category'),
-        axios.get('/api/category/v1/trash')
+      const [brandResponse, trashResponse] = await Promise.all([
+        axios.get('/api/brand/v1/brand'),
+        axios.get('/api/brand/v1/trash')
       ]);
-      setRecords(productsResponse.data);
-      setInitialData(productsResponse.data);
+      setIsLoading(false);
+      setRecords(brandResponse.data);
+      setInitialData(brandResponse.data);
       setCountTrash(trashResponse.data.length);
     } catch (error) {
+      setIsLoading(false);
       console.error(error);
     }
   };
@@ -235,7 +250,7 @@ export default function DataGridDemo() {
         return [...initialData];
       }
       return prevRecords.filter(record =>
-        record.name_category.toLowerCase().includes(value.toLowerCase())
+        record.name.toLowerCase().includes(value.toLowerCase())
       );
     });
   };
@@ -266,7 +281,7 @@ export default function DataGridDemo() {
 
   return (
     <>
-      <Meta title={"Category"} />
+      <Meta title={"Brand"} />
       <LoadingOverlay className='text-danger'
         spinner
         active={isLoading}
@@ -278,12 +293,12 @@ export default function DataGridDemo() {
           <input
             type="text"
             className="form-control my-3"
-            placeholder="Search Category..."
+            placeholder="Search Brand..."
             onChange={handleFilter}
           />
           <div className="col-3">
-            <Link to="create-category" className="btn btn-info mb-3 text-white d-flex align-items-center" type="button">
-              <IoCreateOutline className='fs-4' /> Add New Category
+            <Link to="create-brand" className="btn btn-info mb-3 text-white d-flex align-items-center" type="button">
+              <IoCreateOutline className='fs-4' /> Add New Brand
             </Link>
           </div>
           <div className="col-3 d-flex">
@@ -318,15 +333,15 @@ export default function DataGridDemo() {
 
           {/* Hiển thị modal - chi tiết sản phẩm*/}
           <Dialog open={open} onClose={handleClose} className="dialog" maxWidth="xl" maxHeight="lg">
-            <DialogTitle>Category Detail</DialogTitle>
+            <DialogTitle>Brand Detail</DialogTitle>
             <DialogContent className="dialog-content">
-              {selectedCategory && (
+              {selectedBrand && (
                 <>
-                  <Typography className="product-name" variant="h6">{selectedCategory.name_category}</Typography>
-                  <Typography className="product-info">{`Category: ${selectedCategory.category_id}`}</Typography>
-                  <Typography className="product-info">{`Parent: ${selectedCategory.parent_category}`}</Typography>
-                  <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedCategory.detail) }} />
-                  <img className="product-image" src={`http://localhost:8000/storage/images/${selectedCategory.image}`} alt={selectedCategory.images} />
+                  <Typography className="product-name" variant="h6">{selectedBrand.name_category}</Typography>
+                  <Typography className="product-info">{`Category: ${selectedBrand.category_id}`}</Typography>
+                  <Typography className="product-info">{`Parent: ${selectedBrand.parent_category}`}</Typography>
+                  <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedBrand.detail) }} />
+                  <img className="product-image" src={`http://localhost:8000/storage/images/${selectedBrand.image}`} alt={selectedBrand.image} />
                 </>
               )}
             </DialogContent>

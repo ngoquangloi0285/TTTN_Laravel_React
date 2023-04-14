@@ -20,6 +20,7 @@ import Modal from 'react-modal';
 import DOMPurify from 'dompurify';
 import ReactHtmlParser from 'react-html-parser';
 import Meta from '../../../components/frontend/Meta';
+import Swal from 'sweetalert2';
 
 
 export default function DataGridDemo() {
@@ -201,9 +202,19 @@ export default function DataGridDemo() {
         }
       });
       if (response.data.message.includes('products')) {
-        toast.success('Category and its products have been softly deleted.');
+        Swal.fire(
+          'Delete Category Successfully',
+          response.data.message,
+          'success'
+        )
+        // toast.success('Category and its products have been softly deleted.');
       } else {
-        toast.success('Category has been softly deleted.');
+        // toast.success('Category has been softly deleted.');
+        Swal.fire(
+          'Delete Category Successfully',
+          response.data.message,
+          'success'
+        )
       }
       updateData();
     } catch (error) {
@@ -211,7 +222,6 @@ export default function DataGridDemo() {
       toast.error('Failed to delete category or its products.');
     }
   };
-
 
   const updateData = async () => {
     try {
@@ -323,7 +333,7 @@ export default function DataGridDemo() {
               {selectedCategory && (
                 <>
                   <Typography className="product-name" variant="h6">{selectedCategory.name_category}</Typography>
-                  <Typography className="product-info">{`Category: ${selectedCategory.category_id}`}</Typography>
+                  <Typography className="product-info">{`Category Code: ${selectedCategory.category_id}`}</Typography>
                   <Typography className="product-info">{`Parent: ${selectedCategory.parent_category}`}</Typography>
                   <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedCategory.detail) }} />
                   <img className="product-image" src={`http://localhost:8000/storage/images/${selectedCategory.image}`} alt={selectedCategory.images} />

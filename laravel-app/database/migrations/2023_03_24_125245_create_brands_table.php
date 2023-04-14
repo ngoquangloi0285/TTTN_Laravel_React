@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug')->unique();
             $table->string('image', 255)->nullable();
+            $table->integer('parent_brand')->unsigned()->nullable();
             $table->string('author', 255);
             $table->tinyInteger('status')->unsigned()->nullable();
             $table->timestamps();

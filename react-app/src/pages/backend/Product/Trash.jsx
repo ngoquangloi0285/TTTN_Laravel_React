@@ -4,7 +4,7 @@ import { BsFillTrashFill } from 'react-icons/bs';
 import { GrEdit } from 'react-icons/gr';
 import { IoCreateOutline } from 'react-icons/io5';
 import { FiTrash2 } from 'react-icons/fi';
-import { AiFillDelete, AiFillEdit, AiFillEye, AiOutlineEye } from 'react-icons/ai';
+import { AiFillDelete, AiFillEdit, AiFillEye, AiOutlineEye, AiOutlineRollback } from 'react-icons/ai';
 import axios from '../../../api/axios';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { Link, useNavigate } from 'react-router-dom';
@@ -224,12 +224,12 @@ export default function DataGridDemo() {
             setRecords(prevRecords => {
                 return prevRecords.filter((product) => product.id !== id);
             });
-
+            fetchData();
         } catch (error) {
             console.error(error);
             toast.error('Failed to delete product.');
         }
-    }, [cache, setRecords]);
+    }, [cache, setRecords, fetchData]);
 
     // lọc sản phẩm theo tên
     const handleFilter = useCallback(e => {
@@ -274,9 +274,12 @@ export default function DataGridDemo() {
                         placeholder="Search Product..."
                         onChange={handleFilter}
                     />
-                    <div className="col-3 d-flex">
-                        <Link className="btn btn-danger mb-3 text-white d-flex align-items-center" type="button">
+                    <div className="col-12 d-flex">
+                        <Link className="btn btn-danger m-1 text-white d-flex align-items-center" type="button">
                             <FiTrash2 className='fs-4' /> Trash <span>( {!countTrash ? "0" : countTrash} )</span>
+                        </Link>
+                        <Link to='../product' className="btn btn-info m-1 text-white d-flex align-items-center" type="button">
+                            <AiOutlineRollback className='fs-4' /> Back Product
                         </Link>
                     </div>
                     {/* hiện data product */}

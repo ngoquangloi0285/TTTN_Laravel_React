@@ -66,12 +66,29 @@ Route::prefix('category/v1')->group(function () {
     // Lấy tất cả SP trong đã xóa tạm
     Route::get('trash', [CategoryController::class, 'trash'])->name('category.trash');
     // Xóa vĩnh viễn SP
-    Route::delete('/remove/{id}', [CategoryController::class, 'remove'])->name('category.remove');
+    Route::delete('remove/{id}', [CategoryController::class, 'remove'])->name('category.remove');
 });
 
-Route::prefix('brands/v1')->group(function () {
+Route::prefix('brand/v1')->group(function () {
     // Brand
-    Route::get("/brands", [BrandController::class, 'index']);
+    Route::get("brand", [BrandController::class, 'index']);
+    // Lấy thông tin sản phẩm theo id
+    Route::get('brand/{id}', [BrandController::class, 'show'])->name('brand.show');
+    // Lấy thông tin sản phẩm theo id
+    Route::get('edit/{id}', [BrandController::class, 'edit'])->name('brand.edit');
+    // Tạo sản phẩm mới
+    Route::post("create-brand", [BrandController::class, 'store'])->name('brand.store');
+    // Cập nhật sp phuong thuc PUT
+    Route::post('update/{id}', [BrandController::class, 'update'])->name('brand.update')->middleware('cors');
+    // Xóa tạm SP
+    Route::delete('soft-delete/{id}', [BrandController::class, 'destroy'])->name('brand.destroy');
+    // Khôi phục SP với ID
+    Route::get('restore/{id}', [BrandController::class, 'restore'])->name('brand.restore');
+    // Lấy tất cả SP trong đã xóa tạm
+    Route::get('trash', [BrandController::class, 'trash'])->name('brand.trash');
+    // Xóa vĩnh viễn SP
+    Route::delete('/remove/{id}', [BrandController::class, 'remove'])->name('brand.remove');
+
 });
 Route::prefix('countdown/v1')->group(function () {
     // Brand

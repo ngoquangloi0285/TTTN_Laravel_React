@@ -40,7 +40,7 @@ class CategoryController extends Controller
             return response()->json([
                 'error' => 'Category with this name already exists, please choose another name.',
                 'product' => $category
-            ], 505);
+            ], 500);
         } else {
             $id = random_int(0, 9999999999);
             $category_id = str_pad($id, 10, '0', STR_PAD_LEFT);
@@ -244,6 +244,7 @@ class CategoryController extends Controller
     {
         $category = Category::withTrashed()->findOrFail($id);
         $products = $category->products()->withTrashed()->get(); // sử dụng phương thức products()
+
         if (!$category) {
             return response()->json(['message' => 'Category not found.'], 404);
         }
@@ -289,5 +290,43 @@ class CategoryController extends Controller
                 'message' => 'Category and associated products do not exist or have been already restored.'
             ]);
         }
+    }
+
+    public function remove($id)
+    {
+        $category = Category::withTrashed()->findOrFail($id);
+        $products = $category->products()->withTrashed()->get();
+
+        if (!$category) {
+            return response()->json(['message' => 'Category not found.'], 404);
+        }
+
+        if (!$category->trashed()) {
+            return response()->json(['message' => 'Category is not deleted.']);
+        }
+
+        // Xóa ảnh đại diện của category nếu có
+        if ($category->image && Storage::disk('public')->exists('images/' . $category->image)) {
+            Storage::disk('public')->delete('images/' . $category->image);
+        }
+
+        // Xóa vĩnh viễn category nếu không có sản phẩm liên quan
+        if ($products->isEmpty()) {
+            $category->forceDelete();
+            return response()->json(['message' => 'Category has been permanently deleted.']);
+        }
+
+        // Xóa vĩnh viễn cả category và sản phẩm liên quan
+        foreach ($products as $product) {
+            if ($product->trashed()) {
+                $product->options()->delete();
+                $product->countdown()->delete();
+                $product->images()->delete();
+                $product->forceDelete();
+            }
+        }
+
+        $category->forceDelete();
+        return response()->json(['message' => 'Category and associated products have been permanently deleted.']);
     }
 }

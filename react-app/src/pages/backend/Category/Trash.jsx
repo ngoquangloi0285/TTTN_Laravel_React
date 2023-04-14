@@ -4,7 +4,7 @@ import { BsFillTrashFill } from 'react-icons/bs';
 import { GrEdit } from 'react-icons/gr';
 import { IoCreateOutline } from 'react-icons/io5';
 import { FiTrash2 } from 'react-icons/fi';
-import { AiFillDelete, AiFillEdit, AiFillEye, AiOutlineEye } from 'react-icons/ai';
+import { AiFillDelete, AiFillEdit, AiFillEye, AiOutlineEye, AiOutlineRollback } from 'react-icons/ai';
 import axios from '../../../api/axios';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { Link, useNavigate } from 'react-router-dom';
@@ -21,6 +21,7 @@ import DOMPurify from 'dompurify';
 import ReactHtmlParser from 'react-html-parser';
 import Meta from '../../../components/frontend/Meta';
 import { MdRestore } from 'react-icons/md';
+import Swal from 'sweetalert2';
 
 
 export default function DataGridDemo() {
@@ -171,18 +172,19 @@ export default function DataGridDemo() {
     const [countTrash, setCountTrash] = useState(0);
     const btnRef = useRef(null);
 
-    const fetchData = useCallback(async () => {
+    const fetchData = useCallback(() => {
         setIsLoading(true);
-        try {
-            const response = await axios.get('/api/category/v1/trash');
-            setIsLoading(false);
-            setRecords(response.data);
-            setInitialData(response.data);
-            setCountTrash(response.data.length);
-        } catch (error) {
-            setIsLoading(false);
-            toast.error(error);
-        }
+        return axios.get('/api/category/v1/trash')
+            .then((response) => {
+                setRecords(response.data);
+                setInitialData(response.data);
+                setCountTrash(response.data.length);
+                setIsLoading(false);
+            })
+            .catch((error) => {
+                setIsLoading(false);
+                toast.error(error);
+            });
     }, []);
 
     useEffect(() => {
@@ -194,7 +196,7 @@ export default function DataGridDemo() {
 
     const handleRestore = useCallback(async (id) => {
         try {
-            await axios.get(`/api/category/v1/restore/${id}`, {
+            const res = await axios.get(`/api/category/v1/restore/${id}`, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -205,10 +207,20 @@ export default function DataGridDemo() {
                 const updatedProducts = products.filter((product) => product.id !== id);
                 cache.set('products', updatedProducts);
             }
-            toast.success('Product has been softly deleted.');
+            // toast.success('Product has been softly deleted.');
+            Swal.fire(
+                'Restore Category Successfully',
+                res.data.message,
+                'success'
+            )
             console.log(`ID của sản phẩm để xóa tạm: ${id}`);
             fetchData(); // Cập nhật lại bảng sản phẩm
         } catch (error) {
+            Swal.fire(
+                'Restore Not Category Successfully',
+                error.response.data.message,
+                'error'
+            )
             console.error(error);
             toast.error(error);
         }
@@ -217,28 +229,37 @@ export default function DataGridDemo() {
     // xóa vĩnh viễn
     const handleRemove = useCallback(async (id) => {
         try {
-            await axios.delete(`/api/product/v1/remove/${id}`, {
+            const res = await axios.delete(`/api/category/v1/remove/ ${id}`, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
-            const products = cache.get('products');
-            if (products) {
+            const category = cache.get('category');
+            if (category) {
                 // Tìm và cập nhật sản phẩm đã bị xóa trong cache
-                const updatedProducts = products.filter((product) => product.id !== id);
-                cache.set('products', updatedProducts);
+                const updatedCategory = category.filter((item) => item.id !== id);
+                cache.set('category', updatedCategory);
             }
-            toast.success('Product has been softly deleted.');
-            // Xóa sản phẩm khỏi danh sách hiện tại trong state `records`
+            Swal.fire(
+                'Remove Category Successfully',
+                res.data.message,
+                'success'
+            )
+            // Xóa danh mục khỏi danh sách hiện tại trong state records
             setRecords(prevRecords => {
-                return prevRecords.filter((product) => product.id !== id);
+                return prevRecords.filter((item) => item.id !== id);
             });
-
+            fetchData(); // Cập nhật lại dữ liệu
         } catch (error) {
-            console.error(error);
-            toast.error('Failed to delete product.');
+            console.error(error.response.data.status);
+            Swal.fire(
+                'Error',
+                error.response.data.status,
+                'Error'
+            )
+            toast.error('Failed to delete category.');
         }
-    }, [cache, setRecords]);
+    }, [cache, setRecords, fetchData]);
 
     // lọc sản phẩm theo tên
     const handleFilter = useCallback(e => {
@@ -248,10 +269,11 @@ export default function DataGridDemo() {
                 return [...initialData];
             }
             return prevRecords.filter(record =>
-                record.name_product.toLowerCase().includes(value.toLowerCase())
+                record.name_category.toLowerCase().includes(value.toLowerCase())
             );
         });
     }, [initialData, setRecords]);
+
 
     // load lại bảng data product
     const LoadPage = useCallback(async (e) => {
@@ -275,12 +297,6 @@ export default function DataGridDemo() {
     return (
         <>
             <Meta title={"Trash Category"} />
-            <LoadingOverlay className='text-danger'
-                spinner
-                active={isLoading}
-                text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
-                }
-            ></LoadingOverlay>
             <div className="container-xxl">
                 <div className="row">
                     <input
@@ -289,11 +305,15 @@ export default function DataGridDemo() {
                         placeholder="Search Product..."
                         onChange={handleFilter}
                     />
-                    <div className="col-3 d-flex">
-                        <Link className="btn btn-danger mb-3 text-white d-flex align-items-center" type="button">
+                    <div className="col-12 d-flex">
+                        <Link className="btn btn-danger m-1 text-white d-flex align-items-center" type="button">
                             <FiTrash2 className='fs-4' /> Trash <span>( {!countTrash ? "0" : countTrash} )</span>
                         </Link>
+                        <Link to='../category' className="btn btn-info m-1 text-white d-flex align-items-center" type="button">
+                            <AiOutlineRollback className='fs-4' /> Back Category
+                        </Link>
                     </div>
+
                     {/* hiện data product */}
                     <Box sx={{ height: 600, width: '100%' }}>
                         <DataGrid
@@ -324,19 +344,11 @@ export default function DataGridDemo() {
                         <DialogContent className="dialog-content">
                             {selectedProduct && (
                                 <>
-                                    <Typography className="product-name" variant="h6">{selectedProduct.name_product}</Typography>
-                                    <Typography className="product-info">{`Category: ${selectedProduct.category_id}`}</Typography>
-                                    <Typography className="product-info">{`Brand: ${selectedProduct.brand_id}`}</Typography>
-                                    <Typography className="product-info">{`Summary: ${selectedProduct.summary}`}</Typography>
-                                    <Typography className="product-info">{`Cost: $${selectedProduct.cost}`}</Typography>
-                                    <Typography className="product-info">{`Price: $${selectedProduct.price}`}</Typography>
-                                    <Typography className="product-info">{`Discount: $${selectedProduct.discount}`}</Typography>
-                                    <Typography className="product-info">{`Color: ${selectedProduct.color}`}</Typography>
-                                    <Typography className="product-info">{`Inch: ${selectedProduct.inch}`}</Typography>
-                                    <Typography className="product-title">Detail:</Typography>
+                                    <Typography className="product-name" variant="h6">{selectedProduct.name_category}</Typography>
+                                    <Typography className="product-info">{`Category Code: ${selectedProduct.category_id}`}</Typography>
+                                    <Typography className="product-info">{`Parent: ${selectedProduct.parent_category}`}</Typography>
                                     <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedProduct.detail) }} />
-                                    <img className="product-image" src={`http://localhost:8000/storage/images/${selectedProduct.image}`} alt={selectedProduct.images} />
-                                    {/* ... Hiển thị các thông tin khác của sản phẩm ... */}
+                                    <img className="product-image" src={`http://localhost:8000/storage/images/${selectedProduct.image}`} alt={selectedProduct.image} />
                                 </>
                             )}
                         </DialogContent>

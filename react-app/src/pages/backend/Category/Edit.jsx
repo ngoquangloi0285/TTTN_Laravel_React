@@ -8,21 +8,23 @@ import useAuthContext from '../../../context/AuthContext';
 import LoadingOverlay from 'react-loading-overlay';
 import { ImCancelCircle } from 'react-icons/im';
 import { IoCreateOutline } from 'react-icons/io5';
-import { AiOutlineClear } from 'react-icons/ai';
-import { Link } from 'react-router-dom';
+import { AiOutlineClear, AiOutlineRollback } from 'react-icons/ai';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import Meta from '../../../components/frontend/Meta';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Swal from "sweetalert2";
 
 const EditCategory = () => {
+    const { id } = useParams(); // lấy ID từ URL
     const { user } = useAuthContext();
     const [categories, setCategories] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [files, setFiles] = useState([]);
     const [previewUrls, setPreviewUrls] = useState([]);
-
-    const [nameCategory, setNameCategory] = useState();
-    const [category, setCategory] = useState();
+    const navigate = useNavigate();
+    const [nameCategory, setNameCategory] = useState('');
+    const [categoryID, setCategoryID] = useState();
     const [showCategoryToast, setShowCategoryToast] = useState(false);
 
     const [errors, setErrors] = useState([]);
@@ -63,26 +65,54 @@ const EditCategory = () => {
 
     const ClearUp = (e) => {
         setNameCategory("");
+        setCategoryID("");
         document.getElementById("file").value = "";
         document.getElementById("status").value = "";
         clearImageUrls();
     }
+    const [image, setImage] = useState();
 
     useEffect(() => {
-        axios.get('api/category/v1/category')
-            .then(response => {
-                setIsLoading(false);
-                if (response.data.length === 0) {
+        Promise.all([
+            axios.get('api/category/v1/category'),
+            axios.get(`api/category/v1/edit/${id}`)
+        ])
+            .then(([categoryResponse, editResponse]) => {
+                if (categoryResponse.data.length === 0) {
                     setShowCategoryToast(true);
                     setTimeout(() => setShowCategoryToast(false), 10000);
                 }
-                setCategories(response.data);
+                setCategories(categoryResponse.data);
+
+                if (editResponse.data.status === 200) {
+                    // toast.success(editResponse.data.message)
+                    Swal.fire(
+                        'Loading Successfully',
+                        editResponse.data.message,
+                        'success'
+                    )
+                    setNameCategory(editResponse.data.category.name_category);
+                    setCategoryID(editResponse.data.category.id);
+                    console.log("category ID", categoryID)
+                }
+                // Lấy ra danh sách ảnh của category và lưu vào state arrImages
+                const image = editResponse.data.category.image;
+                setImage(image);
+                console.log('categoryImage: ', image);
+
+                setIsLoading(false)
             })
             .catch(error => {
                 console.log(error);
-                setIsLoading(false);
+                if (error.response) {
+                    const { status, message } = error.response.data;
+                    if (status === 404) {
+                        toast.error(message);
+                    }
+                }
+                setIsLoading(false)
             });
-    }, []);
+    }, [id]);
 
     // Xử lý khi người dùng ấn nút Submit
     const handleSubmit = async (e) => {
@@ -96,8 +126,8 @@ const EditCategory = () => {
         if (!nameCategory) {
             newErrors.nameCategory = "Vui lòng nhập tên danh mục.";
         }
-        if (!category) {
-            newErrors.category = "Vui lòng chọn danh mục cha.";
+        if (!categoryID) {
+            newErrors.categoryID = "Vui lòng chọn danh mục cha.";
         }
         if (files.length > 1) {
             newErrors.files = "Chỉ được phép tải lên 1 tập tin.";
@@ -118,29 +148,45 @@ const EditCategory = () => {
         // chèn dữ liệu
         const formData = new FormData();
         formData.append('nameCategory', nameCategory);
-        formData.append('parent_category', category);
+        formData.append('parent_category', categoryID);
         formData.append('status', option_status);
         files.forEach(file => formData.append('images[]', file));
 
         console.log(formData)
         try {
-            btn.innerHTML = "Creating...";
-            const response = await axios.post('/api/category/v1/create-category', formData, {
+            btn.innerHTML = "Updating...";
+            const response = await axios.post(`/api/category/v1/update/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
             setIsLoading(false);
-            btn.innerHTML = "Create New Category";
+            btn.innerHTML = "Update Category";
             if (response.status === 200) {
                 setStatus(response.data.status)
-                toast.success(response.data.status);
+                // toast.success(response.data.status);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: response.data.status,
+                    confirmButtonText: 'Back to Category'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        navigate('../category')
+                    }
+                });
             }
+            ClearUp();
         } catch (error) {
             setIsLoading(false);
             if (error.response && error.response.data && error.response.data.error) {
                 setError(error.response.data.error);
-                toast.error(error.response.data.error);
+                // toast.error(error.response.data.error);
+                Swal.fire(
+                    'error',
+                    error.data.status,
+                    'error'
+                )
             }
         }
     };
@@ -156,13 +202,18 @@ const EditCategory = () => {
 
     if (isLoading === true) {
         return <>
-            <h4>Loading...</h4>
+            <LoadingOverlay className='text-danger'
+                spinner
+                active={isLoading}
+                text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
+                }
+            ></LoadingOverlay>
         </>
     }
 
     return (
         <>
-            <Meta title={"Create Product"} />
+            <Meta title={"Edit Category"} />
             <div className="row">
                 <form action="" onSubmit={handleSubmit}>
                     <div className="row">
@@ -172,16 +223,14 @@ const EditCategory = () => {
                                     <label className='form-label fw-bold' htmlFor="author">Author: <span className='text-danger'>{user?.name}</span></label>
                                 </div>
                             </div>
-                            <div className='mb-2 text-center position-absolute cancel'>
-                                <button className="btn btn-success text-white mx-2" type="submit" id='btn_create'>
-                                    <IoCreateOutline className='fs-4' />
-                                    Create new category
-                                </button>
-                                <Link to="../category" className="btn text-white mx-2" type="button">
-                                    <ImCancelCircle className='fs-4' />
-                                    To back category
-                                </Link>
-                            </div>
+                            <button className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
+                                <IoCreateOutline className='fs-4' />
+                                Update category: <strong className='text-dark'>{id}</strong>
+                            </button>
+                            <Link to="../category" className="btn btn-info text-white mr-2" type="button">
+                                <AiOutlineRollback className='fs-4' />
+                                To back category
+                            </Link>
                         </div>
                         <div className="col-4">
                             <div className="mb-2">
@@ -189,7 +238,7 @@ const EditCategory = () => {
                                 <input
                                     value={nameCategory}
                                     onChange={(e) => setNameCategory(e.target.value)}
-                                    className='form-control' id='name_category' type="text" placeholder='Enter Category Name' />
+                                    className='form-control text-info' id='name_category' type="text" placeholder='Enter Category Name' />
                                 {errors.nameCategory && (
                                     <div className="alert alert-danger" role="alert">
                                         {errors.nameCategory}
@@ -198,13 +247,14 @@ const EditCategory = () => {
                             </div>
                             <label className='form-label fw-bold' htmlFor="category">Parent Category:</label>
 
-                            <select className="form-select mb-2" id='category' value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Default select example">
+                            <select className="form-select mb-2" id='category' value={categoryID} onChange={(e) => setCategoryID(e.target.value)} aria-label="Default select example">
                                 <option value="" selected>Select Category</option>
+                                <option value="0">Select Parent</option>
                                 {categories.map(category => (
                                     <option key={category.id} value={category.id}>{category.name_category}</option>
                                 ))}
                             </select>
-                            category: {category}
+                            category ID: {categoryID}
 
                             {errors.category && (
                                 <div className="alert alert-danger" role="alert">
@@ -235,6 +285,7 @@ const EditCategory = () => {
                                     <p className='m-0'><strong>Không bắt buộc!</strong></p>
                                 }
                                 {renderPreview()}
+
                             </div>
                             {
                                 files.length > 0 &&
@@ -243,7 +294,19 @@ const EditCategory = () => {
                                     Clean up photos
                                 </button>
                             }
-
+                            {
+                                image === null ? "" :
+                                    <div style={{ width: '100%' }}>
+                                        <h4 className='mt-3'>Images selected: </h4>
+                                        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+                                            <img className='img img-fluid img-thumbnail'
+                                                style={{ width: '100px', height: '100px', margin: '5px', objectFit: 'cover' }}
+                                                src={`http://localhost:8000/storage/images/${image}`}
+                                                alt={image.image}
+                                            />
+                                        </div>
+                                    </div>
+                            }
                             <label className='form-label fw-bold' htmlFor="status">Status:</label>
                             <select className="form-select" id="status" aria-label="Default select example">
                                 <option value="" selected>Select Status</option>
@@ -259,6 +322,15 @@ const EditCategory = () => {
                                     {errors.status}
                                 </div>
                             )}
+                            <br />
+                            <button className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
+                                <IoCreateOutline className='fs-4' />
+                                Update category: <strong className='text-dark'>{id}</strong>
+                            </button>
+                            <Link to="../category" className="btn btn-info text-white mr-2" type="button">
+                                <AiOutlineRollback className='fs-4' />
+                                To back category
+                            </Link>
                             <br />
                             <div className="row my-5">
                                 <div className="col-6">

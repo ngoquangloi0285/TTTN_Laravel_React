@@ -34,7 +34,14 @@ class Product extends Model
     {
         return $this->hasMany(ProductImages::class);
     }
-
+    public function options()
+    {
+        return $this->hasMany(Options::class);
+    }
+    public function countdown()
+    {
+        return $this->hasMany(CountDown::class);
+    }
     public function totalProduct()
     {
         return $this->hasOne(TotalProduct::class, 'product_count');
