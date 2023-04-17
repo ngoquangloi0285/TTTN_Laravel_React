@@ -186,28 +186,86 @@ class ProductController extends Controller
 
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'nameProduct' => 'required|string|max:255',
-            'category' => 'required',
-            'brand' => 'required',
-            'summary' => 'required|string|max:255',
-            'costProduct' => 'required|numeric',
-            'priceSale' => 'required|numeric',
-            'discount' => 'numeric',
-            'color' => 'required|string|max:255',
-            'inch' => 'required|numeric',
-            'start_time' => 'date',
-            'end_time' => 'date',
-            'detail' => 'required|string',
-            'status' => 'required',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
-
-        if ($validator->fails()) {
+        $product = Product::find($id);
+        if (!$product) {
             return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages(),
+                'status' => 404,
+                'error' => 'Product not exists',
             ]);
+        } else {
+            $product->name_product = $request['nameProduct'];
+            $product->slug = Str::slug($request['nameProduct'], '-');
+            $product->category_id = $request['category'];
+            $product->brand_id = $request['brand'];
+            $product->summary = $request['summary'];
+            $product->cost = $request['costProduct'];
+            $product->price = $request['priceSale'];
+            $product->discount = $request['discount'];
+            $product->color = $request['color'];
+            $product->inch = $request['inch'];
+            $product->detail = $request['detail'];
+            $product->author = $request->user()->name;
+            $product->status = $request['status'];
+            if ($request->hasFile('images')) {
+                $files = $request->file('images');
+                $paths = [];
+                if ($product->image && Storage::disk('public')->exists('product/' . $product->image)) {
+                    Storage::disk('public')->delete('product/' . $product->image);
+                }
+                foreach ($files as $key => $file) {
+                    $path = $product->name_product . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
+                    $image = Image::make($file);
+                    $image->resize(800, null, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize();
+                    });
+                    Storage::disk('public')->put('product/' . $path, (string) $image->encode());
+                    $paths[] = $path;
+
+                    // Lưu ảnh đầu tiên vào trường images của bảng products
+                    if ($key == 0) {
+                        $product->image = $path;
+                        $product->save();
+                    } else {
+                        $productImage = ProductImages::where('product_id', '=', $product->id)->first();
+                        if ($productImage->image && Storage::disk('public')->exists('product/' . $productImage->image)) {
+                            Storage::disk('public')->delete('product/' . $productImage->image);
+                        }
+                        // Lưu các ảnh còn lại vào bảng product_images
+                        $productImage->image = $path;
+                        $productImage->author = $request->user()->name;
+                        $productImage->status = $request['status'];
+                        $productImage->save();
+                    }
+                }
+                // Lưu thông tin options của sản phẩm vào bảng Options
+                $options = Options::where('product_id', '=', $product->id)->first();
+                $options->color = $request['color'];
+                $options->inch = $request['inch'];
+                $options->author = $request->user()->name;
+                $options->status = $request['status'];
+                $options->save();
+
+                // Lưu thông tin countdown của sản phẩm vào bảng CountDown (nếu có request)
+                if ($request->has('start_time') && $request->has('end_time')) {
+                    $countdown = CountDown::where('product_id', '=', $product->id)->first();
+                    $countdown->start_time = $request['start_time'];
+                    $countdown->end_time = $request['end_time'];
+                    $countdown->author = $request->user()->name;
+                    $countdown->status = $request['status'];
+                    $countdown->save();
+                    // Thành công
+                } else {
+                    return response()->json([
+                        'status' => 'Error',
+                        'message' => 'Could not save countdown information',
+                    ], 500);
+                }
+            }
+            return response()->json([
+                'status' => 'Update successfully',
+                'product' => $product
+            ], 200);
         }
     }
 

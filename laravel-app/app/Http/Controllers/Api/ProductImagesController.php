@@ -13,8 +13,8 @@ class ProductImagesController extends Controller
      */
     public function index(Request $request)
     {
-        $product_images = ProductImages::get();
-        return $product_images;
+        $images = ProductImages::get();
+        return $images;
     }
 
     /**

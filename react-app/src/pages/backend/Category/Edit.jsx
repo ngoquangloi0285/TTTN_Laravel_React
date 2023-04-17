@@ -25,6 +25,7 @@ const EditCategory = () => {
     const navigate = useNavigate();
     const [nameCategory, setNameCategory] = useState('');
     const [categoryID, setCategoryID] = useState();
+    const [category, setCategory] = useState();
     const [showCategoryToast, setShowCategoryToast] = useState(false);
 
     const [errors, setErrors] = useState([]);
@@ -52,24 +53,25 @@ const EditCategory = () => {
         });
     };
 
-    const clearImageUrls = () => {
+    const clearImageUrls = useCallback(() => {
         previewUrls.forEach((url) => URL.revokeObjectURL(url));
         setPreviewUrls([]);
         setFiles([]);
-    };
+    }, [previewUrls]);
 
     const ClearUpPhotos = () => {
         document.getElementById("file").value = "";
         clearImageUrls();
     };
 
-    const ClearUp = (e) => {
+    const ClearUp = useCallback(() => {
         setNameCategory("");
         setCategoryID("");
         document.getElementById("file").value = "";
         document.getElementById("status").value = "";
         clearImageUrls();
-    }
+    }, [clearImageUrls])
+
     const [image, setImage] = useState();
 
     useEffect(() => {
@@ -85,21 +87,14 @@ const EditCategory = () => {
                 setCategories(categoryResponse.data);
 
                 if (editResponse.data.status === 200) {
-                    // toast.success(editResponse.data.message)
-                    Swal.fire(
-                        'Loading Successfully',
-                        editResponse.data.message,
-                        'success'
-                    )
                     setNameCategory(editResponse.data.category.name_category);
                     setCategoryID(editResponse.data.category.id);
-                    console.log("category ID", categoryID)
+                    setCategory(categoryResponse.data.category);
                 }
                 // Lấy ra danh sách ảnh của category và lưu vào state arrImages
                 const image = editResponse.data.category.image;
                 setImage(image);
                 console.log('categoryImage: ', image);
-
                 setIsLoading(false)
             })
             .catch(error => {
@@ -112,7 +107,12 @@ const EditCategory = () => {
                 }
                 setIsLoading(false)
             });
-    }, [id]);
+    }, [categoryID, id]);
+    //   tìm id category trùng với id trong bảng category
+    const category_ID = categories.find(c => c.id === categoryID);
+    // console.log(category_ID)
+    // khi trùng id thì lấy name_category ra
+    const categoryName = category_ID ? category_ID.name_category : '';
 
     // Xử lý khi người dùng ấn nút Submit
     const handleSubmit = useCallback(async () => {
@@ -146,7 +146,7 @@ const EditCategory = () => {
         // chèn dữ liệu
         const formData = new FormData();
         formData.append('nameCategory', nameCategory);
-        formData.append('parent_category', categoryID);
+        formData.append('parent_category', category);
         formData.append('status', option_status);
         files.forEach(file => formData.append('images[]', file));
 
@@ -174,7 +174,7 @@ const EditCategory = () => {
                     }
                 });
             }
-            ClearUp();
+            // ClearUp();
         } catch (error) {
             setIsLoading(false);
             if (error.response && error.response.data && error.response.data.error) {
@@ -187,7 +187,7 @@ const EditCategory = () => {
                 )
             }
         }
-    }, [ClearUp, categoryID, files, id, nameCategory, navigate]);
+    }, [categoryID, files, id, nameCategory, navigate,category]);
     // xác nhận  update
     const confirmUpdate = useCallback(() => {
         Swal.fire({
@@ -260,15 +260,15 @@ const EditCategory = () => {
                         </div>
                         <label className='form-label fw-bold' htmlFor="category">Parent Category:</label>
 
-                        <select className="form-select mb-2" id='category' value={categoryID} onChange={(e) => setCategoryID(e.target.value)} aria-label="Default select example">
-                            <option value="" selected>Select Category</option>
+                        <select value={category} onChange={(e) => setCategory(e.target.value)} className="form-select mb-2" id='category' aria-label="Default select example">
+                            <option value={category_ID ? category_ID.id : ""} selected>
+                                {categoryName ? `Selected: ${categoryName}` : 'Select category'}
+                            </option>
                             <option value="0">Select Parent</option>
                             {categories.map(category => (
                                 <option key={category.id} value={category.id}>{category.name_category}</option>
                             ))}
                         </select>
-                        category ID: {categoryID}
-
                         {errors.category && (
                             <div className="alert alert-danger" role="alert">
                                 {errors.category}

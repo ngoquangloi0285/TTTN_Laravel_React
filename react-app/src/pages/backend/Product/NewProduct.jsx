@@ -33,7 +33,7 @@ const NewProduct = () => {
     const [total, setTotal] = useState();
 
     const timeZone = 'America/New_York';
-    const now = moment().tz(timeZone).format('YYYY-MM-DDTHH:mm:ss');
+    const now = moment().tz(timeZone).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DDTHH:mm:ss');
     const [startTime, setStartTime] = useState(now.slice(0, 16));
     const [endTime, setEndTime] = useState(now.slice(0, 16));
 
