@@ -17,8 +17,8 @@ import Swal from 'sweetalert2';
 
 const NewBrand = () => {
     const { user } = useAuthContext();
-    const [categories, setCategories] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [brandList, setBrandList] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [files, setFiles] = useState([]);
     const [previewUrls, setPreviewUrls] = useState([]);
 
@@ -78,7 +78,7 @@ const NewBrand = () => {
                     setShowBrandToast(true);
                     setTimeout(() => setShowBrandToast(false), 10000);
                 }
-                setCategories(response.data);
+                setBrandList(response.data);
             })
             .catch(error => {
                 console.log(error);
@@ -96,10 +96,10 @@ const NewBrand = () => {
         // định nghĩa lỗi
         const newErrors = {};
         if (!nameBrand) {
-            newErrors.nameCategory = "Vui lòng nhập tên danh mục.";
+            newErrors.nameCategory = "Vui lòng nhập tên thương hiệu.";
         }
         if (!brand) {
-            newErrors.category = "Vui lòng chọn danh mục cha.";
+            newErrors.category = "Vui lòng chọn thương hiệu cha.";
         }
         if (files.length > 1) {
             newErrors.files = "Chỉ được phép tải lên 1 tập tin.";
@@ -126,6 +126,7 @@ const NewBrand = () => {
 
         console.log(formData)
         try {
+            // Đổi giá trị của button
             btn.innerHTML = "Creating...";
             const response = await axios.post('/api/brand/v1/create-brand', formData, {
                 headers: {
@@ -133,13 +134,13 @@ const NewBrand = () => {
                 }
             });
             setIsLoading(false);
-            btn.innerHTML = "Create New Brand";
             if (response.status === 200) {
                 setStatus(response.data.status)
                 // toast.success(response.data.status);
                 // Nếu thành công, hiển thị thông báo thành công
                 Swal.fire('Create new Brand successfully!', response.data.message, 'success');
             }
+            btn.innerHTML = "Create New Brand";
             ClearUp();
         } catch (error) {
             setIsLoading(false);
@@ -163,9 +164,12 @@ const NewBrand = () => {
     }, [status, error]);
 
     if (isLoading === true) {
-        return <>
-            <h4>Loading...</h4>
-        </>
+        return <LoadingOverlay className='text-danger'
+            spinner
+            active={isLoading}
+            text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
+            }
+        ></LoadingOverlay>
     }
 
     return (
@@ -180,7 +184,7 @@ const NewBrand = () => {
                                     <label className='form-label fw-bold' htmlFor="author">Author: <span className='text-danger'>{user?.name}</span></label>
                                 </div>
                             </div>
-                            <button className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
+                            <button className="btn btn-success text-white mr-2" id='btn_create' type="submit">
                                 <IoCreateOutline className='fs-4' />
                                 Create new Brand
                             </button>
@@ -207,8 +211,8 @@ const NewBrand = () => {
                             <select className="form-select mb-2" id='category' value={brand} onChange={(e) => setBand(e.target.value)} aria-label="Default select example">
                                 <option value="" selected>Select Brand</option>
                                 <option value="0">Select Parent</option>
-                                {categories.map(category => (
-                                    <option key={category.id} value={category.id}>{category.name_category}</option>
+                                {brandList.map(brand => (
+                                    <option key={brand.id} value={brand.id}>{brand.name}</option>
                                 ))}
                             </select>
                             category: {brand}
@@ -267,10 +271,6 @@ const NewBrand = () => {
                                 </div>
                             )}
                             <br />
-                            <button className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
-                                <IoCreateOutline className='fs-4' />
-                                Create new Brand
-                            </button>
                             <Link to="../brand" className="btn btn-info text-white mr-2" type="button">
                                 <AiOutlineRollback className='fs-4' />
                                 Back Brand

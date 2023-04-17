@@ -39,13 +39,20 @@ Route::prefix('product/v1')->group(function () {
     // Cập nhật sp phuong thuc PATCH
     Route::patch('products/{product}', [ProductController::class, 'update'])->name('products.update');
     // Xóa tạm SP
-    Route::delete('products/{product}/soft-delete', [ProductController::class, 'destroy'])->name('products.destroy');
+    Route::delete('product/{product}/soft-delete', [ProductController::class, 'destroy'])->name('product.destroy');
+    // Xóa tạm ALL SP
+    Route::delete('products/soft-delete', [ProductController::class, 'destroyALL'])->name('products.destroyALL');
     // Khôi phục SP với ID
-    Route::get('restore/{id}', [ProductController::class, 'restore'])->name('products.restore');
+    Route::post('restore/{id}', [ProductController::class, 'restore'])->name('product.restore');
+    // Khôi phục SP với ID
+    Route::post('restoreALL', [ProductController::class, 'restoreALL'])->name('products.restoreALL');
     // Lấy tất cả SP trong đã xóa tạm
     Route::get('trash', [ProductController::class, 'trash'])->name('products.trash');
     // Xóa vĩnh viễn SP
     Route::delete('/remove/{id}', [ProductController::class, 'remove'])->name('products.remove');
+    // Xóa vĩnh viễn  nhiều SP
+    Route::delete('/removeALL', [ProductController::class, 'removeALL'])->name('products.removeALL');
+
 });
 
 Route::prefix('category/v1')->group(function () {
@@ -88,7 +95,6 @@ Route::prefix('brand/v1')->group(function () {
     Route::get('trash', [BrandController::class, 'trash'])->name('brand.trash');
     // Xóa vĩnh viễn SP
     Route::delete('/remove/{id}', [BrandController::class, 'remove'])->name('brand.remove');
-
 });
 Route::prefix('countdown/v1')->group(function () {
     // Brand

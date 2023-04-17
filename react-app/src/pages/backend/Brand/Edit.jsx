@@ -300,7 +300,7 @@ const EditBrand = () => {
                                         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
                                             <img className='img img-fluid img-thumbnail'
                                                 style={{ width: '100px', height: '100px', margin: '5px', objectFit: 'cover' }}
-                                                src={`http://localhost:8000/storage/images/${image}`}
+                                                src={`http://localhost:8000/storage/brand/${image}`}
                                                 alt={image.image}
                                             />
                                         </div>

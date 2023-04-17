@@ -19,7 +19,7 @@ const NewProduct = () => {
     const { user } = useAuthContext();
     const [categories, setCategories] = useState([]);
     const [brands, setBrands] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [files, setFiles] = useState([]);
     const [previewUrls, setPreviewUrls] = useState([]);
 
@@ -111,9 +111,11 @@ const NewProduct = () => {
                     setShowCategoryToast(true);
                     setTimeout(() => setShowCategoryToast(false), 10000);
                 }
+                setIsLoading(false);
                 setCategories(response.data);
             })
             .catch(error => {
+                setIsLoading(false);
                 console.log(error);
             });
 
@@ -123,9 +125,11 @@ const NewProduct = () => {
                     setShowBrandToast(true);
                     setTimeout(() => setShowBrandToast(false), 10000);
                 }
+                setIsLoading(false);
                 setBrands(response.data);
             })
             .catch(error => {
+                setIsLoading(false);
                 // console.log(error);
             });
     }, []);
@@ -135,6 +139,8 @@ const NewProduct = () => {
     // Xử lý khi người dùng ấn nút Submit
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const btn = document.getElementById('btn_create');
+
         // lấy dữ liệu thì form
         const status = document.getElementById("status").value;
         const category = document.getElementById("category").value;
@@ -148,11 +154,6 @@ const NewProduct = () => {
         const color = document.getElementById("color").value;
         const inch = document.getElementById("inch").value;
         const total = document.getElementById("total").value;
-
-
-        setIsLoading(true);
-        setErrors([]);
-        setStatus(null)
 
         // định nghĩa lỗi
         const newErrors = {};
@@ -257,6 +258,7 @@ const NewProduct = () => {
         files.forEach(file => formData.append('images[]', file));
         console.log(formData)
         try {
+            btn.innerHTML = "Creating...";
             const response = await axios.post('/api/product/v1/create-product', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
@@ -272,18 +274,18 @@ const NewProduct = () => {
                     'success'
                 )
             }
+            btn.innerHTML = "Create New Product";
             ClearUp();
         } catch (error) {
             setIsLoading(false);
-            if (error.response && error.response.data && error.response.data.error) {
-                setError(error.response.data.error);
-                // toast.error(error.response.data.error);
-                Swal.fire(
-                    'error',
-                    error.data.status,
-                    'error'
-                )
+            setIsLoading(false);
+            // Nếu xảy ra lỗi, hiển thị thông báo lỗi
+            if (error.response.status === 500) {
+                Swal.fire('Error!', error.response.data.error, 'error');
+            } else {
+                Swal.fire('Error!', 'Failed to create new Product.', 'error');
             }
+            btn.innerHTML = "Create New Product";
         }
     };
     useEffect(() => {
@@ -295,6 +297,14 @@ const NewProduct = () => {
         }
     }, [status, error]);
 
+    if (isLoading === true) {
+        return <LoadingOverlay className='text-danger'
+            spinner
+            active={isLoading}
+            text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
+            }
+        ></LoadingOverlay>
+    }
     return (
         <>
             <Meta title={"Create Product"} />
@@ -307,18 +317,7 @@ const NewProduct = () => {
                                     <label className='form-label fw-bold' htmlFor="author">Author: <span className='text-danger'>{user?.name}</span></label>
                                 </div>
                             </div>
-                            {/* {status && (
-                                <div className="alert1 alert-success1 show1 text-center fs-4" role="alert">
-                                    {status}
-                                </div>
-                            )}
-                            {error && (
-                                <div className="alert1 alert-error1 show1 text-center fs-4" role="alert">
-                                    {error}
-                                </div>
-                            )} */}
-
-                            <button className="btn btn-success text-white mr-2" type="submit">
+                            <button className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
                                 <IoCreateOutline className='fs-4' />
                                 Create new product
                             </button>
@@ -326,12 +325,7 @@ const NewProduct = () => {
                                 <AiOutlineRollback className='fs-4' />
                                 Back Product
                             </Link>
-                            <LoadingOverlay className='text-danger'
-                                spinner
-                                active={isLoading}
-                                text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
-                                }
-                            ></LoadingOverlay>
+
                         </div>
                         <div className="col-3">
                             <div className="mb-2">
@@ -356,7 +350,7 @@ const NewProduct = () => {
                             <select className="form-select mb-2" id='category' aria-label="Default select example">
                                 <option value="" selected>Select Category</option>
                                 {categories.map(category => (
-                                    <option key={category.category_id} value={category.category_id}>{category.name_category}</option>
+                                    <option key={category.id} value={category.id}>{category.name_category}</option>
                                 ))}
                             </select>
                             {errors.category && (
@@ -375,7 +369,7 @@ const NewProduct = () => {
                             <select className="form-select mb-2" id="brand" aria-label="Default select example">
                                 <option value="" selected>Select Brand</option>
                                 {brands.map(brand => (
-                                    <option key={brand.brand_id} value={brand.brand_id}>{brand.name}</option>
+                                    <option key={brand.id} value={brand.id}>{brand.name}</option>
                                 ))}
                             </select>
                             {errors.brand && (
@@ -613,10 +607,6 @@ const NewProduct = () => {
                                 </div>
                             )}
                             <br />
-                            <button className="btn btn-success text-white mr-2" type="submit">
-                                <IoCreateOutline className='fs-4' />
-                                Create new product
-                            </button>
                             <Link to="../product" className="btn btn-info text-white mr-2" type="button">
                                 <AiOutlineRollback className='fs-4' />
                                 Back Product

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import { BsFillTrashFill } from 'react-icons/bs';
 import { GrEdit } from 'react-icons/gr';
@@ -55,7 +55,7 @@ export default function DataGridDemo() {
         renderCell: (params) => (
           <img
             className='img img-fluid img-thumbnail'
-            src={`http://localhost:8000/storage/images/${params.value}`}
+            src={`http://localhost:8000/storage/category/${params.value}`}
             alt={params.row.name_category}
             style={{ width: '100%', height: 'auto' }} // Thêm CSS cho hình ảnh
           />
@@ -141,7 +141,7 @@ export default function DataGridDemo() {
               className='text-danger mx-1'
               style={{ fontSize: '20px', cursor: 'pointer' }}
               title='Delete'
-              onClick={() => handleDelete(params.id)}
+              onClick={() => confirmDelete(params.id)}
             >
               <BsFillTrashFill />
             </span>
@@ -194,7 +194,7 @@ export default function DataGridDemo() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = useCallback(async (id) => {
     try {
       const response = await axios.delete(`/api/category/v1/soft-delete/${id}`, {
         headers: {
@@ -221,7 +221,22 @@ export default function DataGridDemo() {
       console.error(error);
       toast.error('Failed to delete category or its products.');
     }
-  };
+  }, []);
+  /// xác nhận xóa tạm
+  const confirmDelete = useCallback((id) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Are you sure you want to temporarily delete this catalog and related products!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'No, keep it'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleDelete(id);
+      }
+    });
+  }, [handleDelete]);
 
   const updateData = async () => {
     try {
@@ -336,7 +351,7 @@ export default function DataGridDemo() {
                   <Typography className="product-info">{`Category Code: ${selectedCategory.category_id}`}</Typography>
                   <Typography className="product-info">{`Parent: ${selectedCategory.parent_category}`}</Typography>
                   <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedCategory.detail) }} />
-                  <img className="product-image" src={`http://localhost:8000/storage/images/${selectedCategory.image}`} alt={selectedCategory.images} />
+                  <img className="product-image" src={`http://localhost:8000/storage/category/${selectedCategory.image}`} alt={selectedCategory.images} />
                 </>
               )}
             </DialogContent>

@@ -18,7 +18,7 @@ import Swal from 'sweetalert2';
 const NewProduct = () => {
     const { user } = useAuthContext();
     const [categories, setCategories] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [files, setFiles] = useState([]);
     const [previewUrls, setPreviewUrls] = useState([]);
 
@@ -163,9 +163,12 @@ const NewProduct = () => {
     }, [status, error]);
 
     if (isLoading === true) {
-        return <>
-            <h4>Loading...</h4>
-        </>
+        return <LoadingOverlay className='text-danger'
+            spinner
+            active={isLoading}
+            text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
+            }
+        ></LoadingOverlay>
     }
 
     return (
@@ -267,10 +270,6 @@ const NewProduct = () => {
                                 </div>
                             )}
                             <br />
-                            <button className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
-                                <IoCreateOutline className='fs-4' />
-                                Create new category
-                            </button>
                             <Link to="../category" className="btn btn-info text-white mr-2" type="button">
                                 <AiOutlineRollback className='fs-4' />
                                 Back Category

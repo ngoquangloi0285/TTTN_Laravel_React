@@ -67,7 +67,7 @@ class CategoryController extends Controller
                         $constraint->aspectRatio();
                         $constraint->upsize();
                     });
-                    Storage::disk('public')->put('images/' . $path, (string) $image->encode());
+                    Storage::disk('public')->put('category/' . $path, (string) $image->encode());
                     $paths[] = $path;
 
                     // Lưu ảnh đầu tiên vào trường images của bảng products
@@ -138,8 +138,8 @@ class CategoryController extends Controller
                 $files = $request->file('images');
                 $paths = [];
 
-                if ($category->image && Storage::disk('public')->exists('images/' . $category->image)) {
-                    Storage::disk('public')->delete('images/' . $category->image);
+                if ($category->image && Storage::disk('public')->exists('category/' . $category->image)) {
+                    Storage::disk('public')->delete('category/' . $category->image);
                 } else {
                     return response()->json([
                         'status' => 404,
@@ -154,7 +154,7 @@ class CategoryController extends Controller
                         $constraint->aspectRatio();
                         $constraint->upsize();
                     });
-                    Storage::disk('public')->put('images/' . $path, (string) $image->encode());
+                    Storage::disk('public')->put('category/' . $path, (string) $image->encode());
                     $paths[] = $path;
 
                     // Lưu ảnh đầu tiên vào trường images của bảng products
@@ -189,7 +189,7 @@ class CategoryController extends Controller
         }
 
         // Kiểm tra xem có sản phẩm nào có category_id bằng $category->id không
-        $products = Product::where('category_id', '=', $category->id)->get();
+        $products = Product::where('category_id', '=', $category->category_id)->get();
         if ($products->isEmpty()) {
             $category->deleted_at = $now;
             $category->status = 0;
@@ -227,75 +227,63 @@ class CategoryController extends Controller
         return response()->json(['message' => 'Category and its products have been softly deleted.']);
     }
 
-
-
     public function trash()
     {
         $categories = Category::onlyTrashed()->get();
-
-        if ($categories->isEmpty()) {
-            return response()->json(['message' => 'No deleted categories found.'], 200);
-        }
         return $categories;
     }
 
-
     public function restore($id)
     {
-        $category = Category::withTrashed()->findOrFail($id);
-        $products = $category->products()->withTrashed()->get(); // sử dụng phương thức products()
+        $category = Category::withTrashed()->find($id);
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
 
+        // Kiểm tra xem có tồn tại Category không
         if (!$category) {
             return response()->json(['message' => 'Category not found.'], 404);
         }
 
-        if (!$category->trashed()) {
-            return response()->json(['message' => 'Category is not deleted.']);
-        }
+        // Kiểm tra xem có sản phẩm nào có category_id bằng $category->id không
+        $products = Product::where('category_id', '=', $category->category_id)->withTrashed()->get();
 
-        $categoryRestored = false;
-        $productsRestored = false;
-
-        // Khôi phục category nếu không có sản phẩm liên quan
         if ($products->isEmpty()) {
             $category->status = 1;
             $category->restore();
-            $categoryRestored = true;
+            return response()->json(['message' => 'Category has been softly deleted.']);
         }
 
-        // Khôi phục cả category và sản phẩm liên quan
-        foreach ($products as $product) {
-            if ($product->trashed()) {
+        if ($products) {
+            foreach ($products as $product) {
                 $product->status = 1;
+
+                $options = Options::where('product_id', $product->id)->get();
+                if (!$options->isEmpty()) {
+                    Options::where('product_id', $product->id)->update(['status' => 1]);
+                }
+
+                $countDowns = CountDown::where('product_id', $product->id)->get();
+                if (!$countDowns->isEmpty()) {
+                    CountDown::where('product_id', $product->id)->update(['status' => 1]);
+                }
+
+                $productImages = ProductImages::where('product_id', $product->id)->get();
+                if (!$productImages->isEmpty()) {
+                    ProductImages::where('product_id', $product->id)->update(['status' => 1]);
+                }
+
                 $product->restore();
-                $product->options()->update(['status' => 1]);
-                $product->countdown()->update(['status' => 1]);
-                $product->images()->update(['status' => 1]);
-                $productsRestored = true;
             }
         }
 
-        if ($categoryRestored && !$productsRestored) {
-            return response()->json([
-                'message' => 'Category has been restored.',
-                'category' => $category->fresh()
-            ]);
-        } elseif (!$categoryRestored && $productsRestored) {
-            return response()->json([
-                'message' => 'Category and associated products have been restored.',
-                'category' => $category->fresh()
-            ]);
-        } else {
-            return response()->json([
-                'message' => 'Category and associated products do not exist or have been already restored.'
-            ]);
-        }
+        $category->status = 1;
+        $category->restore();
+
+        return response()->json(['message' => 'Category and its products have been softly restore.']);
     }
 
     public function remove($id)
     {
         $category = Category::withTrashed()->findOrFail($id);
-        $products = $category->products()->withTrashed()->get();
 
         if (!$category) {
             return response()->json(['message' => 'Category not found.'], 404);
@@ -306,22 +294,33 @@ class CategoryController extends Controller
         }
 
         // Xóa ảnh đại diện của category nếu có
-        if ($category->image && Storage::disk('public')->exists('images/' . $category->image)) {
-            Storage::disk('public')->delete('images/' . $category->image);
+        if ($category->image && Storage::disk('public')->exists('category/' . $category->image)) {
+            Storage::disk('public')->delete('category/' . $category->image);
         }
-
+        // Kiểm tra xem có sản phẩm nào có category_id bằng $category->id không
+        $products = Product::where('category_id', '=', $category->category_id)->withTrashed()->get();
         // Xóa vĩnh viễn category nếu không có sản phẩm liên quan
         if ($products->isEmpty()) {
             $category->forceDelete();
             return response()->json(['message' => 'Category has been permanently deleted.']);
         }
 
-        // Xóa vĩnh viễn cả category và sản phẩm liên quan
-        foreach ($products as $product) {
-            if ($product->trashed()) {
-                $product->options()->delete();
-                $product->countdown()->delete();
-                $product->images()->delete();
+        if ($products) {
+            foreach ($products as $product) {
+                $options = Options::where('product_id', $product->id)->get();
+                if (!$options->isEmpty()) {
+                    Options::where('product_id', $product->id)->de;
+                }
+
+                $countDowns = CountDown::where('product_id', $product->id)->delete();
+                if (!$countDowns->isEmpty()) {
+                    CountDown::where('product_id', $product->id)->delete();
+                }
+
+                $productImages = ProductImages::where('product_id', $product->id)->get();
+                if (!$productImages->isEmpty()) {
+                    ProductImages::where('product_id', $product->id)->delete();
+                }
                 $product->forceDelete();
             }
         }

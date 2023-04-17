@@ -1,26 +1,22 @@
 import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import Box from '@mui/material/Box';
 import { BsFillTrashFill } from 'react-icons/bs';
-import { GrEdit } from 'react-icons/gr';
-import { IoCreateOutline } from 'react-icons/io5';
 import { FiTrash2 } from 'react-icons/fi';
-import { AiFillDelete, AiFillEdit, AiFillEye, AiOutlineEye } from 'react-icons/ai';
+import { AiOutlineEye, AiOutlineRollback } from 'react-icons/ai';
 import axios from '../../../api/axios';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LoadingOverlay from 'react-loading-overlay';
 
 import LRU from 'lru-cache';
-import useAuthContext from '../../../context/AuthContext';
 import { Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
 import { Button } from 'react-bootstrap';
-import Modal from 'react-modal';
 import DOMPurify from 'dompurify';
-import ReactHtmlParser from 'react-html-parser';
 import Meta from '../../../components/frontend/Meta';
 import { MdRestore } from 'react-icons/md';
+import Swal from 'sweetalert2';
 
 
 export default function DataGridDemo() {
@@ -32,14 +28,14 @@ export default function DataGridDemo() {
                 align: 'center'
             },
             {
-                field: 'category_id',
-                headerName: 'Category Code',
+                field: 'brand_id',
+                headerName: 'Brand Code',
                 editable: true,
                 width: 200, // Thêm thuộc tính width vào đây
                 align: 'center'
             },
             {
-                field: 'name_category',
+                field: 'name',
                 headerName: 'Name',
                 editable: true,
                 width: 100, // Thêm thuộc tính width vào đây
@@ -55,15 +51,15 @@ export default function DataGridDemo() {
                 renderCell: (params) => (
                     <img
                         className='img img-fluid img-thumbnail'
-                        src={`http://localhost:8000/storage/images/${params.value}`}
+                        src={`http://localhost:8000/storage/brand/${params.value}`}
                         alt={params.row.name_product}
                         style={{ width: '100%', height: 'auto' }} // Thêm CSS cho hình ảnh
                     />
                 ),
             },
             {
-                field: 'parent_category',
-                headerName: 'Parent category',
+                field: 'parent_brand',
+                headerName: 'Parent Brand',
                 type: 'number',
                 editable: true,
                 width: 150, // Thêm thuộc tính width vào đây
@@ -131,7 +127,7 @@ export default function DataGridDemo() {
                             className='mx-1'
                             style={{ fontSize: '30px', cursor: 'pointer' }}
                             title='Edit'
-                            onClick={() => handleRestore(params.id)}
+                            onClick={() => confirmRestore(params.id)}
                         >
                             <MdRestore />
                         </Link>
@@ -139,7 +135,7 @@ export default function DataGridDemo() {
                             className='text-danger mx-1'
                             style={{ fontSize: '25px', cursor: 'pointer' }}
                             title='Delete'
-                            onClick={() => handleRemove(params.id)}
+                            onClick={() => confirmDelete(params.id)}
                         >
                             <BsFillTrashFill />
                         </span>
@@ -148,8 +144,6 @@ export default function DataGridDemo() {
             },
         ]
     )
-    // Xử lý hiện QR Code 
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // xử lý hiện modal chi tiết sản phẩm
     const [selectedProduct, setSelectedProduct] = useState(null);
@@ -169,20 +163,20 @@ export default function DataGridDemo() {
     const [records, setRecords] = useState([]);
     const [initialData, setInitialData] = useState([]);
     const [countTrash, setCountTrash] = useState(0);
-    const btnRef = useRef(null);
 
-    const fetchData = useCallback(async () => {
+    const fetchData = useCallback(() => {
         setIsLoading(true);
-        try {
-            const response = await axios.get('/api/category/v1/trash');
-            setIsLoading(false);
-            setRecords(response.data);
-            setInitialData(response.data);
-            setCountTrash(response.data.length);
-        } catch (error) {
-            setIsLoading(false);
-            toast.error(error);
-        }
+        return axios.get('/api/brand/v1/trash')
+            .then((response) => {
+                setRecords(response.data);
+                setInitialData(response.data);
+                setCountTrash(response.data.length);
+                setIsLoading(false);
+            })
+            .catch((error) => {
+                setIsLoading(false);
+                toast.error(error);
+            });
     }, []);
 
     useEffect(() => {
@@ -194,7 +188,7 @@ export default function DataGridDemo() {
 
     const handleRestore = useCallback(async (id) => {
         try {
-            await axios.get(`/api/category/v1/restore/${id}`, {
+            const res = await axios.get(`/api/brand/v1/restore/${id}`, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -205,40 +199,91 @@ export default function DataGridDemo() {
                 const updatedProducts = products.filter((product) => product.id !== id);
                 cache.set('products', updatedProducts);
             }
-            toast.success('Product has been softly deleted.');
+            // toast.success('Product has been softly deleted.');
+            Swal.fire(
+                'Restore Brand',
+                res.data.message,
+                'success'
+            )
             console.log(`ID của sản phẩm để xóa tạm: ${id}`);
-            fetchData(); // Cập nhật lại bảng sản phẩm
         } catch (error) {
+            Swal.fire(
+                'Restore Not Brand Successfully',
+                error.response.data.message,
+                'error'
+            )
             console.error(error);
-            toast.error(error);
+            // toast.error(error);/
         }
-    }, [fetchData, cache]);
+    }, [cache]);
+    // xác nhận khôi phục
+    const confirmRestore = useCallback((id) => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Are you sure you want to restore this brand and related products!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, restore it!',
+            cancelButtonText: 'No, keep it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                handleRestore(id);
+            }
+            fetchData(); // Cập nhật lại bảng sản phẩm
+        });
+    }, [handleRestore, fetchData]);
 
     // xóa vĩnh viễn
-    const handleRemove = useCallback(async (id) => {
+    const handleDelete = useCallback(async (id) => {
         try {
-            await axios.delete(`/api/product/v1/remove/${id}`, {
+            const res = await axios.delete(`/api/brand/v1/remove/ ${id}`, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
-            const products = cache.get('products');
-            if (products) {
+            const brand = cache.get('brand');
+            if (brand) {
                 // Tìm và cập nhật sản phẩm đã bị xóa trong cache
-                const updatedProducts = products.filter((product) => product.id !== id);
-                cache.set('products', updatedProducts);
+                const updatedBrand = brand.filter((item) => item.id !== id);
+                cache.set('category', updatedBrand);
             }
-            toast.success('Product has been softly deleted.');
-            // Xóa sản phẩm khỏi danh sách hiện tại trong state `records`
+            Swal.fire(
+                'Remove Brand Successfully',
+                res.data.message,
+                'success'
+            )
+            // Xóa danh mục khỏi danh sách hiện tại trong state records
             setRecords(prevRecords => {
-                return prevRecords.filter((product) => product.id !== id);
+                return prevRecords.filter((item) => item.id !== id);
             });
-
+            
         } catch (error) {
-            console.error(error);
-            toast.error('Failed to delete product.');
+            console.error(error.response.data.status);
+            Swal.fire(
+                'Error',
+                error.response.data.status,
+                'Error'
+            )
+            toast.error('Failed to delete brand.');
         }
     }, [cache, setRecords]);
+
+    // xác nhận xóa vĩnh viễn
+    const confirmDelete = useCallback((id) => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You will not be able to restore this brand and related products!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, restore it!',
+            cancelButtonText: 'No, keep it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                handleDelete(id);
+            }
+            fetchData(); // Cập nhật lại dữ liệu
+        });
+    }, [handleDelete, fetchData]);
 
     // lọc sản phẩm theo tên
     const handleFilter = useCallback(e => {
@@ -248,10 +293,11 @@ export default function DataGridDemo() {
                 return [...initialData];
             }
             return prevRecords.filter(record =>
-                record.name_product.toLowerCase().includes(value.toLowerCase())
+                record.name.toLowerCase().includes(value.toLowerCase())
             );
         });
     }, [initialData, setRecords]);
+
 
     // load lại bảng data product
     const LoadPage = useCallback(async (e) => {
@@ -274,13 +320,7 @@ export default function DataGridDemo() {
     }
     return (
         <>
-            <Meta title={"Trash Category"} />
-            <LoadingOverlay className='text-danger'
-                spinner
-                active={isLoading}
-                text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
-                }
-            ></LoadingOverlay>
+            <Meta title={"Trash Brand"} />
             <div className="container-xxl">
                 <div className="row">
                     <input
@@ -289,11 +329,15 @@ export default function DataGridDemo() {
                         placeholder="Search Product..."
                         onChange={handleFilter}
                     />
-                    <div className="col-3 d-flex">
-                        <Link className="btn btn-danger mb-3 text-white d-flex align-items-center" type="button">
+                    <div className="col-12 d-flex">
+                        <Link className="btn btn-danger m-1 text-white d-flex align-items-center" type="button">
                             <FiTrash2 className='fs-4' /> Trash <span>( {!countTrash ? "0" : countTrash} )</span>
                         </Link>
+                        <Link to='../brand' className="btn btn-info m-1 text-white d-flex align-items-center" type="button">
+                            <AiOutlineRollback className='fs-4' /> Back Brand
+                        </Link>
                     </div>
+
                     {/* hiện data product */}
                     <Box sx={{ height: 600, width: '100%' }}>
                         <DataGrid
@@ -320,23 +364,15 @@ export default function DataGridDemo() {
 
                     {/* Hiển thị modal - chi tiết sản phẩm*/}
                     <Dialog open={open} onClose={handleClose} className="dialog" maxWidth="xl" maxHeight="lg">
-                        <DialogTitle>Product Detail</DialogTitle>
+                        <DialogTitle>Brand Detail</DialogTitle>
                         <DialogContent className="dialog-content">
                             {selectedProduct && (
                                 <>
-                                    <Typography className="product-name" variant="h6">{selectedProduct.name_product}</Typography>
-                                    <Typography className="product-info">{`Category: ${selectedProduct.category_id}`}</Typography>
-                                    <Typography className="product-info">{`Brand: ${selectedProduct.brand_id}`}</Typography>
-                                    <Typography className="product-info">{`Summary: ${selectedProduct.summary}`}</Typography>
-                                    <Typography className="product-info">{`Cost: $${selectedProduct.cost}`}</Typography>
-                                    <Typography className="product-info">{`Price: $${selectedProduct.price}`}</Typography>
-                                    <Typography className="product-info">{`Discount: $${selectedProduct.discount}`}</Typography>
-                                    <Typography className="product-info">{`Color: ${selectedProduct.color}`}</Typography>
-                                    <Typography className="product-info">{`Inch: ${selectedProduct.inch}`}</Typography>
-                                    <Typography className="product-title">Detail:</Typography>
+                                    <Typography className="product-name" variant="h6">{selectedProduct.name}</Typography>
+                                    <Typography className="product-info">{`Category Code: ${selectedProduct.brand_id}`}</Typography>
+                                    <Typography className="product-info">{`Parent: ${selectedProduct.parent_brand}`}</Typography>
                                     <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedProduct.detail) }} />
-                                    <img className="product-image" src={`http://localhost:8000/storage/images/${selectedProduct.image}`} alt={selectedProduct.images} />
-                                    {/* ... Hiển thị các thông tin khác của sản phẩm ... */}
+                                    <img className="product-image" src={`http://localhost:8000/storage/brand/${selectedProduct.image}`} alt={selectedProduct.image} />
                                 </>
                             )}
                         </DialogContent>

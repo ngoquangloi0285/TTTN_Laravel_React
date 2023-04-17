@@ -73,7 +73,7 @@ class BrandController extends Controller
                         $constraint->aspectRatio();
                         $constraint->upsize();
                     });
-                    Storage::disk('public')->put('images/' . $path, (string) $image->encode());
+                    Storage::disk('public')->put('brand/' . $path, (string) $image->encode());
                     $paths[] = $path;
 
                     // Lưu ảnh đầu tiên vào trường images của bảng products
@@ -101,12 +101,31 @@ class BrandController extends Controller
      */
     public function show(Brand $brand)
     {
-        //
+        return $brand;
     }
 
     /**
      * Update the specified resource in storage.
      */
+
+    public function edit($id)
+    {
+        $data = Brand::find($id);
+
+        if ($data) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Edit Brand ' . $data->id . ' ready!',
+                'category' => $data,
+            ],);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'No Brand Found',
+            ]);
+        }
+    }
+
     public function update(Request $request, Brand $brand)
     {
         //
@@ -115,70 +134,144 @@ class BrandController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Brand $brand)
+    public function destroy($id)
     {
-        //
+        $brand = Brand::find($id);
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+
+        // Kiểm tra xem có tồn tại Category không
+        if (!$brand) {
+            return response()->json(['message' => 'Category not found.'], 404);
+        }
+
+        // Kiểm tra xem có sản phẩm nào có category_id bằng $category->id không
+        $products = Product::where('brand_id', '=', $brand->category_id)->get();
+        if ($products->isEmpty()) {
+            $brand->deleted_at = $now;
+            $brand->status = 0;
+            $brand->save();
+            return response()->json(['message' => 'Brand has been softly deleted.']);
+        }
+
+        // Nếu tìm thấy sản phẩm có category_id thì thực hiện xóa tạm
+        foreach ($products as $product) {
+            $product->deleted_at = $now;
+            $product->status = 0;
+
+            $options = Options::where('product_id', $product->id)->get();
+            if (!$options->isEmpty()) {
+                Options::where('product_id', $product->id)->update(['status' => 0]);
+            }
+
+            $countDowns = CountDown::where('product_id', $product->id)->get();
+            if (!$countDowns->isEmpty()) {
+                CountDown::where('product_id', $product->id)->update(['status' => 0]);
+            }
+
+            $productImages = ProductImages::where('product_id', $product->id)->get();
+            if (!$productImages->isEmpty()) {
+                ProductImages::where('product_id', $product->id)->update(['status' => 0]);
+            }
+
+            $product->save();
+        }
+
+        $brand->deleted_at = $now;
+        $brand->status = 0;
+        $brand->save();
+
+        return response()->json(['message' => 'Brand and its products have been softly deleted.']);
     }
 
     public function trash()
     {
-        $categories = Brand::onlyTrashed()->get();
-
-        if ($categories->isEmpty()) {
-            return response()->json(['message' => 'No deleted categories found.'], 200);
-        }
-        return $categories;
+        $brand = Brand::onlyTrashed()->get();
+        return $brand;
     }
 
 
     public function restore($id)
     {
-        $category = Brand::withTrashed()->findOrFail($id);
-        $products = $category->products()->withTrashed()->get(); // sử dụng phương thức products()
-        if (!$category) {
-            return response()->json(['message' => 'Category not found.'], 404);
+        $brand = Brand::withTrashed()->find($id);
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+
+        // Kiểm tra xem có tồn tại Category không
+        if (!$brand) {
+            return response()->json(['message' => 'Brand not found.'], 404);
         }
 
-        if (!$category->trashed()) {
-            return response()->json(['message' => 'Category is not deleted.']);
-        }
+        // Kiểm tra xem có sản phẩm nào có category_id bằng $category->id không
+        $products = Product::where('category_id', '=', $brand->brand_id)->withTrashed()->get();
 
-        $categoryRestored = false;
-        $productsRestored = false;
-
-        // Khôi phục category nếu không có sản phẩm liên quan
         if ($products->isEmpty()) {
-            $category->status = 1;
-            $category->restore();
-            $categoryRestored = true;
+            $brand->status = 1;
+            $brand->restore();
+            return response()->json(['message' => 'Brand has been softly deleted.']);
         }
 
-        // Khôi phục cả category và sản phẩm liên quan
-        foreach ($products as $product) {
-            if ($product->trashed()) {
+        if ($products) {
+            foreach ($products as $product) {
                 $product->status = 1;
+
+                $options = Options::where('product_id', $product->id)->get();
+                if (!$options->isEmpty()) {
+                    Options::where('product_id', $product->id)->update(['status' => 1]);
+                }
+
+                $countDowns = CountDown::where('product_id', $product->id)->get();
+                if (!$countDowns->isEmpty()) {
+                    CountDown::where('product_id', $product->id)->update(['status' => 1]);
+                }
+
+                $productImages = ProductImages::where('product_id', $product->id)->get();
+                if (!$productImages->isEmpty()) {
+                    ProductImages::where('product_id', $product->id)->update(['status' => 1]);
+                }
+
                 $product->restore();
-                $product->options()->update(['status' => 1]);
-                $product->countdown()->update(['status' => 1]);
-                $product->images()->update(['status' => 1]);
-                $productsRestored = true;
             }
         }
 
-        if ($categoryRestored && !$productsRestored) {
-            return response()->json([
-                'message' => 'Category has been restored.',
-                'category' => $category->fresh()
-            ]);
-        } elseif (!$categoryRestored && $productsRestored) {
-            return response()->json([
-                'message' => 'Category and associated products have been restored.',
-                'category' => $category->fresh()
-            ]);
-        } else {
-            return response()->json([
-                'message' => 'Category and associated products do not exist or have been already restored.'
-            ]);
+        $brand->status = 1;
+        $brand->restore();
+
+        return response()->json(['message' => 'Brand and its products have been softly restore.']);
+    }
+    public function remove($id)
+    {
+        $brand = Brand::withTrashed()->findOrFail($id);
+        $products = $brand->products()->withTrashed()->get();
+
+        if (!$brand) {
+            return response()->json(['message' => 'Brand not found.'], 404);
         }
+
+        if (!$brand->trashed()) {
+            return response()->json(['message' => 'Brand is not deleted.']);
+        }
+
+        // Xóa ảnh đại diện của category nếu có
+        if ($brand->image && Storage::disk('public')->exists('brand/' . $brand->image)) {
+            Storage::disk('public')->delete('brand/' . $brand->image);
+        }
+
+        // Xóa vĩnh viễn category nếu không có sản phẩm liên quan
+        if ($products->isEmpty()) {
+            $brand->forceDelete();
+            return response()->json(['message' => 'Brand has been permanently deleted.']);
+        }
+
+        // Xóa vĩnh viễn cả category và sản phẩm liên quan
+        foreach ($products as $product) {
+            if ($product->trashed()) {
+                $product->options()->delete();
+                $product->countdown()->delete();
+                $product->images()->delete();
+                $product->forceDelete();
+            }
+        }
+
+        $brand->forceDelete();
+        return response()->json(['message' => 'Brand and associated products have been permanently deleted.']);
     }
 }

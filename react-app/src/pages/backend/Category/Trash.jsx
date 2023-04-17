@@ -56,7 +56,7 @@ export default function DataGridDemo() {
                 renderCell: (params) => (
                     <img
                         className='img img-fluid img-thumbnail'
-                        src={`http://localhost:8000/storage/images/${params.value}`}
+                        src={`http://localhost:8000/storage/category/${params.value}`}
                         alt={params.row.name_product}
                         style={{ width: '100%', height: 'auto' }} // Thêm CSS cho hình ảnh
                     />
@@ -132,7 +132,7 @@ export default function DataGridDemo() {
                             className='mx-1'
                             style={{ fontSize: '30px', cursor: 'pointer' }}
                             title='Edit'
-                            onClick={() => handleRestore(params.id)}
+                            onClick={() => confirmRestore(params.id)}
                         >
                             <MdRestore />
                         </Link>
@@ -140,7 +140,7 @@ export default function DataGridDemo() {
                             className='text-danger mx-1'
                             style={{ fontSize: '25px', cursor: 'pointer' }}
                             title='Delete'
-                            onClick={() => handleRemove(params.id)}
+                            onClick={() => confirmDelete(params.id)}
                         >
                             <BsFillTrashFill />
                         </span>
@@ -170,7 +170,6 @@ export default function DataGridDemo() {
     const [records, setRecords] = useState([]);
     const [initialData, setInitialData] = useState([]);
     const [countTrash, setCountTrash] = useState(0);
-    const btnRef = useRef(null);
 
     const fetchData = useCallback(() => {
         setIsLoading(true);
@@ -209,7 +208,7 @@ export default function DataGridDemo() {
             }
             // toast.success('Product has been softly deleted.');
             Swal.fire(
-                'Restore Category Successfully',
+                'Restore Category',
                 res.data.message,
                 'success'
             )
@@ -222,12 +221,27 @@ export default function DataGridDemo() {
                 'error'
             )
             console.error(error);
-            toast.error(error);
+            // toast.error(error);/
         }
     }, [fetchData, cache]);
+    // xác nhận khôi phục
+    const confirmRestore = useCallback((id) => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Are you sure you want to restore this catalog and related products!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, restore it!',
+            cancelButtonText: 'No, keep it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                handleRestore(id);
+            }
+        });
+    }, [handleRestore]);
 
     // xóa vĩnh viễn
-    const handleRemove = useCallback(async (id) => {
+    const handleDelete = useCallback(async (id) => {
         try {
             const res = await axios.delete(`/api/category/v1/remove/ ${id}`, {
                 headers: {
@@ -260,6 +274,22 @@ export default function DataGridDemo() {
             toast.error('Failed to delete category.');
         }
     }, [cache, setRecords, fetchData]);
+
+    // xác nhận xóa vĩnh viễn
+    const confirmDelete = useCallback((id) => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You will not be able to Delete this catalog and related products!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, keep it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                handleDelete(id);
+            }
+        });
+    }, [handleDelete]);
 
     // lọc sản phẩm theo tên
     const handleFilter = useCallback(e => {
@@ -348,7 +378,7 @@ export default function DataGridDemo() {
                                     <Typography className="product-info">{`Category Code: ${selectedProduct.category_id}`}</Typography>
                                     <Typography className="product-info">{`Parent: ${selectedProduct.parent_category}`}</Typography>
                                     <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedProduct.detail) }} />
-                                    <img className="product-image" src={`http://localhost:8000/storage/images/${selectedProduct.image}`} alt={selectedProduct.image} />
+                                    <img className="product-image" src={`http://localhost:8000/storage/category/${selectedProduct.image}`} alt={selectedProduct.image} />
                                 </>
                             )}
                         </DialogContent>

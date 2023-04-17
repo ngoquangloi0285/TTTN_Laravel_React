@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import { BsFillTrashFill } from 'react-icons/bs';
 import { GrEdit } from 'react-icons/gr';
@@ -55,7 +55,7 @@ export default function DataGridDemo() {
         renderCell: (params) => (
           <img
             className='img img-fluid img-thumbnail'
-            src={`http://localhost:8000/storage/images/${params.value}`}
+            src={`http://localhost:8000/storage/brand/${params.value}`}
             alt={params.row.name_category}
             style={{ width: '100%', height: 'auto' }} // Thêm CSS cho hình ảnh
           />
@@ -141,7 +141,7 @@ export default function DataGridDemo() {
               className='text-danger mx-1'
               style={{ fontSize: '20px', cursor: 'pointer' }}
               title='Delete'
-              onClick={() => handleDelete(params.id)}
+              onClick={() => confirmRestore(params.id)}
             >
               <BsFillTrashFill />
             </span>
@@ -164,13 +164,12 @@ export default function DataGridDemo() {
     setOpen(false);
   };
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [records, setRecords] = useState([]);
   const [initialData, setInitialData] = useState([]);
   const [countTrash, setCountTrash] = useState(0);
 
   const fetchData = async () => {
-    setIsLoading(true);
     try {
       const response = await axios.get('/api/brand/v1/brand');
       setRecords(response.data);
@@ -183,7 +182,6 @@ export default function DataGridDemo() {
   };
 
   const fetchTrash = async () => {
-    setIsLoading(true);
     try {
       const response = await axios.get('/api/brand/v1/trash');
       setCountTrash(response.data.length);
@@ -194,7 +192,7 @@ export default function DataGridDemo() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = useCallback(async (id) => {
     try {
       const response = await axios.delete(`/api/brand/v1/soft-delete/${id}`, {
         headers: {
@@ -223,8 +221,23 @@ export default function DataGridDemo() {
       console.error(error);
       toast.error('Failed to delete category or its products.');
     }
-  };
-
+  },[]);
+/// xác nhận xóa tạm
+const confirmRestore = useCallback((id) => {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'Are you sure you want to temporarily delete this brand and related products!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'No, keep it'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      handleDelete(id);
+      updateData();
+    }
+  });
+}, [handleDelete]);
 
   const updateData = async () => {
     try {
@@ -302,7 +315,7 @@ export default function DataGridDemo() {
             </Link>
           </div>
           <div className="col-3 d-flex">
-            <Link to="trash-category" className="btn btn-danger mb-3 text-white d-flex align-items-center" type="button">
+            <Link to="trash-brand" className="btn btn-danger mb-3 text-white d-flex align-items-center" type="button">
               <FiTrash2 className='fs-4' /> Trash <span>( {!countTrash ? "0" : countTrash} )</span>
             </Link>
           </div>
@@ -337,11 +350,11 @@ export default function DataGridDemo() {
             <DialogContent className="dialog-content">
               {selectedBrand && (
                 <>
-                  <Typography className="product-name" variant="h6">{selectedBrand.name_category}</Typography>
-                  <Typography className="product-info">{`Category: ${selectedBrand.category_id}`}</Typography>
-                  <Typography className="product-info">{`Parent: ${selectedBrand.parent_category}`}</Typography>
+                  <Typography className="product-name" variant="h6">{selectedBrand.name}</Typography>
+                  <Typography className="product-info">{`Brand Code: ${selectedBrand.brand_id}`}</Typography>
+                  <Typography className="product-info">{`Parent: ${selectedBrand.parent_brand}`}</Typography>
                   <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedBrand.detail) }} />
-                  <img className="product-image" src={`http://localhost:8000/storage/images/${selectedBrand.image}`} alt={selectedBrand.image} />
+                  <img className="product-image" src={`http://localhost:8000/storage/brand/${selectedBrand.image}`} alt={selectedBrand.image} />
                 </>
               )}
             </DialogContent>

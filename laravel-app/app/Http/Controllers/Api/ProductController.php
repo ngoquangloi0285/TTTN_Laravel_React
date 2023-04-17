@@ -70,7 +70,7 @@ class ProductController extends Controller
             return response()->json([
                 'error' => 'Product with this name already exists, please choose another name.',
                 'product' => $product
-            ], 505);
+            ], 500);
         } else {
             /** Generate id */
             $id = random_int(0, 9999999999);
@@ -108,7 +108,7 @@ class ProductController extends Controller
                         $constraint->aspectRatio();
                         $constraint->upsize();
                     });
-                    Storage::disk('public')->put('images/' . $path, (string) $image->encode());
+                    Storage::disk('public')->put('product/' . $path, (string) $image->encode());
                     $paths[] = $path;
 
                     // Lưu ảnh đầu tiên vào trường images của bảng products
@@ -231,6 +231,28 @@ class ProductController extends Controller
             return response()->json(['message' => 'Failed to delete product.']);
         }
     }
+
+    public function destroyALL(Request $request)
+    {
+        $data = $request['ids'];
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+
+        foreach ($data as $id) {
+            $product = Product::find($id);
+            if (!$product) {
+                return response()->json(['message' => "Product with id $id does not exist."]);
+            }
+            $product->deleted_at = $now;
+            $product->status = 0;
+            $product->save();
+
+            Options::where('product_id', $id)->update(['status' => 0]);
+            CountDown::where('product_id', $id)->update(['status' => 0]);
+            ProductImages::where('product_id', $id)->update(['status' => 0]);
+        }
+        return response()->json(['message' => 'Products have been softly deleted.']);
+    }
+
     public function trash()
     {
         $products = Product::onlyTrashed()->get();
@@ -245,11 +267,7 @@ class ProductController extends Controller
         if (!$product) {
             return response()->json(['message' => 'Product not found.'], 404);
         }
-        // kiểm tra bảng category_id có tồn tại dữ liệu trong bảng category hay không
-        $category = Category::find($product->category_id);
-        if (!$category) {
-            return response()->json(['message' => 'Category not found.'], 404);
-        }
+
         // tìm id có trong danh sách xóa tạm không
         if ($product->trashed()) {
             $product->status = 1;
@@ -265,6 +283,33 @@ class ProductController extends Controller
         }
     }
 
+    public function restoreALL(Request $request)
+    {
+        $data = $request['ids'];
+
+        foreach ($data as $id) {
+            // tìm id có xóa tạm không
+            $product = Product::withTrashed()->find($id);
+
+            if (!$product) {
+                return response()->json(['message' => 'Product not found.'], 404);
+            }
+
+            // tìm id có trong danh sách xóa tạm không
+            if ($product->trashed()) {
+                $product->status = 1;
+                if ($product->save()) {
+                    Options::where('product_id', $product->id)->update(['status' => 1]);
+                    CountDown::where('product_id', $product->id)->update(['status' => 1]);
+                    ProductImages::where('product_id', $product->id)->update(['status' => 1]);
+                    $product->restore();
+                }
+            }
+        }
+
+        return response()->json(['message' => 'Products have been restored.']);
+    }
+
     /**
      * Remove
      */
@@ -277,23 +322,70 @@ class ProductController extends Controller
         if (!$product) {
             return response()->json(['message' => 'Product not found.'], 404);
         }
+        // Xóa ảnh đại diện của category nếu có
+        if ($product->image && Storage::disk('public')->exists('product/' . $product->image)) {
+            Storage::disk('public')->delete('product/' . $product->image);
+        }
         // tìm id có trong danh sách xóa tạm không
         if ($product->trashed()) {
             // Xóa các bảng liên quan
             Options::where('product_id', $product_id)->delete();
             CountDown::where('product_id', $product_id)->delete();
-            ProductImages::where('product_id', $product_id)->delete();
+
+            $product_image = ProductImages::where('product_id', $product_id)->get();
+
+            if ($product_image->isNotEmpty()) {
+                foreach ($product_image as $image) {
+                    if ($image->image && Storage::disk('public')->exists('product/' . $image->image)) {
+                        Storage::disk('public')->delete('product/' . $image->image);
+                        $image->delete();
+                    }
+                }
+            }
             $product->forceDelete();
             return response()->json(['message' => 'Permanently deleted successfully']);
-        } else {
-            return response()->json(['message' => 'Product is not deleted.']);
         }
+        return response()->json(['message' => 'Product is not deleted.']);
     }
 
-    /**
-     * Trash
-     */
-    /**
-     * Restore
-     */
+    public function removeALL(Request $request)
+    {
+        $data = $request['ids'];
+
+        foreach ($data as $id) {
+            $product = Product::withTrashed()->find($id);
+
+            if (!$product) {
+                return response()->json(['message' => 'Product not found.'], 404);
+            }
+
+            // Xóa ảnh đại diện của category nếu có
+            if ($product->image && Storage::disk('public')->exists('product/' . $product->image)) {
+                Storage::disk('public')->delete('product/' . $product->image);
+            }
+
+            // tìm id có trong danh sách xóa tạm không
+            if ($product->trashed()) {
+                // Xóa các bảng liên quan
+                Options::where('product_id', $id)->delete();
+                CountDown::where('product_id', $id)->delete();
+
+                $product_image = ProductImages::where('product_id', $id)->get();
+
+                if ($product_image->isNotEmpty()) {
+                    foreach ($product_image as $image) {
+                        if ($image->image && Storage::disk('public')->exists('product/' . $image->image)) {
+                            Storage::disk('public')->delete('product/' . $image->image);
+                            $image->delete();
+                        }
+                    }
+                }
+
+                $product->forceDelete();
+            } else {
+                $product->delete();
+            }
+        }
+        return response()->json(['message' => 'Permanently deleted successfully']);
+    }
 }

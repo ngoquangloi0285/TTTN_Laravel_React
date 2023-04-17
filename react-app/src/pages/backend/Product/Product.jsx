@@ -1,28 +1,25 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import { BsFillTrashFill } from 'react-icons/bs';
 import { GrEdit } from 'react-icons/gr';
 import { IoCreateOutline } from 'react-icons/io5';
 import { FiTrash2 } from 'react-icons/fi';
-import { AiFillDelete, AiFillEdit, AiFillEye, AiOutlineEye } from 'react-icons/ai';
+import { AiOutlineEye } from 'react-icons/ai';
 import axios from '../../../api/axios';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LoadingOverlay from 'react-loading-overlay';
 
-import LRU from 'lru-cache';
-import useAuthContext from '../../../context/AuthContext';
 import { Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
 import { Button } from 'react-bootstrap';
-import Modal from 'react-modal';
 import DOMPurify from 'dompurify';
-import ReactHtmlParser from 'react-html-parser';
 import Meta from '../../../components/frontend/Meta';
-
+import Swal from 'sweetalert2';
 
 export default function DataGridDemo() {
+
   const columns = useMemo(
     () => [
       {
@@ -47,7 +44,7 @@ export default function DataGridDemo() {
         renderCell: (params) => (
           <img
             className='img img-fluid img-thumbnail'
-            src={`http://localhost:8000/storage/images/${params.value}`}
+            src={`http://localhost:8000/storage/product/${params.value}`}
             alt={params.row.name_product}
             style={{ width: '100%', height: 'auto' }} // Thêm CSS cho hình ảnh
           />
@@ -143,7 +140,7 @@ export default function DataGridDemo() {
               className='text-danger mx-1'
               style={{ fontSize: '20px', cursor: 'pointer' }}
               title='Delete'
-              onClick={() => handleDelete(params.id)}
+              onClick={() => confirmDelete(params.id)}
             >
               <BsFillTrashFill />
             </span>
@@ -152,8 +149,6 @@ export default function DataGridDemo() {
       },
     ]
   )
-  // Xử lý hiện QR Code 
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // xử lý hiện modal chi tiết sản phẩm
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -198,20 +193,39 @@ export default function DataGridDemo() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = useCallback(async (id) => {
     try {
-      await axios.delete(`/api/product/v1/products/${id}/soft-delete`, {
+      const res = await axios.delete(`/api/product/v1/product/${id}/soft-delete`, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
-      toast.success('Product has been softly deleted.');
+      Swal.fire(
+        'Delete Product Successfully',
+        res.data.message,
+        'success'
+      )
       updateData();
     } catch (error) {
       console.error(error);
       toast.error('Failed to delete product.');
     }
-  };
+  }, []);
+  /// xác nhận xóa tạm
+  const confirmDelete = useCallback((id) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Are you sure you want to temporarily delete this catalog and related products!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'No, keep it'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleDelete(id);
+      }
+    });
+  }, [handleDelete]);
 
   const updateData = async () => {
     try {
@@ -248,6 +262,49 @@ export default function DataGridDemo() {
     btn.innerHTML = "Load page";
   };
 
+  // xóa tạm nhiều sản phẩm
+  const [arrDmr, setArrDmr] = useState([])
+  const handleDeleteAll = useCallback( async () => {
+    try {
+      const res = await axios.delete(`/api/product/v1/products/soft-delete`, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: JSON.stringify({ ids: arrDmr })
+      });
+      Swal.fire(
+        'Delete Product Successfully',
+        res.data.message,
+        'success'
+      )
+      setArrDmr([]);
+      updateData();
+    } catch (error) {
+      console.error(error);
+      // toast.error('Failed to delete product.');
+      Swal.fire(
+        'Delete Product Successfully',
+        error.data.message,
+        'success'
+      )
+    }
+  },[arrDmr])
+  /// xác nhận xóa tạm
+  const confirmDeleteALL = useCallback(() => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Are you sure you want to temporarily delete all this catalog and related products!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete all!',
+      cancelButtonText: 'No, keep it'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleDeleteAll();
+      }
+    });
+  }, [handleDeleteAll]);
+
   useEffect(() => {
     fetchData();
     fetchTrash();
@@ -263,7 +320,6 @@ export default function DataGridDemo() {
       ></LoadingOverlay>
     </>
   }
-
   return (
     <>
       <Meta title={"Product"} />
@@ -284,26 +340,13 @@ export default function DataGridDemo() {
             <Link to="trash-product" className="btn btn-danger mb-3 text-white d-flex align-items-center" type="button">
               <FiTrash2 className='fs-4' /> Trash <span>( {!countTrash ? "0" : countTrash} )</span>
             </Link>
+            {
+              arrDmr.length > 1 &&
+              <button onClick={confirmDeleteALL} className="btn btn-danger mb-3 mx-2 text-white d-flex align-items-center" type="button">
+                <FiTrash2 className='fs-4' /> Delete all
+              </button>
+            }
           </div>
-          {/* Hiện QR CODE */}
-          {/* <Modal
-            isOpen={isModalOpen}
-            onRequestClose={() => setIsModalOpen(false)}
-            contentLabel="QR Code Modal"
-            style={{ content: { width: '300px', height: '300px' } }}
-            className="modal-qrcode"
-          >
-            <img 
-            className='img img-fluid'
-              style={{ width: '100%', height: 'auto' }}
-              src={`https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(
-                'qr-code-data'
-              )}`}
-              alt="QR code"
-            />
-          </Modal> */}
-          {/* Hiện QR CODE END */}
-
           {/* hiện data product */}
           <Box sx={{ height: 600, width: '100%' }}>
             <DataGrid
@@ -316,9 +359,12 @@ export default function DataGridDemo() {
                   },
                 },
               }}
-              pageSizeOptions={[5]}
+              pageSizeOptions={[5, 10, 20]}
               checkboxSelection
               disableRowSelectionOnClick
+              onRowSelectionModelChange={(data) => {
+                setArrDmr(data)
+              }}
               components={{
                 Toolbar: GridToolbar,
               }}
@@ -326,6 +372,7 @@ export default function DataGridDemo() {
               onFilterModelChange={(model) => console.log(model)}
             />
           </Box>
+
           {/* hiện data product end*/}
 
           {/* Hiển thị modal - chi tiết sản phẩm*/}
@@ -345,7 +392,7 @@ export default function DataGridDemo() {
                   <Typography className="product-info">{`Inch: ${selectedProduct.inch}`}</Typography>
                   <Typography className="product-title">Detail:</Typography>
                   <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedProduct.detail) }} />
-                  <img className="product-image" src={`http://localhost:8000/storage/images/${selectedProduct.image}`} alt={selectedProduct.images} />
+                  <img className="product-image" src={`http://localhost:8000/storage/product/${selectedProduct.image}`} alt={selectedProduct.name_product} />
                   {/* ... Hiển thị các thông tin khác của sản phẩm ... */}
                 </>
               )}
