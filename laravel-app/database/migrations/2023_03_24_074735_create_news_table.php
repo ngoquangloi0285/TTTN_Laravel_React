@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('id');
             $table->unsignedBigInteger('news_id');
             $table->string('title_news', 255);
+            $table->string('slug', 255)->unique();
             $table->string('content_news', 255);
             $table->string('images', 255)->nullable();
             $table->unsignedBigInteger('category_id');

@@ -35,6 +35,11 @@ import Category from './pages/backend/Category/Category'
 import EditCategory from './pages/backend/Category/Edit';
 import NewCategory from './pages/backend/Category/NewCategory';
 import TrashCategory from './pages/backend/Category/Trash';
+// Route News
+import News from './pages/backend/News/News'
+import EditNews from './pages/backend/News/Edit';
+import CreateNews from './pages/backend/News/CreateNews';
+import TrashNews from './pages/backend/News/Trash';
 
 function App() {
 
@@ -77,6 +82,11 @@ function App() {
             <Route path="brand/create-brand" element={<NewBrand />} />
             <Route path="brand/edit-brand/:id" element={<EditBrand />} />
             <Route path="brand/trash-brand" element={<TrashBrand />} />
+            {/* News */}
+            <Route path="news" element={<News />} />
+            <Route path="news/create-news" element={<CreateNews />} />
+            <Route path="news/edit-news/:id" element={<EditNews />} />
+            <Route path="news/trash-news" element={<TrashNews />} />
           </Route>
         </Route>
 

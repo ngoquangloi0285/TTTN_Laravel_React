@@ -149,8 +149,6 @@ export default function DataGridDemo() {
             },
         ]
     )
-    // Xử lý hiện QR Code 
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // xử lý hiện modal chi tiết sản phẩm
     const [selectedProduct, setSelectedProduct] = useState(null);
@@ -240,6 +238,49 @@ export default function DataGridDemo() {
         });
     }, [handleRestore]);
 
+    const [arrDmr, setArrDmr] = useState([])
+    //Khôi phục nhiều sản phẩm 
+    const handleRestoreALL = useCallback(async () => {
+        try {
+            const res = await axios.post('/api/category/v1/restoreALL', { ids: arrDmr }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            Swal.fire(
+                'Restore Category Successfully',
+                res.data.message,
+                'success'
+            );
+            console.log(arrDmr)
+            setArrDmr([]);
+            fetchData();
+        } catch (error) {
+            console.error(error);
+            Swal.fire(
+                'Restore Category Failed',
+                error.data.message,
+                'error'
+            );
+        }
+    }, [arrDmr, fetchData]);
+
+    // xác nhận khôi phục
+    const confirmRestoreALL = useCallback(() => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Are you sure you want to restore all this catalog and related products!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, restore all!',
+            cancelButtonText: 'No, keep it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                handleRestoreALL();
+            }
+        });
+    }, [handleRestoreALL]);
+
     // xóa vĩnh viễn
     const handleDelete = useCallback(async (id) => {
         try {
@@ -290,6 +331,47 @@ export default function DataGridDemo() {
             }
         });
     }, [handleDelete]);
+
+    // xóa nhiều category vĩnh viễn
+    const handleDeleteALL = useCallback(async () => {
+        try {
+            const res = await axios.delete('/api/category/v1/removeALL', {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                data: { ids: arrDmr }
+            });
+            Swal.fire(
+                'Delete all Category Successfully',
+                res.data.message,
+                'success'
+            );
+            setArrDmr([]);
+            fetchData();
+        } catch (error) {
+            console.error(error);
+            Swal.fire(
+                'Delete all Category Failed',
+                error.data.message,
+                'error'
+            );
+        }
+    }, [arrDmr, fetchData]);
+    // xác nhận xóa vĩnh viễn nhiều sản phẩm
+    const confirmDeleteALL = useCallback(() => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You will not be able to Delete all this catalog and related products!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete all!',
+            cancelButtonText: 'No, keep it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                handleDeleteALL();
+            }
+        });
+    }, [handleDeleteALL]);
 
     // lọc sản phẩm theo tên
     const handleFilter = useCallback(e => {
@@ -342,6 +424,17 @@ export default function DataGridDemo() {
                         <Link to='../category' className="btn btn-info m-1 text-white d-flex align-items-center" type="button">
                             <AiOutlineRollback className='fs-4' /> Back Category
                         </Link>
+                        {
+                            arrDmr.length > 1 &&
+                            <>
+                                <button onClick={confirmDeleteALL} className="btn btn-danger m-1 text-white d-flex align-items-center" type="button">
+                                    <FiTrash2 className='fs-4' /> Remove ALL
+                                </button>
+                                <button onClick={confirmRestoreALL} className="btn btn-info m-1 text-white d-flex align-items-center" type="button">
+                                    <MdRestore className='fs-4' /> Restore ALL
+                                </button>
+                            </>
+                        }
                     </div>
 
                     {/* hiện data product */}
@@ -356,9 +449,12 @@ export default function DataGridDemo() {
                                     },
                                 },
                             }}
-                            pageSizeOptions={[5]}
+                            pageSizeOptions={[5, 10, 20]}
                             checkboxSelection
                             disableRowSelectionOnClick
+                            onRowSelectionModelChange={(data) => {
+                                setArrDmr(data)
+                            }}
                             components={{
                                 Toolbar: GridToolbar,
                             }}

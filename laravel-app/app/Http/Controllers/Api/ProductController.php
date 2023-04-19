@@ -2,21 +2,16 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Helpers\Helper;
 use App\Models\Product;
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\CountDown;
 use App\Models\Options;
 use App\Models\ProductImages;
 use Carbon\Carbon;
-use Exception;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ChangePassController;
 use App\Http\Controllers\Api\CountDownController;
+use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\OptionController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductImagesController;
@@ -67,10 +68,16 @@ Route::prefix('category/v1')->group(function () {
     Route::get('trash', [CategoryController::class, 'trash'])->name('category.trash');
     // Xóa tạm SP
     Route::delete('soft-delete/{id}', [CategoryController::class, 'destroy'])->name('category.destroy');
+    // Xóa tạm ALL SP
+    Route::delete('category_all/soft-delete', [CategoryController::class, 'destroyALL'])->name('category.destroyALL');
     // Khôi phục SP với ID
     Route::get('restore/{id}', [CategoryController::class, 'restore'])->name('category.restore');
+    // Khôi phục SP ALL
+    Route::post('restoreALL', [CategoryController::class, 'restoreALL'])->name('category.restoreALL');
     // Xóa vĩnh viễn SP
     Route::delete('remove/{id}', [CategoryController::class, 'remove'])->name('category.remove');
+    // Xóa vĩnh viễn  nhiều SP
+    Route::delete('removeALL', [CategoryController::class, 'removeALL'])->name('category.removeALL');
 });
 
 Route::prefix('brand/v1')->group(function () {
@@ -88,10 +95,42 @@ Route::prefix('brand/v1')->group(function () {
     Route::get('trash', [BrandController::class, 'trash'])->name('brand.trash');
     // Xóa tạm SP
     Route::delete('soft-delete/{id}', [BrandController::class, 'destroy'])->name('brand.destroy');
+    // Xóa tạm ALL SP
+    Route::delete('brand_all/soft-delete', [BrandController::class, 'destroyALL'])->name('brand.destroyALL');
     // Khôi phục SP với ID
     Route::get('restore/{id}', [BrandController::class, 'restore'])->name('brand.restore');
+    // Khôi phục SP ALL
+    Route::post('restoreALL', [BrandController::class, 'restoreALL'])->name('brand.restoreALL');
     // Xóa vĩnh viễn SP
     Route::delete('/remove/{id}', [BrandController::class, 'remove'])->name('brand.remove');
+    // Xóa vĩnh viễn  nhiều SP
+    Route::delete('removeALL', [BrandController::class, 'removeALL'])->name('brand.removeALL');
+});
+Route::prefix('news/v1')->group(function () {
+    // News
+    Route::get("news", [NewsController::class, 'index']);
+    // Lấy thông tin sản phẩm theo id
+    Route::get('news/{id}', [NewsController::class, 'show'])->name('news.show');
+    // Lấy thông tin sản phẩm theo id
+    Route::get('edit/{id}', [NewsController::class, 'edit'])->name('news.edit');
+    // Tạo sản phẩm mới
+    Route::post("create-news", [NewsController::class, 'store'])->name('news.store');
+    // Cập nhật sp phuong thuc POST
+    Route::post('update/{id}', [NewsController::class, 'update'])->name('news.update')->middleware('cors');
+    // Lấy tất cả SP trong đã xóa tạm
+    Route::get('trash', [NewsController::class, 'trash'])->name('news.trash');
+    // Xóa tạm SP
+    Route::delete('soft-delete/{id}', [NewsController::class, 'destroy'])->name('news.destroy');
+    // Xóa tạm ALL SP
+    Route::delete('news_all/soft-delete', [NewsController::class, 'destroyALL'])->name('news.destroyALL');
+    // Khôi phục SP với ID
+    Route::get('restore/{id}', [NewsController::class, 'restore'])->name('news.restore');
+    // Khôi phục SP ALL
+    Route::post('restoreALL', [NewsController::class, 'restoreALL'])->name('news.restoreALL');
+    // Xóa vĩnh viễn SP
+    Route::delete('/remove/{id}', [NewsController::class, 'remove'])->name('news.remove');
+    // Xóa vĩnh viễn  nhiều SP
+    Route::delete('removeALL', [NewsController::class, 'removeALL'])->name('news.removeALL');
 });
 Route::prefix('countdown/v1')->group(function () {
     // Brand

@@ -221,23 +221,23 @@ export default function DataGridDemo() {
       console.error(error);
       toast.error('Failed to delete category or its products.');
     }
-  },[]);
-/// xác nhận xóa tạm
-const confirmRestore = useCallback((id) => {
-  Swal.fire({
-    title: 'Are you sure?',
-    text: 'Are you sure you want to temporarily delete this brand and related products!',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, delete it!',
-    cancelButtonText: 'No, keep it'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      handleDelete(id);
-      updateData();
-    }
-  });
-}, [handleDelete]);
+  }, []);
+  /// xác nhận xóa tạm
+  const confirmRestore = useCallback((id) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Are you sure you want to temporarily delete this brand and related products!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'No, keep it'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleDelete(id);
+        updateData();
+      }
+    });
+  }, [handleDelete]);
 
   const updateData = async () => {
     try {
@@ -280,7 +280,49 @@ const confirmRestore = useCallback((id) => {
     fetchData();
     fetchTrash();
   }, []);
+  // xóa tạm nhiều sản phẩm
+  const [arrDmr, setArrDmr] = useState([])
+  const handleDeleteAll = useCallback(async () => {
+    try {
+      const res = await axios.delete(`/api/brand/v1/brand_all/soft-delete`, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: JSON.stringify({ ids: arrDmr })
+      });
+      Swal.fire(
+        'Delete Brand Successfully',
+        res.data.message,
+        'success'
+      )
+      setArrDmr('');
+      updateData();
+    } catch (error) {
+      console.error(error);
+      // toast.error('Failed to delete product.');
+      Swal.fire(
+        'Delete Brand Successfully',
+        error.data.message,
+        'success'
+      )
+    }
+  }, [arrDmr])
 
+  /// xác nhận xóa tạm
+  const confirmDeleteALL = useCallback(() => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Are you sure you want to temporarily delete all this brand and related products!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete all!',
+      cancelButtonText: 'No, keep it'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleDeleteAll();
+      }
+    });
+  }, [handleDeleteAll]);
   if (isLoading === true) {
     return <>
       <LoadingOverlay className='text-danger'
@@ -318,6 +360,12 @@ const confirmRestore = useCallback((id) => {
             <Link to="trash-brand" className="btn btn-danger mb-3 text-white d-flex align-items-center" type="button">
               <FiTrash2 className='fs-4' /> Trash <span>( {!countTrash ? "0" : countTrash} )</span>
             </Link>
+            {
+              arrDmr.length > 1 &&
+              <button onClick={confirmDeleteALL} className="btn btn-danger mb-3 mx-2 text-white d-flex align-items-center" type="button">
+                <FiTrash2 className='fs-4' /> Delete all
+              </button>
+            }
           </div>
 
           {/* hiện data product */}
@@ -332,9 +380,12 @@ const confirmRestore = useCallback((id) => {
                   },
                 },
               }}
-              pageSizeOptions={[5]}
+              pageSizeOptions={[5, 10, 20]}
               checkboxSelection
               disableRowSelectionOnClick
+              onRowSelectionModelChange={(data) => {
+                setArrDmr(data)
+              }}
               components={{
                 Toolbar: GridToolbar,
               }}

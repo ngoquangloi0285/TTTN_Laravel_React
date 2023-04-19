@@ -85,16 +85,13 @@ const EditCategory = () => {
                     setTimeout(() => setShowCategoryToast(false), 10000);
                 }
                 setCategories(categoryResponse.data);
-
                 if (editResponse.data.status === 200) {
                     setNameCategory(editResponse.data.category.name_category);
                     setCategoryID(editResponse.data.category.id);
-                    setCategory(categoryResponse.data.category);
                 }
                 // Lấy ra danh sách ảnh của category và lưu vào state arrImages
                 const image = editResponse.data.category.image;
                 setImage(image);
-                console.log('categoryImage: ', image);
                 setIsLoading(false)
             })
             .catch(error => {
@@ -107,7 +104,7 @@ const EditCategory = () => {
                 }
                 setIsLoading(false)
             });
-    }, [categoryID, id]);
+    }, [categoryID, id,category]);
     //   tìm id category trùng với id trong bảng category
     const category_ID = categories.find(c => c.id === categoryID);
     // console.log(category_ID)
@@ -124,8 +121,8 @@ const EditCategory = () => {
         if (!nameCategory) {
             newErrors.nameCategory = "Vui lòng nhập tên danh mục.";
         }
-        if (!categoryID) {
-            newErrors.categoryID = "Vui lòng chọn danh mục cha.";
+        if (!category) {
+            newErrors.category = "Vui lòng chọn danh mục cha.";
         }
         if (files.length > 1) {
             newErrors.files = "Chỉ được phép tải lên 1 tập tin.";
@@ -187,7 +184,7 @@ const EditCategory = () => {
                 )
             }
         }
-    }, [categoryID, files, id, nameCategory, navigate,category]);
+    }, [files, id, nameCategory, navigate, category]);
     // xác nhận  update
     const confirmUpdate = useCallback(() => {
         Swal.fire({
@@ -269,6 +266,7 @@ const EditCategory = () => {
                                 <option key={category.id} value={category.id}>{category.name_category}</option>
                             ))}
                         </select>
+                        <p>category:{category}</p>
                         {errors.category && (
                             <div className="alert alert-danger" role="alert">
                                 {errors.category}

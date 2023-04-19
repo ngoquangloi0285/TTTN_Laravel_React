@@ -4,84 +4,80 @@ import { BsFillTrashFill } from 'react-icons/bs';
 import { GrEdit } from 'react-icons/gr';
 import { IoCreateOutline } from 'react-icons/io5';
 import { FiTrash2 } from 'react-icons/fi';
-import { AiFillDelete, AiFillEdit, AiFillEye, AiOutlineEye } from 'react-icons/ai';
+import { AiOutlineEye } from 'react-icons/ai';
 import axios from '../../../api/axios';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LoadingOverlay from 'react-loading-overlay';
 
-import LRU from 'lru-cache';
-import useAuthContext from '../../../context/AuthContext';
 import { Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
 import { Button } from 'react-bootstrap';
-import Modal from 'react-modal';
 import DOMPurify from 'dompurify';
-import ReactHtmlParser from 'react-html-parser';
 import Meta from '../../../components/frontend/Meta';
 import Swal from 'sweetalert2';
 
-
 export default function DataGridDemo() {
+
   const columns = useMemo(
     () => [
       {
         field: 'id',
         headerName: 'ID',
-        align: 'center'
       },
       {
-        field: 'category_id',
-        headerName: 'Category Code',
+        field: 'news_id',
+        headerName: 'News Code',
         editable: true,
-        width: 200, // Thêm thuộc tính width vào đây
-        align: 'center'
       },
       {
-        field: 'name_category',
-        headerName: 'Name',
+        field: 'title_news',
+        headerName: 'Title News',
         editable: true,
-        width: 100, // Thêm thuộc tính width vào đây
-        align: 'center'
+        width: 150,
       },
       {
-        field: 'image',
+        field: 'images',
         headerName: 'Image',
         sortable: false,
         cellClassName: 'custom-cell',
-        width: 100, // Thêm thuộc tính width vào đây
-        align: 'center',
+        width: 150,
         renderCell: (params) => (
           <img
             className='img img-fluid img-thumbnail'
-            src={`http://localhost:8000/storage/category/${params.value}`}
-            alt={params.row.name_category}
+            src={`http://localhost:8000/storage/news/${params.value}`}
+            alt={params.row.name_product}
             style={{ width: '100%', height: 'auto' }} // Thêm CSS cho hình ảnh
           />
         ),
       },
       {
-        field: 'parent_category',
-        headerName: 'Parent category',
-        type: 'number',
+        field: 'category_id',
+        headerName: 'Category',
         editable: true,
-        width: 150, // Thêm thuộc tính width vào đây
-        align: 'center',
-        valueFormatter: (params) => {
-          if (params.value === 0) {
-            return 'Level 1';
-          } else if (params.value === 1) {
-            return 'Level 2';
-          } else {
-            return `${params.value}`;
-          }
-        },
+        // cellRenderer: params => {
+        //   const categoryId = params.value;
+        //   const [categoryName, setCategoryName] = useState('');
+
+        //   useEffect(() => {
+        //     axios.get(`/api/category/v1/category/${categoryId}`)
+        //       .then(response => {
+        //         const categoryData = response.data;
+        //         setCategoryName(categoryData.name);
+        //       })
+        //       .catch(error => {
+        //         console.log(error);
+        //       });
+        //   }, [categoryId]);
+
+        //   return <span>{categoryName}</span>;
+        // }
       },
       {
-        field: 'detail', headerName: 'Detail',
-        width: 100, // Thêm thuộc tính width vào đây
-        align: 'center',
+        field: 'content_news',
+        headerName: 'Content News',
+        width: 150,
         renderCell: (params) => (
           <Button className=''
             variant="contained"
@@ -95,15 +91,11 @@ export default function DataGridDemo() {
       {
         field: 'author',
         headerName: 'Author',
-        width: 100, // Thêm thuộc tính width vào đây
-        align: 'center',
         editable: true,
       },
       {
         field: 'status',
         headerName: 'Status',
-        width: 100, // Thêm thuộc tính width vào đây
-        align: 'center',
         renderCell: (params) => {
           const statusStyle = {
             padding: '5px',
@@ -125,15 +117,13 @@ export default function DataGridDemo() {
         field: 'actions',
         headerName: 'Actions',
         sortable: false,
-        width: 100, // Thêm thuộc tính width vào đây
-        align: 'center',
         renderCell: (params) => (
           <>
             <Link
               className='mx-1'
               style={{ fontSize: '20px', cursor: 'pointer' }}
               title='Edit'
-              to={`edit-category/${params.id}`}
+              to={`edit-news/${params.id}`}
             >
               <GrEdit />
             </Link>
@@ -152,11 +142,11 @@ export default function DataGridDemo() {
   )
 
   // xử lý hiện modal chi tiết sản phẩm
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedNews, setSelectedNews] = useState(null);
   const [open, setOpen] = useState(false);
 
-  const handleClickOpen = (product) => {
-    setSelectedCategory(product);
+  const handleClickOpen = (news) => {
+    setSelectedNews(news);
     setOpen(true);
   };
 
@@ -172,7 +162,7 @@ export default function DataGridDemo() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('/api/category/v1/category');
+      const response = await axios.get('/api/news/v1/news');
       setRecords(response.data);
       setInitialData(response.data);
       setIsLoading(false);
@@ -185,7 +175,7 @@ export default function DataGridDemo() {
   const fetchTrash = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('/api/category/v1/trash');
+      const response = await axios.get('/api/news/v1/trash');
       setCountTrash(response.data.length);
       setIsLoading(false);
     } catch (error) {
@@ -196,30 +186,20 @@ export default function DataGridDemo() {
 
   const handleDelete = useCallback(async (id) => {
     try {
-      const response = await axios.delete(`/api/category/v1/soft-delete/${id}`, {
+      const res = await axios.delete(`/api/news/v1/news/${id}/soft-delete`, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
-      if (response.data.message.includes('products')) {
-        Swal.fire(
-          'Delete Category Successfully',
-          response.data.message,
-          'success'
-        )
-        // toast.success('Category and its products have been softly deleted.');
-      } else {
-        // toast.success('Category has been softly deleted.');
-        Swal.fire(
-          'Delete Category Successfully',
-          response.data.message,
-          'success'
-        )
-      }
+      Swal.fire(
+        'Delete News Successfully',
+        res.data.message,
+        'success'
+      )
       updateData();
     } catch (error) {
       console.error(error);
-      toast.error('Failed to delete category or its products.');
+      toast.error('Failed to delete News.');
     }
   }, []);
   /// xác nhận xóa tạm
@@ -241,8 +221,8 @@ export default function DataGridDemo() {
   const updateData = async () => {
     try {
       const [productsResponse, trashResponse] = await Promise.all([
-        axios.get('/api/category/v1/category'),
-        axios.get('/api/category/v1/trash')
+        axios.get('/api/news/v1/news'),
+        axios.get('/api/news/v1/trash')
       ]);
       setRecords(productsResponse.data);
       setInitialData(productsResponse.data);
@@ -260,7 +240,7 @@ export default function DataGridDemo() {
         return [...initialData];
       }
       return prevRecords.filter(record =>
-        record.name_category.toLowerCase().includes(value.toLowerCase())
+        record.name_product.toLowerCase().includes(value.toLowerCase())
       );
     });
   };
@@ -273,38 +253,33 @@ export default function DataGridDemo() {
     btn.innerHTML = "Load page";
   };
 
-  useEffect(() => {
-    fetchData();
-    fetchTrash();
-  }, []);
   // xóa tạm nhiều sản phẩm
   const [arrDmr, setArrDmr] = useState([])
   const handleDeleteAll = useCallback(async () => {
     try {
-      const res = await axios.delete(`/api/category/v1/category_all/soft-delete`, {
+      const res = await axios.delete(`/api/news/v1/news/soft-delete`, {
         headers: {
           'Content-Type': 'application/json'
         },
         data: JSON.stringify({ ids: arrDmr })
       });
       Swal.fire(
-        'Delete Category Successfully',
+        'Delete News Successfully',
         res.data.message,
         'success'
       )
-      setArrDmr('');
+      setArrDmr([]);
       updateData();
     } catch (error) {
       console.error(error);
       // toast.error('Failed to delete product.');
       Swal.fire(
-        'Delete Category Successfully',
+        'Delete News Successfully',
         error.data.message,
         'success'
       )
     }
   }, [arrDmr])
-
   /// xác nhận xóa tạm
   const confirmDeleteALL = useCallback(() => {
     Swal.fire({
@@ -321,6 +296,11 @@ export default function DataGridDemo() {
     });
   }, [handleDeleteAll]);
 
+  useEffect(() => {
+    fetchData();
+    fetchTrash();
+  }, []);
+
   if (isLoading === true) {
     return <>
       <LoadingOverlay className='text-danger'
@@ -331,31 +311,24 @@ export default function DataGridDemo() {
       ></LoadingOverlay>
     </>
   }
-
   return (
     <>
-      <Meta title={"Category"} />
-      <LoadingOverlay className='text-danger'
-        spinner
-        active={isLoading}
-        text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
-        }
-      ></LoadingOverlay>
+      <Meta title={"News"} />
       <div className="container-xxl">
         <div className="row">
           <input
             type="text"
             className="form-control my-3"
-            placeholder="Search Category..."
+            placeholder="Search Product..."
             onChange={handleFilter}
           />
           <div className="col-3">
-            <Link to="create-category" className="btn btn-info mb-3 text-white d-flex align-items-center" type="button">
-              <IoCreateOutline className='fs-4' /> Add New Category
+            <Link to="create-news" className="btn btn-info mb-3 text-white d-flex align-items-center" type="button">
+              <IoCreateOutline className='fs-4' /> Create new News
             </Link>
           </div>
           <div className="col-3 d-flex">
-            <Link to="trash-category" className="btn btn-danger mb-3 text-white d-flex align-items-center" type="button">
+            <Link to="trash-news" className="btn btn-danger mb-3 text-white d-flex align-items-center" type="button">
               <FiTrash2 className='fs-4' /> Trash <span>( {!countTrash ? "0" : countTrash} )</span>
             </Link>
             {
@@ -365,8 +338,7 @@ export default function DataGridDemo() {
               </button>
             }
           </div>
-
-          {/* hiện data product */}
+          {/* hiện data news */}
           <Box sx={{ height: 600, width: '100%' }}>
             <DataGrid
               rows={records}
@@ -391,19 +363,21 @@ export default function DataGridDemo() {
               onFilterModelChange={(model) => console.log(model)}
             />
           </Box>
+
           {/* hiện data product end*/}
 
           {/* Hiển thị modal - chi tiết sản phẩm*/}
           <Dialog open={open} onClose={handleClose} className="dialog" maxWidth="xl" maxHeight="lg">
-            <DialogTitle>Category Detail</DialogTitle>
+            <DialogTitle>News Detail</DialogTitle>
             <DialogContent className="dialog-content">
-              {selectedCategory && (
+              {selectedNews && (
                 <>
-                  <Typography className="product-name" variant="h6">{selectedCategory.name_category}</Typography>
-                  <Typography className="product-info">{`Category Code: ${selectedCategory.category_id}`}</Typography>
-                  <Typography className="product-info">{`Parent: ${selectedCategory.parent_category}`}</Typography>
-                  <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedCategory.detail) }} />
-                  <img className="product-image" src={`http://localhost:8000/storage/category/${selectedCategory.image}`} alt={selectedCategory.images} />
+                  <Typography className="product-name" variant="h6">{selectedNews.title_news}</Typography>
+                  <Typography className="product-info">{`Category: ${selectedNews.category_id}`}</Typography>
+                  <Typography className="product-title">Detail:</Typography>
+                  <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedNews.content_news) }} />
+                  <img className="product-image" src={`http://localhost:8000/storage/news/${selectedNews.image}`} alt={selectedNews.name_product} />
+                  {/* ... Hiển thị các thông tin khác của sản phẩm ... */}
                 </>
               )}
             </DialogContent>

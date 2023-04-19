@@ -189,7 +189,7 @@ class CategoryController extends Controller
         }
 
         // Kiểm tra xem có sản phẩm nào có category_id bằng $category->id không
-        $products = Product::where('category_id', '=', $category->category_id)->get();
+        $products = Product::where('category_id', '=', $category->id)->get();
         if ($products->isEmpty()) {
             $category->deleted_at = $now;
             $category->status = 0;
@@ -227,6 +227,61 @@ class CategoryController extends Controller
         return response()->json(['message' => 'Category and its products have been softly deleted.']);
     }
 
+    public function destroyALL(Request $request)
+    {
+        $ids = $request['ids'];
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+
+        foreach ($ids as $id) {
+            $category = Category::find($id);
+
+            // Kiểm tra xem có tồn tại Category không
+            if (!$category) {
+                continue;
+            }
+
+            // Kiểm tra xem có sản phẩm nào có category_id bằng $category->id không
+            $products = Product::where('category_id', '=', $category->id)->get();
+            if ($products->isEmpty()) {
+                $category->deleted_at = $now;
+                $category->status = 0;
+                $category->save();
+                continue;
+            }
+
+            // Nếu tìm thấy sản phẩm có category_id thì thực hiện xóa tạm
+            foreach ($products as $product) {
+                $product->deleted_at = $now;
+                $product->status = 0;
+
+                $options = Options::where('product_id', $product->id)->get();
+                if (!$options->isEmpty()) {
+                    Options::where('product_id', $product->id)->update(['status' => 0]);
+                }
+
+                $countDowns = CountDown::where('product_id', $product->id)->get();
+                if (!$countDowns->isEmpty()) {
+                    CountDown::where('product_id', $product->id)->update(['status' => 0]);
+                }
+
+                $productImages = ProductImages::where('product_id', $product->id)->get();
+                if (!$productImages->isEmpty()) {
+                    ProductImages::where('product_id', $product->id)->update(['status' => 0]);
+                }
+
+                $product->save();
+            }
+
+            $category->deleted_at = $now;
+            $category->status = 0;
+            $category->save();
+        }
+
+        return response()->json(['message' => 'Categories and their products have been softly deleted.']);
+    }
+
+
+
     public function trash()
     {
         $categories = Category::onlyTrashed()->get();
@@ -244,7 +299,7 @@ class CategoryController extends Controller
         }
 
         // Kiểm tra xem có sản phẩm nào có category_id bằng $category->id không
-        $products = Product::where('category_id', '=', $category->category_id)->withTrashed()->get();
+        $products = Product::where('category_id', '=', $category->id)->withTrashed()->get();
 
         if ($products->isEmpty()) {
             $category->status = 1;
@@ -281,6 +336,54 @@ class CategoryController extends Controller
         return response()->json(['message' => 'Category and its products have been softly restore.']);
     }
 
+    public function restoreAll(Request $request)
+    {
+        $ids = $request['ids'];
+
+        foreach ($ids as $id) {
+            $category = Category::withTrashed()->find($id);
+
+            // Kiểm tra xem có tồn tại Category không
+            if (!$category) {
+                return response()->json(['message' => 'Category not found.'], 404);
+            }
+
+            // Kiểm tra xem có sản phẩm nào có category_id bằng $category->id không
+            $products = Product::where('category_id', '=', $category->id)->withTrashed()->get();
+
+            if ($products->isEmpty()) {
+                $category->status = 1;
+                $category->restore();
+            } else {
+                foreach ($products as $product) {
+                    $product->status = 1;
+
+                    $options = Options::where('product_id', $product->id)->get();
+                    if (!$options->isEmpty()) {
+                        Options::where('product_id', $product->id)->update(['status' => 1]);
+                    }
+
+                    $countDowns = CountDown::where('product_id', $product->id)->get();
+                    if (!$countDowns->isEmpty()) {
+                        CountDown::where('product_id', $product->id)->update(['status' => 1]);
+                    }
+
+                    $productImages = ProductImages::where('product_id', $product->id)->get();
+                    if (!$productImages->isEmpty()) {
+                        ProductImages::where('product_id', $product->id)->update(['status' => 1]);
+                    }
+
+                    $product->restore();
+                }
+
+                $category->status = 1;
+                $category->restore();
+            }
+        }
+
+        return response()->json(['message' => 'Categories and their products have been softly restored.']);
+    }
+
     public function remove($id)
     {
         $category = Category::withTrashed()->findOrFail($id);
@@ -298,7 +401,7 @@ class CategoryController extends Controller
             Storage::disk('public')->delete('category/' . $category->image);
         }
         // Kiểm tra xem có sản phẩm nào có category_id bằng $category->id không
-        $products = Product::where('category_id', '=', $category->category_id)->withTrashed()->get();
+        $products = Product::where('category_id', '=', $category->id)->withTrashed()->get();
         // Xóa vĩnh viễn category nếu không có sản phẩm liên quan
         if ($products->isEmpty()) {
             $category->forceDelete();
@@ -309,23 +412,100 @@ class CategoryController extends Controller
             foreach ($products as $product) {
                 $options = Options::where('product_id', $product->id)->get();
                 if (!$options->isEmpty()) {
-                    Options::where('product_id', $product->id)->de;
+                    Options::where('product_id', $product->id)->delete();
                 }
 
-                $countDowns = CountDown::where('product_id', $product->id)->delete();
+                $countDowns = CountDown::where('product_id', $product->id)->get();
                 if (!$countDowns->isEmpty()) {
                     CountDown::where('product_id', $product->id)->delete();
                 }
 
-                $productImages = ProductImages::where('product_id', $product->id)->get();
-                if (!$productImages->isEmpty()) {
-                    ProductImages::where('product_id', $product->id)->delete();
+                $product_images = ProductImages::where('product_id', $product->id)->get();
+
+                if ($product_images->isNotEmpty()) {
+                    foreach ($product_images as $image) {
+                        if ($image->image && Storage::disk('public')->exists('product/' . $image->image)) {
+                            Storage::disk('public')->delete('product/' . $image->image);
+                            $image->delete();
+                        }
+                    }
                 }
+
+                if ($product->image && Storage::disk('public')->exists('product/' . $product->image)) {
+                    Storage::disk('public')->delete('product/' . $product->image);
+                }
+
                 $product->forceDelete();
             }
         }
 
         $category->forceDelete();
         return response()->json(['message' => 'Category and associated products have been permanently deleted.']);
+    }
+
+
+    public function removeALL(Request $request)
+    {
+        $ids = $request['ids'];
+
+        foreach ($ids as $id) {
+
+            $category = Category::withTrashed()->findOrFail($id);
+
+            if (!$category) {
+                return response()->json(['message' => 'Category not found.'], 404);
+            }
+
+            if (!$category->trashed()) {
+                return response()->json(['message' => 'Category is not deleted.']);
+            }
+
+            // Xóa ảnh đại diện của category nếu có
+            if ($category->image && Storage::disk('public')->exists('category/' . $category->image)) {
+                Storage::disk('public')->delete('category/' . $category->image);
+            }
+            // Kiểm tra xem có sản phẩm nào có category_id bằng $category->id không
+            $products = Product::where('category_id', '=', $category->id)->withTrashed()->get();
+            // Xóa vĩnh viễn category nếu không có sản phẩm liên quan
+            if ($products->isEmpty()) {
+                $category->forceDelete();
+                return response()->json(['message' => 'Category has been permanently deleted.']);
+            }
+
+            if ($products) {
+                foreach ($products as $product) {
+                    $options = Options::where('product_id', $product->id)->get();
+                    if (!$options->isEmpty()) {
+                        Options::where('product_id', $product->id)->delete();
+                    }
+
+                    $countDowns = CountDown::where('product_id', $product->id)->get();
+                    if (!$countDowns->isEmpty()) {
+                        CountDown::where('product_id', $product->id)->delete();
+                    }
+
+                    $product_images = ProductImages::where('product_id', $product->id)->get();
+
+                    if ($product_images->isNotEmpty()) {
+                        foreach ($product_images as $image) {
+                            if ($image->image && Storage::disk('public')->exists('product/' . $image->image)) {
+                                Storage::disk('public')->delete('product/' . $image->image);
+                                $image->delete();
+                            }
+                        }
+                    }
+
+                    if ($product->image && Storage::disk('public')->exists('product/' . $product->image)) {
+                        Storage::disk('public')->delete('product/' . $product->image);
+                    }
+
+                    $product->forceDelete();
+                }
+            }
+
+            $category->forceDelete();
+        }
+
+        return response()->json(['message' => 'Categories and associated products have been permanently deleted.']);
     }
 }
