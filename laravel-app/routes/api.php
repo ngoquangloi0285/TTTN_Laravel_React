@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ChangePassController;
 use App\Http\Controllers\Api\CountDownController;
 use App\Http\Controllers\Api\NewsController;
+use App\Http\Controllers\Api\NewsImagesController;
 use App\Http\Controllers\Api\OptionController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductImagesController;
@@ -98,7 +99,7 @@ Route::prefix('brand/v1')->group(function () {
     // Xóa tạm ALL SP
     Route::delete('brand_all/soft-delete', [BrandController::class, 'destroyALL'])->name('brand.destroyALL');
     // Khôi phục SP với ID
-    Route::get('restore/{id}', [BrandController::class, 'restore'])->name('brand.restore');
+    Route::post('restore/{id}', [BrandController::class, 'restore'])->name('brand.restore');
     // Khôi phục SP ALL
     Route::post('restoreALL', [BrandController::class, 'restoreALL'])->name('brand.restoreALL');
     // Xóa vĩnh viễn SP
@@ -124,7 +125,7 @@ Route::prefix('news/v1')->group(function () {
     // Xóa tạm ALL SP
     Route::delete('news_all/soft-delete', [NewsController::class, 'destroyALL'])->name('news.destroyALL');
     // Khôi phục SP với ID
-    Route::get('restore/{id}', [NewsController::class, 'restore'])->name('news.restore');
+    Route::post('restore/{id}', [NewsController::class, 'restore'])->name('news.restore');
     // Khôi phục SP ALL
     Route::post('restoreALL', [NewsController::class, 'restoreALL'])->name('news.restoreALL');
     // Xóa vĩnh viễn SP
@@ -140,4 +141,9 @@ Route::prefix('images/v1')->group(function () {
     // images
     Route::get("images", [ProductImagesController::class, 'index']);
 });
+Route::prefix('news_images/v1')->group(function () {
+    // images
+    Route::get("news_images", [NewsImagesController::class, 'index']);
+});
+
 Route::post("change-password", [ChangePassController::class, 'ChangePassWord']);

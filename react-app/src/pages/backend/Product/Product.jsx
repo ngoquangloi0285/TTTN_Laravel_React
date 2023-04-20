@@ -18,6 +18,25 @@ import DOMPurify from 'dompurify';
 import Meta from '../../../components/frontend/Meta';
 import Swal from 'sweetalert2';
 
+function CellRenderer(props) {
+  const { value, endpoint, fieldName } = props;
+  const [data, setData] = useState('');
+
+  useEffect(() => {
+    axios.get(endpoint + `?id=${value}`)
+      .then(response => {
+        const res = response.data
+        setData(res[fieldName])
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }, [value,fieldName,endpoint]);
+
+  return <span>{data}</span>;
+}
+
+
 export default function DataGridDemo() {
 
   const columns = useMemo(
@@ -264,7 +283,7 @@ export default function DataGridDemo() {
 
   // xóa tạm nhiều sản phẩm
   const [arrDmr, setArrDmr] = useState([])
-  const handleDeleteAll = useCallback( async () => {
+  const handleDeleteAll = useCallback(async () => {
     try {
       const res = await axios.delete(`/api/product/v1/products/soft-delete`, {
         headers: {
@@ -288,7 +307,7 @@ export default function DataGridDemo() {
         'success'
       )
     }
-  },[arrDmr])
+  }, [arrDmr])
   /// xác nhận xóa tạm
   const confirmDeleteALL = useCallback(() => {
     Swal.fire({
@@ -382,8 +401,12 @@ export default function DataGridDemo() {
               {selectedProduct && (
                 <>
                   <Typography className="product-name" variant="h6">{selectedProduct.name_product}</Typography>
-                  <Typography className="product-info">{`Category: ${selectedProduct.category_id}`}</Typography>
-                  <Typography className="product-info">{`Brand: ${selectedProduct.brand_id}`}</Typography>
+                  <Typography className="product-info">
+                    Category: <CellRenderer value={selectedProduct.category_id} endpoint="/api/category/v1/category" fieldName="name_category" />
+                  </Typography>
+                  <Typography className="product-info">
+                    Brand: <CellRenderer value={selectedProduct.brand_id} endpoint="/api/brand/v1/brand" fieldName="name" />
+                  </Typography>
                   <Typography className="product-info">{`Summary: ${selectedProduct.summary}`}</Typography>
                   <Typography className="product-info">{`Cost: $${selectedProduct.cost}`}</Typography>
                   <Typography className="product-info">{`Price: $${selectedProduct.price}`}</Typography>

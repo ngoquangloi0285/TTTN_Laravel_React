@@ -79,21 +79,20 @@ const Edit = () => {
         });
     };
 
-    const clearImageUrls = () => {
+    const clearImageUrls =useCallback( () => {
         previewUrls.forEach((url) => URL.revokeObjectURL(url));
         setPreviewUrls([]);
         setFiles([]);
-    };
+    },[previewUrls]);
 
     const ClearUpPhotos = () => {
         document.getElementById("file").value = "";
         clearImageUrls();
     };
 
-    const ClearUp = (e) => {
+    const ClearUp = useCallback((e) => {
         // document.getElementById("category").value = "";
         // document.getElementById("brand").value = "";
-
         setNameProduct("");
         setSummary("");
         setCostProduct("");
@@ -107,7 +106,7 @@ const Edit = () => {
         document.getElementById("file").value = "";
         document.getElementById("status").value = "";
         clearImageUrls();
-    }
+    }, [clearImageUrls, now])
 
     const handleContentChange = (value) => {
         setContent(value);
@@ -334,7 +333,7 @@ const Edit = () => {
             }
             btn.innerHTML = "Update Product";
         }
-    }, [ClearUp, content, color, costProduct, discount, encodedId, endTime, files, inch, nameProduct, priceSale, startTime, total, summary,navigate]);
+    }, [ClearUp, content, color, costProduct, discount, encodedId, endTime, files, inch, nameProduct, priceSale, startTime, total, summary, navigate]);
     // xác nhận  update
     const confirmUpdate = useCallback(() => {
         Swal.fire({

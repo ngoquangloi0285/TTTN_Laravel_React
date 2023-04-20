@@ -6,6 +6,7 @@ use App\Models\News;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\CountDown;
+use App\Models\NewsImages;
 use App\Models\Options;
 use App\Models\ProductImages;
 use Carbon\Carbon;
@@ -76,16 +77,16 @@ class NewsController extends Controller
 
                     // Lưu ảnh đầu tiên vào trường images của bảng products
                     if ($key == 0) {
-                        $news->images = $path;
+                        $news->image = $path;
                         $news->save();
                     } else {
                         // Lưu các ảnh còn lại vào bảng product_images
-                        $productImage = new ProductImages();
-                        $productImage->product_id = $news->id;
-                        $productImage->image = $path;
-                        $productImage->author = $request->user()->name;
-                        $productImage->status = $request['status'];
-                        $productImage->save();
+                        $newsImages = new NewsImages();
+                        $newsImages->news_id = $news->id;
+                        $newsImages->image = $path;
+                        $newsImages->author = $request->user()->name;
+                        $newsImages->status = $request['status'];
+                        $newsImages->save();
                     }
                 }
             }
@@ -136,8 +137,170 @@ class NewsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(News $news)
+    public function destroy($id)
     {
-        //
+        $news = News::find($id);
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+
+        // Kiểm tra xem có tồn tại News không
+        if (!$news) {
+            return response()->json(['message' => 'News not found.'], 404);
+        }
+        $newsImages = NewsImages::where('news_id', $id)->get();
+        if (!$newsImages->isEmpty()) {
+            NewsImages::where('news_id', $id)->update(['status' => 0]);
+        }
+        $news->deleted_at = $now;
+        $news->status = 0;
+        $news->save();
+
+        return response()->json(['message' => 'News have been softly deleted.']);
+    }
+
+    public function destroyALL(Request $request)
+    {
+        $ids = $request['ids'];
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+
+        foreach ($ids as $id) {
+            $news = News::find($id);
+
+            // Kiểm tra xem có tồn tại Category không
+            if (!$news) {
+                continue;
+            }
+
+            $newsImages = NewsImages::where('news_id', $id)->get();
+            if (!$newsImages->isEmpty()) {
+                NewsImages::where('news_id', $id)->update(['status' => 0]);
+            }
+
+            $news->deleted_at = $now;
+            $news->status = 0;
+            $news->save();
+        }
+
+        return response()->json(['message' => 'Categories and their products have been softly deleted.']);
+    }
+
+    public function trash()
+    {
+        $news = News::onlyTrashed()->get();
+        return $news;
+    }
+
+    public function restore($id)
+    {
+        $news = News::withTrashed()->find($id);
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+
+        // Kiểm tra xem có tồn tại News không
+        if (!$news) {
+            return response()->json(['message' => 'News not found.'], 404);
+        }
+
+        $newsImages = NewsImages::where('news_id', $id)->get();
+        if (!$newsImages->isEmpty()) {
+            NewsImages::where('news_id', $id)->update(['status' => 1]);
+        }
+
+        $news->status = 1;
+        $news->restore();
+
+        return response()->json(['message' => 'News and its products have been softly restore.']);
+    }
+
+    public function restoreAll(Request $request)
+    {
+        $ids = $request['ids'];
+
+        foreach ($ids as $id) {
+            $news = News::withTrashed()->find($id);
+
+            // Kiểm tra xem có tồn tại news không
+            if (!$news) {
+                return response()->json(['message' => 'News not found.'], 404);
+            }
+
+            $newsImages = NewsImages::where('news_id', $id)->get();
+            if (!$newsImages->isEmpty()) {
+                NewsImages::where('news_id', $id)->update(['status' => 1]);
+            }
+
+            $news->status = 1;
+            $news->restore();
+        }
+
+        return response()->json(['message' => 'News have been softly restored.']);
+    }
+
+    public function remove($id)
+    {
+        $news = News::withTrashed()->findOrFail($id);
+
+        if (!$news) {
+            return response()->json(['message' => 'News not found.'], 404);
+        }
+
+        if (!$news->trashed()) {
+            return response()->json(['message' => 'News is not deleted.']);
+        }
+
+        // Xóa ảnh đại diện của news nếu có
+        if ($news->image && Storage::disk('public')->exists('news/' . $news->image)) {
+            Storage::disk('public')->delete('news/' . $news->image);
+        }
+
+        $news_image = NewsImages::where('news_id', $id)->get();
+
+        if ($news_image->isNotEmpty()) {
+            foreach ($news_image as $image) {
+                if ($image->image && Storage::disk('public')->exists('news/' . $image->image)) {
+                    Storage::disk('public')->delete('news/' . $image->image);
+                    $image->delete();
+                }
+            }
+        }
+
+        $news->forceDelete();
+        return response()->json(['message' => 'News have been permanently deleted.']);
+    }
+
+    public function removeALL(Request $request)
+    {
+        $ids = $request['ids'];
+
+        foreach ($ids as $id) {
+
+            $news = News::withTrashed()->findOrFail($id);
+
+            if (!$news) {
+                return response()->json(['message' => 'News not found.'], 404);
+            }
+
+            if (!$news->trashed()) {
+                return response()->json(['message' => 'News is not deleted.']);
+            }
+
+            // Xóa ảnh đại diện của category nếu có
+            if ($news->image && Storage::disk('public')->exists('news/' . $news->image)) {
+                Storage::disk('public')->delete('news/' . $news->image);
+            }
+
+            $news_image = NewsImages::where('news_id', $id)->get();
+
+            if ($news_image->isNotEmpty()) {
+                foreach ($news_image as $image) {
+                    if ($image->image && Storage::disk('public')->exists('news/' . $image->image)) {
+                        Storage::disk('public')->delete('news/' . $image->image);
+                        $image->delete();
+                    }
+                }
+            }
+
+            $news->forceDelete();
+        }
+
+        return response()->json(['message' => 'News have been permanently deleted.']);
     }
 }

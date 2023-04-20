@@ -24,11 +24,11 @@ class BrandController extends Controller
     public function index(Request $request)
     {
         if ($request->has('id')) {
-            $id = $request('id');
+            $id = $request['id'];
             $brand = Brand::findOrFail($id);
             return $brand;
         } else {
-            $brand = Brand::get();
+            $brand = Brand::all();
             return $brand;
         }
     }

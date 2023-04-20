@@ -18,6 +18,25 @@ import DOMPurify from 'dompurify';
 import Meta from '../../../components/frontend/Meta';
 import Swal from 'sweetalert2';
 
+function CategoryCellRenderer(props) {
+  const { value } = props;
+  const [categoryName, setCategoryName] = useState('');
+
+  useEffect(() => {
+    axios.get(`/api/category/v1/category?id=${value}`)
+      .then(response => {
+        const res = response.data
+        setCategoryName(res.name_category)
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }, [value]);
+
+  return <span>{categoryName}</span>;
+}
+
+
 export default function DataGridDemo() {
 
   const columns = useMemo(
@@ -38,11 +57,10 @@ export default function DataGridDemo() {
         width: 150,
       },
       {
-        field: 'images',
+        field: 'image',
         headerName: 'Image',
         sortable: false,
         cellClassName: 'custom-cell',
-        width: 150,
         renderCell: (params) => (
           <img
             className='img img-fluid img-thumbnail'
@@ -56,23 +74,7 @@ export default function DataGridDemo() {
         field: 'category_id',
         headerName: 'Category',
         editable: true,
-        // cellRenderer: params => {
-        //   const categoryId = params.value;
-        //   const [categoryName, setCategoryName] = useState('');
-
-        //   useEffect(() => {
-        //     axios.get(`/api/category/v1/category/${categoryId}`)
-        //       .then(response => {
-        //         const categoryData = response.data;
-        //         setCategoryName(categoryData.name);
-        //       })
-        //       .catch(error => {
-        //         console.log(error);
-        //       });
-        //   }, [categoryId]);
-
-        //   return <span>{categoryName}</span>;
-        // }
+        renderCell: (params) => <CategoryCellRenderer value={params.value} />
       },
       {
         field: 'content_news',
@@ -186,7 +188,7 @@ export default function DataGridDemo() {
 
   const handleDelete = useCallback(async (id) => {
     try {
-      const res = await axios.delete(`/api/news/v1/news/${id}/soft-delete`, {
+      const res = await axios.delete(`/api/news/v1/soft-delete/${id}`, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -240,7 +242,7 @@ export default function DataGridDemo() {
         return [...initialData];
       }
       return prevRecords.filter(record =>
-        record.name_product.toLowerCase().includes(value.toLowerCase())
+        record.title_news.toLowerCase().includes(value.toLowerCase())
       );
     });
   };
@@ -257,7 +259,7 @@ export default function DataGridDemo() {
   const [arrDmr, setArrDmr] = useState([])
   const handleDeleteAll = useCallback(async () => {
     try {
-      const res = await axios.delete(`/api/news/v1/news/soft-delete`, {
+      const res = await axios.delete(`/api/news/v1/news_all/soft-delete`, {
         headers: {
           'Content-Type': 'application/json'
         },
@@ -373,10 +375,12 @@ export default function DataGridDemo() {
               {selectedNews && (
                 <>
                   <Typography className="product-name" variant="h6">{selectedNews.title_news}</Typography>
-                  <Typography className="product-info">{`Category: ${selectedNews.category_id}`}</Typography>
+                  <Typography className="product-info"> Category:
+                    <CategoryCellRenderer value={selectedNews.category_id} />
+                  </Typography>
                   <Typography className="product-title">Detail:</Typography>
                   <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedNews.content_news) }} />
-                  <img className="product-image" src={`http://localhost:8000/storage/news/${selectedNews.image}`} alt={selectedNews.name_product} />
+                  <img className="product-image" src={`http://localhost:8000/storage/news/${selectedNews.image}`} alt={selectedNews.image} />
                   {/* ... Hiển thị các thông tin khác của sản phẩm ... */}
                 </>
               )}

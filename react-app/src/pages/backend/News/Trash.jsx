@@ -23,6 +23,23 @@ import Meta from '../../../components/frontend/Meta';
 import { MdRestore } from 'react-icons/md';
 import Swal from 'sweetalert2';
 
+function CategoryCellRenderer(props) {
+    const { value } = props;
+    const [categoryName, setCategoryName] = useState('');
+
+    useEffect(() => {
+        axios.get(`/api/category/v1/category?id=${value}`)
+            .then(response => {
+                const res = response.data
+                setCategoryName(res.name_category)
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }, [value]);
+
+    return <span>{categoryName}</span>;
+}
 
 export default function DataGridDemo() {
     const columns = useMemo(
@@ -32,14 +49,15 @@ export default function DataGridDemo() {
                 headerName: 'ID',
             },
             {
-                field: 'product_id',
-                headerName: 'Product Code',
+                field: 'news_id',
+                headerName: 'News Code',
                 editable: true,
             },
             {
-                field: 'name_product',
-                headerName: 'Name',
+                field: 'title_news',
+                headerName: 'Title News',
                 editable: true,
+                width: 150,
             },
             {
                 field: 'image',
@@ -49,35 +67,22 @@ export default function DataGridDemo() {
                 renderCell: (params) => (
                     <img
                         className='img img-fluid img-thumbnail'
-                        src={`http://localhost:8000/storage/product/${params.value}`}
+                        src={`http://localhost:8000/storage/news/${params.value}`}
                         alt={params.row.name_product}
                         style={{ width: '100%', height: 'auto' }} // Thêm CSS cho hình ảnh
                     />
                 ),
             },
             {
-                field: 'price',
-                headerName: 'Price',
-                type: 'number',
+                field: 'category_id',
+                headerName: 'Category',
                 editable: true,
-                valueFormatter: (params) => `$${params.value}`,
+                renderCell: (params) => <CategoryCellRenderer value={params.value} />
             },
             {
-                field: 'cost',
-                headerName: 'Cost',
-                type: 'number',
-                editable: true,
-                valueFormatter: (params) => `$${params.value}`,
-            },
-            {
-                field: 'discount',
-                headerName: 'Discount',
-                type: 'number',
-                editable: true,
-                valueFormatter: (params) => `$${params.value}`,
-            },
-            {
-                field: 'detail', headerName: 'Detail',
+                field: 'content_news',
+                headerName: 'Content News',
+                width: 150,
                 renderCell: (params) => (
                     <Button className=''
                         variant="contained"
@@ -142,11 +147,11 @@ export default function DataGridDemo() {
     )
 
     // xử lý hiện modal chi tiết sản phẩm
-    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [selectedNews, setSelectedNews] = useState(null);
     const [open, setOpen] = useState(false);
 
     const handleClickOpen = (product) => {
-        setSelectedProduct(product);
+        setSelectedNews(product);
         setOpen(true);
     };
 
@@ -163,7 +168,7 @@ export default function DataGridDemo() {
     const fetchData = useCallback(async () => {
         setIsLoading(true);
         try {
-            const response = await axios.get('/api/product/v1/trash');
+            const response = await axios.get('/api/news/v1/trash');
             setIsLoading(false);
             setRecords(response.data);
             setInitialData(response.data);
@@ -183,20 +188,20 @@ export default function DataGridDemo() {
 
     const handleRestore = useCallback(async (id) => {
         try {
-            const res = await axios.post(`/api/product/v1/restore/${id}`, {
+            const res = await axios.post(`/api/news/v1/restore/${id}`, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
-            const products = cache.get('products');
-            if (products) {
+            const news = cache.get('news');
+            if (news) {
                 // Tìm và cập nhật sản phẩm đã bị xóa trong cache
-                const updatedProducts = products.filter((product) => product.id !== id);
-                cache.set('products', updatedProducts);
+                const updatedNews = news.filter((product) => product.id !== id);
+                cache.set('news', updatedNews);
             }
             // toast.success('Product has been softly deleted.');
             Swal.fire(
-                'Restore Product Successfully',
+                'Restore News Successfully',
                 res.data.message,
                 'success'
             )
@@ -204,14 +209,14 @@ export default function DataGridDemo() {
             fetchData(); // Cập nhật lại bảng sản phẩm
         } catch (error) {
             console.error(error);
-            toast.error('Failed to delete product.');
+            toast.error('Failed to delete News.');
         }
     }, [fetchData, cache]);
     // xác nhận khôi phục
     const confirmRestore = useCallback((id) => {
         Swal.fire({
             title: 'Are you sure?',
-            text: 'Are you sure you want to restore this catalog and related products!',
+            text: 'Are you sure you want to restore this news!',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, restore it!',
@@ -227,13 +232,13 @@ export default function DataGridDemo() {
     //Khôi phục nhiều sản phẩm 
     const handleRestoreALL = useCallback(async () => {
         try {
-            const res = await axios.post('/api/product/v1/restoreALL', { ids: arrDmr }, {
+            const res = await axios.post('/api/news/v1/restoreALL', { ids: arrDmr }, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
             Swal.fire(
-                'Restore Product Successfully',
+                'Restore News Successfully',
                 res.data.message,
                 'success'
             );
@@ -242,7 +247,7 @@ export default function DataGridDemo() {
         } catch (error) {
             console.error(error);
             Swal.fire(
-                'Restore Product Failed',
+                'Restore News Failed',
                 error.data.message,
                 'error'
             );
@@ -264,21 +269,22 @@ export default function DataGridDemo() {
             }
         });
     }, [handleRestoreALL]);
+
     // xóa vĩnh viễn
     const handleDelete = useCallback(async (id) => {
         try {
-            await axios.delete(`/api/product/v1/remove/${id}`, {
+            await axios.delete(`/api/news/v1/remove/${id}`, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
-            const products = cache.get('products');
-            if (products) {
+            const news = cache.get('news');
+            if (news) {
                 // Tìm và cập nhật sản phẩm đã bị xóa trong cache
-                const updatedProducts = products.filter((product) => product.id !== id);
-                cache.set('products', updatedProducts);
+                const updatedNews = news.filter((product) => product.id !== id);
+                cache.set('news', updatedNews);
             }
-            toast.success('Product has been softly deleted.');
+            toast.success('News has been softly deleted.');
             // Xóa sản phẩm khỏi danh sách hiện tại trong state `records`
             setRecords(prevRecords => {
                 return prevRecords.filter((product) => product.id !== id);
@@ -286,14 +292,14 @@ export default function DataGridDemo() {
             fetchData();
         } catch (error) {
             console.error(error);
-            toast.error('Failed to delete product.');
+            toast.error('Failed to delete news.');
         }
     }, [cache, setRecords, fetchData]);
     // xác nhận xóa vĩnh viễn
     const confirmDelete = useCallback((id) => {
         Swal.fire({
             title: 'Are you sure?',
-            text: 'You will not be able to Delete this catalog and related products!',
+            text: 'You will not be able to Delete this news!',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, delete it!',
@@ -304,17 +310,17 @@ export default function DataGridDemo() {
             }
         });
     }, [handleDelete]);
-    
+
     const handleDeleteALL = useCallback(async () => {
         try {
-            const res = await axios.delete('/api/product/v1/removeALL', {
+            const res = await axios.delete('/api/news/v1/removeALL', {
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 data: { ids: arrDmr }
             });
             Swal.fire(
-                'Delete all Product Successfully',
+                'Delete all News Successfully',
                 res.data.message,
                 'success'
             );
@@ -323,7 +329,7 @@ export default function DataGridDemo() {
         } catch (error) {
             console.error(error);
             Swal.fire(
-                'Delete all Product Failed',
+                'Delete all News Failed',
                 error.data.message,
                 'error'
             );
@@ -334,7 +340,7 @@ export default function DataGridDemo() {
     const confirmDeleteALL = useCallback(() => {
         Swal.fire({
             title: 'Are you sure?',
-            text: 'You will not be able to Delete all this catalog and related products!',
+            text: 'You will not be able to Delete all this news!',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, delete all!',
@@ -345,6 +351,7 @@ export default function DataGridDemo() {
             }
         });
     }, [handleDeleteALL]);
+    
     // lọc sản phẩm theo tên
     const handleFilter = useCallback(e => {
         const { value } = e.target;
@@ -353,7 +360,7 @@ export default function DataGridDemo() {
                 return [...initialData];
             }
             return prevRecords.filter(record =>
-                record.name_product.toLowerCase().includes(value.toLowerCase())
+                record.title_news.toLowerCase().includes(value.toLowerCase())
             );
         });
     }, [initialData, setRecords]);
@@ -379,7 +386,7 @@ export default function DataGridDemo() {
     }
     return (
         <>
-            <Meta title={"Trash Product"} />
+            <Meta title={"Trash News"} />
             <div className="container-xxl">
                 <div className="row">
                     <input
@@ -392,8 +399,8 @@ export default function DataGridDemo() {
                         <Link className="btn btn-danger m-1 text-white d-flex align-items-center" type="button">
                             <FiTrash2 className='fs-4' /> Trash <span>( {!countTrash ? "0" : countTrash} )</span>
                         </Link>
-                        <Link to='../product' className="btn btn-info m-1 text-white d-flex align-items-center" type="button">
-                            <AiOutlineRollback className='fs-4' /> Back Product
+                        <Link to='../news' className="btn btn-info m-1 text-white d-flex align-items-center" type="button">
+                            <AiOutlineRollback className='fs-4' /> Back News
                         </Link>
                         {
                             arrDmr.length > 1 &&
@@ -437,22 +444,17 @@ export default function DataGridDemo() {
 
                     {/* Hiển thị modal - chi tiết sản phẩm*/}
                     <Dialog open={open} onClose={handleClose} className="dialog" maxWidth="xl" maxHeight="lg">
-                        <DialogTitle>Product Detail</DialogTitle>
+                        <DialogTitle>News Detail</DialogTitle>
                         <DialogContent className="dialog-content">
-                            {selectedProduct && (
+                            {selectedNews && (
                                 <>
-                                    <Typography className="product-name" variant="h6">{selectedProduct.name_product}</Typography>
-                                    <Typography className="product-info">{`Category: ${selectedProduct.category_id}`}</Typography>
-                                    <Typography className="product-info">{`Brand: ${selectedProduct.brand_id}`}</Typography>
-                                    <Typography className="product-info">{`Summary: ${selectedProduct.summary}`}</Typography>
-                                    <Typography className="product-info">{`Cost: $${selectedProduct.cost}`}</Typography>
-                                    <Typography className="product-info">{`Price: $${selectedProduct.price}`}</Typography>
-                                    <Typography className="product-info">{`Discount: $${selectedProduct.discount}`}</Typography>
-                                    <Typography className="product-info">{`Color: ${selectedProduct.color}`}</Typography>
-                                    <Typography className="product-info">{`Inch: ${selectedProduct.inch}`}</Typography>
+                                    <Typography className="product-name" variant="h6">{selectedNews.title_news}</Typography>
+                                    <Typography className="product-info"> Category:
+                                        <CategoryCellRenderer value={selectedNews.category_id} />
+                                    </Typography>
                                     <Typography className="product-title">Detail:</Typography>
-                                    <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedProduct.detail) }} />
-                                    <img className="product-image" src={`http://localhost:8000/storage/product/${selectedProduct.image}`} alt={selectedProduct.images} />
+                                    <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedNews.content_news) }} />
+                                    <img className="product-image" src={`http://localhost:8000/storage/news/${selectedNews.image}`} alt={selectedNews.image} />
                                     {/* ... Hiển thị các thông tin khác của sản phẩm ... */}
                                 </>
                             )}

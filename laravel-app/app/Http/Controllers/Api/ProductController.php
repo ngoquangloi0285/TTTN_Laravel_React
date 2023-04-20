@@ -223,14 +223,27 @@ class ProductController extends Controller
                         $product->save();
                     } else {
                         $productImage = ProductImages::where('product_id', '=', $product->id)->first();
-                        if ($productImage->image && Storage::disk('public')->exists('product/' . $productImage->image)) {
-                            Storage::disk('public')->delete('product/' . $productImage->image);
+
+                        if ($productImage) {
+                            // Nếu có bản ghi ảnh cho sản phẩm này trong bảng product_images
+                            if ($productImage->image && Storage::disk('public')->exists('product/' . $productImage->image)) {
+                                // Nếu có ảnh trong bảng và tồn tại file ảnh trên disk, thực hiện xóa ảnh cũ
+                                Storage::disk('public')->delete('product/' . $productImage->image);
+                            }
+                            // Cập nhật thông tin ảnh mới vào bảng
+                            $productImage->image = $path;
+                            $productImage->author = $request->user()->name;
+                            $productImage->status = $request['status'];
+                            $productImage->save();
+                        } else {
+                            // Nếu không có bản ghi ảnh cho sản phẩm này trong bảng product_images, thêm bản ghi mới
+                            $productImage = new ProductImages;
+                            $productImage->product_id = $product->id;
+                            $productImage->image = $path;
+                            $productImage->author = $request->user()->name;
+                            $productImage->status = $request['status'];
+                            $productImage->save();
                         }
-                        // Lưu các ảnh còn lại vào bảng product_images
-                        $productImage->image = $path;
-                        $productImage->author = $request->user()->name;
-                        $productImage->status = $request['status'];
-                        $productImage->save();
                     }
                 }
                 // Lưu thông tin options của sản phẩm vào bảng Options

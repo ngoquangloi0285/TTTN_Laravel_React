@@ -104,7 +104,7 @@ const EditCategory = () => {
                 }
                 setIsLoading(false)
             });
-    }, [categoryID, id,category]);
+    }, [categoryID, id]);
     //   tìm id category trùng với id trong bảng category
     const category_ID = categories.find(c => c.id === categoryID);
     // console.log(category_ID)
@@ -122,7 +122,7 @@ const EditCategory = () => {
             newErrors.nameCategory = "Vui lòng nhập tên danh mục.";
         }
         if (!category) {
-            newErrors.category = "Vui lòng chọn danh mục cha.";
+            newErrors.categoryID = "Vui lòng chọn danh mục cha.";
         }
         if (files.length > 1) {
             newErrors.files = "Chỉ được phép tải lên 1 tập tin.";

@@ -105,11 +105,8 @@ const EditBrand = () => {
                 setIsLoading(false)
             });
     }, [setBrandID, id]);
-    console.log(brands)
-    console.log(brandID)
     //   tìm id category trùng với id trong bảng category
     const brand_ID = brands.find(c => c.id === brandID);
-    console.log("Brand id", brand_ID)
     // console.log(category_ID)
     // khi trùng id thì lấy name_category ra
     const brandName = brand_ID ? brand_ID.name : '';
@@ -270,9 +267,9 @@ const EditBrand = () => {
                             ))}
                         </select>
                         <p>Brand: {brand}</p>
-                        {errors.category && (
+                        {errors.brand && (
                             <div className="alert alert-danger" role="alert">
-                                {errors.category}
+                                {errors.brand}
                             </div>
                         )}
                         {showBrandToast && (

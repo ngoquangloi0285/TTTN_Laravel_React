@@ -193,7 +193,7 @@ export default function DataGridDemo() {
 
     const handleRestore = useCallback(async (id) => {
         try {
-            const res = await axios.get(`/api/category/v1/restore/${id}`, {
+            const res = await axios.post(`/api/category/v1/restore/${id}`, {
                 headers: {
                     'Content-Type': 'application/json'
                 }

@@ -21,10 +21,18 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $category = Category::get();
-        return $category;
+        if ($request->has('id')) {
+            // Lấy thông tin của một danh mục với id được truyền vào
+            $id = $request['id'];
+            $category = Category::find($id);
+            return $category;
+        } else {
+            // Lấy danh sách tất cả các danh mục
+            $categories = Category::all();
+            return $categories;
+        }
     }
 
     /**
