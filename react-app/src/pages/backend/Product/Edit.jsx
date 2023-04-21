@@ -321,7 +321,7 @@ const Edit = () => {
                     }
                 });
             }
-            ClearUp();
+            // ClearUp();
         } catch (error) {
             setIsLoading(false);
             setIsLoading(false);
@@ -333,7 +333,7 @@ const Edit = () => {
             }
             btn.innerHTML = "Update Product";
         }
-    }, [ClearUp, content, color, costProduct, discount, encodedId, endTime, files, inch, nameProduct, priceSale, startTime, total, summary, navigate]);
+    }, [content, color, costProduct, discount, encodedId, endTime, files, inch, nameProduct, priceSale, startTime, total, summary, navigate]);
     // xác nhận  update
     const confirmUpdate = useCallback(() => {
         Swal.fire({
@@ -380,7 +380,7 @@ const Edit = () => {
                         </div>
                         <button onClick={confirmUpdate} className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
                             <IoCreateOutline className='fs-4' />
-                            Update product
+                            Update product: <strong className='text-dark'>{id}</strong>
                         </button>
                         <Link to="../product" className="btn btn-info text-white mr-2" type="button">
                             <AiOutlineRollback className='fs-4' />
@@ -390,7 +390,7 @@ const Edit = () => {
                     </div>
                     <div className="col-3">
                         <div className="mb-2">
-                            <label className='form-label fw-bold' htmlFor="nameproduct">Name Product:</label>
+                            <label className='form-label fw-bold' htmlFor="nameProduct">Name Product:</label>
                             <input
                                 value={nameProduct}
                                 onChange={(e) => setNameProduct(e.target.value)}

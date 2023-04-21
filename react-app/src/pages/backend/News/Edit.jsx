@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from '../../../api/axios';
 import { Toast, Container } from 'react-bootstrap';
 import moment from 'moment-timezone';
@@ -9,7 +9,7 @@ import LoadingOverlay from 'react-loading-overlay';
 import { ImCancelCircle } from 'react-icons/im';
 import { IoCreateOutline } from 'react-icons/io5';
 import { AiOutlineClear, AiOutlineRollback } from 'react-icons/ai';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import Meta from '../../../components/frontend/Meta';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -18,6 +18,7 @@ import Swal from 'sweetalert2';
 const EditNews = () => {
     const { id } = useParams(); // lấy ID từ URL
     const { user } = useAuthContext();
+    const navigate = useNavigate();
     const [categories, setCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [files, setFiles] = useState([]);
@@ -82,7 +83,6 @@ const EditNews = () => {
         }
     };
 
-    const [categoryID, setCategoryID] = useState();
     const [arrImages, setArrImages] = useState([]);
     const [news, setNews] = useState([]);
 
@@ -105,11 +105,11 @@ const EditNews = () => {
                     setNews(editResponse.data.news);
                     setTitleNews(editResponse.data.news.title_news)
                     setContent(editResponse.data.news.content_news)
-                    setCategoryID(editResponse.data.category.id);
                 }
 
                 if (imagesResponse.data) {
                     setArrImages(imagesResponse.data)
+                    console.log(imagesResponse.data)
                 }
                 setIsLoading(false)
             })
@@ -123,19 +123,18 @@ const EditNews = () => {
                 }
                 setIsLoading(false)
             });
-    }, [categoryID, id,]);
+    }, [id,]);
 
     const images = arrImages.filter(c => c.news_id === news.id);
     const image_0 = news
     images.unshift(image_0);
-    console.log(images);
     const categoryGetName = categories.find(c => c.id === news.category_id);
     // khi trùng id thì lấy name_category ra
     const categoryName = categoryGetName ? categoryGetName.name_category : '';
 
 
     // Xử lý khi người dùng ấn nút Submit
-    const handleSubmit = async (e) => {
+    const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
         const btn = document.getElementById('btn_create');
 
@@ -150,7 +149,7 @@ const EditNews = () => {
             newErrors.titleNews = "Vui lòng nhập tiêu đề tin tức.";
         }
         if (!category) {
-            newErrors.categoryID = "Vui lòng chọn danh mục.";
+            newErrors.category = "Vui lòng chọn danh mục.";
         }
 
         if (!content) {
@@ -183,22 +182,27 @@ const EditNews = () => {
         console.log(formData)
         try {
             btn.innerHTML = "Creating...";
-            const response = await axios.post('/api/news/v1/create-news', formData, {
+            const response = await axios.post(`/api/news/v1/update/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
             setIsLoading(false);
+            btn.innerHTML = "Update News";
             if (response.status === 200) {
                 setStatus(response.data.status)
                 // toast.success(response.data.status);
-                Swal.fire(
-                    'success',
-                    response.data.status,
-                    'success'
-                )
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: response.data.status,
+                    confirmButtonText: 'Back to News'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        navigate('../news')
+                    }
+                });
             }
-            btn.innerHTML = "Create New News";
             ClearUp();
         } catch (error) {
             setIsLoading(false);
@@ -209,9 +213,25 @@ const EditNews = () => {
             } else {
                 Swal.fire('Error!', 'Failed to create new News.', 'error');
             }
-            btn.innerHTML = "Create New News";
+            btn.innerHTML = "Update News";
         }
-    };
+    },[ClearUp,id,content,files,navigate,titleNews]);
+    // xác nhận  update
+    const confirmUpdate = useCallback(() => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Are you sure you want to update News this!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, update it!',
+            cancelButtonText: 'No, keep it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                handleSubmit();
+            }
+        });
+    }, [handleSubmit]);
+
     useEffect(() => {
         if (status || error) {
             setTimeout(() => {
@@ -233,7 +253,6 @@ const EditNews = () => {
         <>
             <Meta title={"Update New News"} />
             <div className="row">
-                <form action="" onSubmit={handleSubmit}>
                     <div className="row">
                         <div className="col-12">
                             <div className='d-flex align-items-center justify-content-center'>
@@ -241,9 +260,9 @@ const EditNews = () => {
                                     <label className='form-label fw-bold' htmlFor="author">Author: <span className='text-danger'>{user?.name}</span></label>
                                 </div>
                             </div>
-                            <button className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
+                            <button onClick={confirmUpdate} className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
                                 <IoCreateOutline className='fs-4' />
-                                Create new News
+                                Update News: <strong className='text-dark'>{id}</strong>
                             </button>
                             <Link to="../news" className="btn btn-info text-white mr-2" type="button">
                                 <AiOutlineRollback className='fs-4' />
@@ -271,8 +290,7 @@ const EditNews = () => {
                                     <Toast.Body className='my-toast fw-bold fs-6'>Category has no data</Toast.Body>
                                 </Toast>
                             )}
-                            <p>{category}</p>
-                            <select value={category} onChange={(e) =>setCategory(e.target.value)} className="form-select mb-2" id='category' aria-label="Default select example">
+                            <select className="form-select mb-2" id='category' aria-label="Default select example">
                                 <option value={categoryGetName ? categoryGetName.id : ""} selected>
                                     {categoryName ? `Selected: ${categoryName}` : 'Select category'}
                                 </option>
@@ -378,7 +396,6 @@ const EditNews = () => {
                         </div>
                     </div>
                     <ToastContainer />
-                </form>
             </div>
 
         </>

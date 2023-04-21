@@ -208,7 +208,7 @@ class ProductController extends Controller
                     Storage::disk('public')->delete('product/' . $product->image);
                 }
                 foreach ($files as $key => $file) {
-                    $path = $product->name_product . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
+                    $path = $request['nameProduct'] . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
                     $image = Image::make($file);
                     $image->resize(800, null, function ($constraint) {
                         $constraint->aspectRatio();
