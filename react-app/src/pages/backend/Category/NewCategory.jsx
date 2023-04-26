@@ -15,7 +15,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2';
 
-const NewProduct = () => {
+const NewCategory = () => {
     const { user } = useAuthContext();
     const [categories, setCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -173,7 +173,7 @@ const NewProduct = () => {
 
     return (
         <>
-            <Meta title={"Create Product"} />
+            <Meta title={"Create Category"} />
             <div className="row">
                 <form action="" onSubmit={handleSubmit}>
                     <div className="row">
@@ -293,4 +293,4 @@ const NewProduct = () => {
     );
 };
 
-export default NewProduct;
+export default NewCategory;

@@ -9,27 +9,14 @@ use App\Http\Controllers\Api\NewsImagesController;
 use App\Http\Controllers\Api\OptionController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductImagesController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
-
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
-});
 
 Route::prefix('product/v1')->group(function () {
     // Lấy danh sách sản phẩm
-    Route::get('products', [ProductController::class, 'index_admin'])->name('product.index');
+    Route::get('products', [ProductController::class, 'index'])->name('product.index');
     // Lấy thông tin sản phẩm theo id
     Route::get('product/{product}', [ProductController::class, 'show'])->name('product.show');
     // Lấy thông tin sản phẩm theo id
@@ -107,6 +94,7 @@ Route::prefix('brand/v1')->group(function () {
     // Xóa vĩnh viễn  nhiều SP
     Route::delete('removeALL', [BrandController::class, 'removeALL'])->name('brand.removeALL');
 });
+
 Route::prefix('news/v1')->group(function () {
     // News
     Route::get("news", [NewsController::class, 'index']);
@@ -133,14 +121,52 @@ Route::prefix('news/v1')->group(function () {
     // Xóa vĩnh viễn  nhiều SP
     Route::delete('removeALL', [NewsController::class, 'removeALL'])->name('news.removeALL');
 });
+
+Route::middleware(['auth:sanctum'])->prefix('users')->group(function () {
+    // Route trong group này sẽ có prefix 'user' và middleware 'auth:sanctum'
+    Route::prefix('v1')->group(function () {
+        Route::get("user", [UserController::class, 'user']);
+    });
+});
+
+Route::prefix('user/v1')->group(function () {
+    // News
+    Route::get("users", [UserController::class, 'index']);
+    // Lấy thông tin sản phẩm theo id
+    Route::get('{id}', [UserController::class, 'show'])->name('user.show');
+    // Lấy thông tin sản phẩm theo id
+    Route::get('edit/{id}', [UserController::class, 'edit'])->name('user.edit');
+    // Tạo sản phẩm mới
+    Route::post("create-user", [UserController::class, 'store'])->name('user.store');
+    // Cập nhật sp phuong thuc POST
+    Route::post('update/{id}', [UserController::class, 'update'])->name('user.update')->middleware('cors');
+    // Lấy tất cả SP trong đã xóa tạm
+    Route::get('user/trash', [UserController::class, 'trash'])->name('user.trash');
+    // Xóa tạm SP
+    Route::delete('soft-delete/{id}', [UserController::class, 'destroy'])->name('user.destroy');
+    // Xóa tạm ALL SP
+    Route::delete('user_all/soft-delete', [UserController::class, 'destroyALL'])->name('user.destroyALL');
+    // Khôi phục SP với ID
+    Route::post('restore/{id}', [UserController::class, 'restore'])->name('user.restore');
+    // Khôi phục SP ALL
+    Route::post('restoreALL', [UserController::class, 'restoreALL'])->name('user.restoreALL');
+    // Xóa vĩnh viễn SP
+    Route::delete('/remove/{id}', [UserController::class, 'remove'])->name('user.remove');
+    // Xóa vĩnh viễn  nhiều SP
+    Route::delete('removeALL', [UserController::class, 'removeALL'])->name('user.removeALL');
+});
+
+
 Route::prefix('countdown/v1')->group(function () {
     // Brand
     Route::get("countdown", [CountDownController::class, 'index']);
 });
+
 Route::prefix('images/v1')->group(function () {
     // images
     Route::get("images", [ProductImagesController::class, 'index']);
 });
+
 Route::prefix('news_images/v1')->group(function () {
     // images
     Route::get("news_images", [NewsImagesController::class, 'index']);

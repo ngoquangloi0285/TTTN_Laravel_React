@@ -40,6 +40,14 @@ import News from './pages/backend/News/News'
 import EditNews from './pages/backend/News/Edit';
 import CreateNews from './pages/backend/News/CreateNews';
 import TrashNews from './pages/backend/News/Trash';
+// Route User
+import User from './pages/backend/User/User'
+import EditUser from './pages/backend/User/Edit';
+import CreateUser from './pages/backend/User/CreateUser';
+import TrashUser from './pages/backend/User/Trash';
+
+
+import LoginAdmin from './components/backend/LoginAdmin';
 
 function App() {
 
@@ -60,12 +68,14 @@ function App() {
           <Route element={<GuestLayout />}>
             <Route path="login" element={<Login />} />
             <Route path="signup" element={<Signup />} />
-            <Route path="forgot-password" element={<Forgotpassword />} />
             <Route path="password-reset/:token" element={<ResetPassword />} />
+            <Route path="forgot-password" element={<Forgotpassword />} />
           </Route>
         </Route>
 
+
         <Route path='/' element={<AuthLayout />}>
+          <Route path="admin/login" element={<LoginAdmin />} />
           <Route path="admin" element={<MasterLayout />} >
             {/* Product */}
             <Route path="product" element={<Product />} />
@@ -87,11 +97,16 @@ function App() {
             <Route path="news/create-news" element={<CreateNews />} />
             <Route path="news/edit-news/:id" element={<EditNews />} />
             <Route path="news/trash-news" element={<TrashNews />} />
+            {/* User */}
+            <Route path="user" element={<User />} />
+            <Route path="user/create-user" element={<CreateUser />} />
+            <Route path="user/edit-user/:id" element={<EditUser />} />
+            <Route path="user/trash-user" element={<TrashUser />} />
           </Route>
         </Route>
 
         <Route path="*" element={<NotFound />} />
-      </Routes>
+      </Routes >
     </>
   );
 }

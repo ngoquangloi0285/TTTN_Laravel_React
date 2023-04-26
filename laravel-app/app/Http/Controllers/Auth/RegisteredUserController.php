@@ -22,17 +22,21 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+
         $id = random_int(0, 9999999999);
-        $id_formatted = str_replace([' ', '.', ','], '#', sprintf('%010d', $id));
+        $user_id = str_pad($id, 10, '0', STR_PAD_LEFT);
+        if (strlen($user_id) > 10) {
+            $user_id = substr($user_id, 0, 10);
+        }
         $user = User::create([
-            'user_id' => $id,
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'user_id' => $user_id,
+            'name' => $request['name'],
+            'email' => $request['email'],
+            'password' => Hash::make($request['password']),
         ]);
 
         event(new Registered($user));

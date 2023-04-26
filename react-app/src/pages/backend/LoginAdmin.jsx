@@ -1,31 +1,36 @@
 import React, { useState } from 'react'
-import LoadingOverlay from 'react-loading-overlay'
-import { Link } from 'react-router-dom'
-import Maps from '../../components/frontend/Maps'
+import { Link } from 'wouter'
 import Meta from '../../components/frontend/Meta'
+import Maps from '../../components/frontend/Maps'
 import useAuthContext from '../../context/AuthContext'
+import { useNavigate } from 'react-router'
 
-const Login = () => {
+export default function LoginAdmin() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login, errors, status, isLoading, logout } = useAuthContext();
-
+  const { loginAdmin, errors, status, isLoading, user, logout } = useAuthContext();
+  const navigate = useNavigate();
   const handleLogin = async (event) => {
-    event.preventDefault();
     logout();
-    await login({ email, password })
+    event.preventDefault();
+    await loginAdmin({ email, password })
+    if (user.roles !== "admin") {
+      console.log("You do not have admin access");
+    } else {
+      navigate("../admin");
+    }
   }
   return (
     <>
-      <Meta title={"Login"} />
-      <Maps title="Login" />
+      <Meta title={"Login Admin"} />
+      <Maps title="Login Admin" />
       <div className="login-wrapper py-5 home-wrapper-2">
         <div className="container-xxl">
           <div className="row">
             <div className="col-12">
               <div className="auth-card">
-                <h3 className='text-center'>Login</h3>
+                <h3 className='text-center'>Login Admin</h3>
                 {status &&
                   <div class="p-0  border-0 alert alert-success bg-success text-center" role="alert">
                     {status}
@@ -52,9 +57,6 @@ const Login = () => {
                       </div>}
                   </div>
                   <div className='d-flex gap-10'>
-                    <Link to="../forgot-password">Forgot Password?</Link>
-                    <Link to="../signup">Signup
-                    </Link>
                   </div>
                   <div className='d-flex justify-content-center gap-10 align-items-center'>
                     <button type='submit' className='button btn-login'>
@@ -70,5 +72,3 @@ const Login = () => {
     </>
   )
 }
-
-export default Login

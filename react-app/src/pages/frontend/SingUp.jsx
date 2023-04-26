@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import Maps from '../../components/frontend/Maps'
 import Meta from '../../components/frontend/Meta'
 import useAuthContext from '../../context/AuthContext'
+import bcrypt from 'bcryptjs';
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -13,7 +14,10 @@ const Signup = () => {
   const { register, errors, isLoading } = useAuthContext();
 
 
+
   const handleSignUp = async (event) => {
+    // const hashedPassword = bcrypt.hashSync(password, 10);
+    // const handedPasswordConfirmation = bcrypt.hashSync(password_confirmation, 10);
     event.preventDefault();
     register({ name, email, password, password_confirmation })
   }
@@ -29,7 +33,6 @@ const Signup = () => {
               <div className="auth-card">
                 <h3 className='text-center'>Sign Up</h3>
                 <form action="" onSubmit={handleSignUp} className='d-flex flex-column gap-15'>
-
                   <div>
                     <p><small>*Note: Email or Phone will be your username</small></p>
                     <input value={name} onChange={(e) => setName(e.target.value)} type="text" placeholder='Your Name' className="form-control" />
@@ -66,13 +69,9 @@ const Signup = () => {
                     </span></p>
                   </div>
                   <div className='d-flex justify-content-center gap-10 align-items-center'>
-                  <LoadingOverlay className='text-danger'
-                      spinner
-                      active={isLoading}
-                      text={<button type='submit' className='button btn-login text-white bg-success'>Loading data...</button>
-                      }
-                    ></LoadingOverlay>
-                    <button type='submit' className='button btn-login'>Sign Up</button>
+                    <button type='submit' className='button btn-login'>
+                      {isLoading === false ? 'Signing Up...' : 'Sign Up'}
+                    </button>
                   </div>
                 </form>
               </div>

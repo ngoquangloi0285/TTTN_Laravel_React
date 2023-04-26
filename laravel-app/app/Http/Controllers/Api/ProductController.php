@@ -18,37 +18,13 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index_admin()
+    public function index()
     {
         $query = Product::query();
 
         $products = $query->get();
 
         return response()->json($products);
-    }
-
-    public function index_homepage(Request $request)
-    {
-        $perPage = $request->input('perPage', 10);
-        $page = $request->input('page', 1);
-
-        $query = Product::query();
-
-        $total = $query->count();
-
-        $products = $query->skip(($page - 1) * $perPage)
-            ->take($perPage)
-            ->get();
-
-        return response()->json([
-            'products' => $products,
-            'pagination' => [
-                'total' => $total,
-                'perPage' => $perPage,
-                'currentPage' => $page,
-                'lastPage' => ceil($total / $perPage),
-            ],
-        ]);
     }
 
     /**

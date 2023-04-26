@@ -56,13 +56,9 @@ const ChangePassword = () => {
                       </div>}
                   </div>
                   <div className='text-center btn-forgot'>
-                    <LoadingOverlay className='text-danger'
-                      spinner
-                      active={isLoading}
-                      text={<button type='submit' className='button btn-login text-white bg-success'>Loading data...</button>
-                      }
-                    ></LoadingOverlay>                    
-                    <button type='submit' className='button btn-login'>Change Password</button>
+                    <button type='submit' className='button btn-login'>
+                      {isLoading === false ? 'Changing...' : 'Change'}
+                    </button>
                   </div>
                 </form>
               </div>

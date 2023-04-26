@@ -9,6 +9,11 @@ import { AiOutlineEye } from 'react-icons/ai';
 
 const MasterLayout = () => {
     const { user, logout } = useAuthContext();
+    // Middleware check if user is an admin
+    if (user && user.roles !== "admin") {
+        return <h1>Bạn không có quyền truy cập</h1>;
+    }
+    
     return (
         <>
             <Meta title={"Dashboard"} />
@@ -24,7 +29,7 @@ const MasterLayout = () => {
                             {/* Sidebar user panel (optional) */}
                             <div className="user-panel mt-3 pb-3 mb-3 d-flex align-items-center">
                                 <div className="image">
-                                    <img src="https://scontent.fsgn3-1.fna.fbcdn.net/v/t39.30808-6/331380015_934924297535026_3835223002760103639_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=174925&_nc_ohc=8RnFvjrS5eoAX8kY2hb&_nc_ht=scontent.fsgn3-1.fna&oh=00_AfAU_BD0Ag2padr817dFLVafKBFez2RsPQUx2Bl6zEiOdQ&oe=64374E24" className="img-circle elevation-2 img img-fluid" alt="User Image" />
+                                    <img src={`http://localhost:8000/storage/user/${user.avatar}`} alt={user.avatar} />
                                 </div>
                                 <div className="info">
                                     <Link to="#" className="d-block fs-4">{user?.name}</Link>
@@ -33,7 +38,7 @@ const MasterLayout = () => {
                                         <button onClick={logout} style={{
                                             borderRadius: '20px',
                                             border: 'none'
-                                            }}>Logout <BiLogOutCircle/></button>
+                                        }}>Logout <BiLogOutCircle /></button>
                                     </div>
                                 </div>
                             </div>
@@ -107,6 +112,21 @@ const MasterLayout = () => {
                                                     {/* <i className="far fa-circle nav-icon" /> */}
                                                     <AiOutlineEye style={{ height: 'auto', fontSize: '26px', }} className='text-info' />
                                                     <p>News View</p>
+                                                </Link>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li className="nav-item">
+                                        <Link to="#" className="nav-link">
+                                            <i className="nav-icon fas fa-tachometer-alt" />
+                                            <p>User<i className="right fas fa-angle-left" /></p>
+                                        </Link>
+                                        <ul className="nav nav-treeview">
+                                            <li className="nav-item">
+                                                <Link to="user" className="nav-link d-flex">
+                                                    {/* <i className="far fa-circle nav-icon" /> */}
+                                                    <AiOutlineEye style={{ height: 'auto', fontSize: '26px', }} className='text-info' />
+                                                    <p>User View</p>
                                                 </Link>
                                             </li>
                                         </ul>

@@ -20,10 +20,12 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('gender')->nullable();
             $table->string('avatar')->nullable();
-            $table->string('roles')->nullable();
+            $table->string('roles')->default("user");
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
+            $table->string('author', 255)->nullable();
+            $table->tinyInteger('status')->unsigned()->nullable()->default(1);
             $table->timestamps();
             $table->softDeletes();
         });

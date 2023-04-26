@@ -161,56 +161,72 @@ const Home = () => {
                     <h6>Cameras</h6>
                     <p>10 Items</p>
                   </div>
-                  <img src="images/camera.jpg" alt="" />
+                  <Link>
+                    <img src="images/camera.jpg" alt="" />
+                  </Link>
                 </div>
                 <div className="d-flex gap-30 align-items-center">
                   <div>
                     <h6>Smart TV</h6>
                     <p>10 Items</p>
                   </div>
-                  <img src="images/tv.jpg" alt="" />
+                  <Link>
+                    <img src="images/tv.jpg" alt="" />
+                  </Link>
                 </div>
                 <div className="d-flex gap-30 align-items-center">
                   <div>
                     <h6>Smart Wactches</h6>
                     <p>10 Items</p>
                   </div>
-                  <img src="images/headphone.jpg" alt="" />
+                  <Link>
+                    <img src="images/headphone.jpg" alt="" />
+                  </Link>
                 </div>
                 <div className="d-flex gap-30 align-items-center">
                   <div>
                     <h6>Cameras</h6>
                     <p>10 Items</p>
                   </div>
-                  <img src="images/camera.jpg" alt="" />
+                  <Link>
+                    <img src="images/camera.jpg" alt="" />
+                  </Link>
                 </div>
                 <div className="d-flex gap-30 align-items-center">
                   <div>
                     <h6>Cameras</h6>
                     <p>10 Items</p>
                   </div>
-                  <img src="images/camera.jpg" alt="" />
+                  <Link>
+                    <img src="images/camera.jpg" alt="" />
+                  </Link>
                 </div>
                 <div className="d-flex gap-30 align-items-center">
                   <div>
                     <h6>Smart TV</h6>
                     <p>10 Items</p>
                   </div>
-                  <img src="images/tv.jpg" alt="" />
+                  <Link>
+                    <img src="images/tv.jpg" alt="" />
+                  </Link>
                 </div>
                 <div className="d-flex gap-30 align-items-center">
                   <div>
                     <h6>Smart Wactches</h6>
                     <p>10 Items</p>
                   </div>
-                  <img src="images/headphone.jpg" alt="" />
+                  <Link>
+                    <img src="images/headphone.jpg" alt="" />
+                  </Link>
                 </div>
                 <div className="d-flex gap-30 align-items-center">
                   <div>
                     <h6>Cameras</h6>
                     <p>10 Items</p>
                   </div>
-                  <img src="images/camera.jpg" alt="" />
+                  <Link>
+                    <img src="images/camera.jpg" alt="" />
+                  </Link>
                 </div>
               </div>
             </div>
@@ -224,13 +240,6 @@ const Home = () => {
               <h3 className="section-heading">Our Popular Products</h3>
             </div>
             <div className="row">
-              <ProductCard />
-              <ProductCard />
-              <ProductCard />
-              <ProductCard />
-              <ProductCard />
-              <ProductCard />
-              <ProductCard />
               <ProductCard />
             </div>
           </div>

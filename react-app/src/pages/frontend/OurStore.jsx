@@ -238,10 +238,10 @@ const OurStore = () => {
                                     <div className="d-flex align-items-center gap-10">
                                         <p className='m-0 totalproducts'>21 Products</p>
                                         <div className="d-flex align-items-center gap-10 gird">
-                                            <img onClick={() => {
+                                            {/* <img onClick={() => {
                                                 setGird(3)
                                             }}
-                                                className='d-block img-fluid' src="images/gr4.svg" alt="gird" />
+                                                className='d-block img-fluid' src="images/gr4.svg" alt="gird" /> */}
                                             <img onClick={() => {
                                                 setGird(4)
                                             }}
