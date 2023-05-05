@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('email_contact', 255);
             $table->string('phone_contact', 255);
             $table->string('comments_contact', 255);
+            $table->string('author', 255);
             $table->tinyInteger('status')->unsigned()->nullable();
             $table->timestamps();
             $table->softDeletes();

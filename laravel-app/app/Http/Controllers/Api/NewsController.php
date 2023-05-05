@@ -231,6 +231,7 @@ class NewsController extends Controller
 
             // Kiểm tra xem có tồn tại Category không
             if (!$news) {
+                $restoredUsers[] = ['id' => $id, 'message' => 'News not found.'];
                 continue;
             }
 
@@ -283,7 +284,8 @@ class NewsController extends Controller
 
             // Kiểm tra xem có tồn tại news không
             if (!$news) {
-                return response()->json(['message' => 'News not found.'], 404);
+                $restoredUsers[] = ['id' => $id, 'message' => 'News not found.'];
+                continue;
             }
 
             $newsImages = NewsImages::where('news_id', $id)->get();
@@ -339,7 +341,8 @@ class NewsController extends Controller
             $news = News::withTrashed()->findOrFail($id);
 
             if (!$news) {
-                return response()->json(['message' => 'News not found.'], 404);
+                $restoredUsers[] = ['id' => $id, 'message' => 'News not found.'];
+                continue;
             }
 
             if (!$news->trashed()) {

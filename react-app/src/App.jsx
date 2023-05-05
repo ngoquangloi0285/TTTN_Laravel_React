@@ -45,7 +45,11 @@ import User from './pages/backend/User/User'
 import EditUser from './pages/backend/User/Edit';
 import CreateUser from './pages/backend/User/CreateUser';
 import TrashUser from './pages/backend/User/Trash';
-
+// Route Contact
+import ContactAdmin from './pages/backend/Contact/Contact'
+import DetailContact from './pages/backend/Contact/Detail';
+import CreateContact from './pages/backend/Contact/CreateContact';
+import TrashContact from './pages/backend/Contact/Trash';
 
 import LoginAdmin from './components/backend/LoginAdmin';
 
@@ -102,6 +106,11 @@ function App() {
             <Route path="user/create-user" element={<CreateUser />} />
             <Route path="user/edit-user/:id" element={<EditUser />} />
             <Route path="user/trash-user" element={<TrashUser />} />
+            {/* Contact */}
+            <Route path="contact" element={<ContactAdmin />} />
+            <Route path="contact/create-contact" element={<CreateContact />} />
+            <Route path="contact/trash-contact" element={<TrashContact />} />
+            <Route path="contact/contact-detail" element={<DetailContact />} />
           </Route>
         </Route>
 

@@ -245,6 +245,7 @@ class CategoryController extends Controller
 
             // Kiểm tra xem có tồn tại Category không
             if (!$category) {
+                $restoredUsers[] = ['id' => $id, 'message' => 'Category not found.'];
                 continue;
             }
 
@@ -353,7 +354,8 @@ class CategoryController extends Controller
 
             // Kiểm tra xem có tồn tại Category không
             if (!$category) {
-                return response()->json(['message' => 'Category not found.'], 404);
+                $restoredUsers[] = ['id' => $id, 'message' => 'Category not found.'];
+                continue;
             }
 
             // Kiểm tra xem có sản phẩm nào có category_id bằng $category->id không
@@ -461,7 +463,8 @@ class CategoryController extends Controller
             $category = Category::withTrashed()->findOrFail($id);
 
             if (!$category) {
-                return response()->json(['message' => 'Category not found.'], 404);
+                $restoredUsers[] = ['id' => $id, 'message' => 'Category not found.'];
+                continue;
             }
 
             if (!$category->trashed()) {

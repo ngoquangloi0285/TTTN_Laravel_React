@@ -7,7 +7,7 @@ import { FiTrash2 } from 'react-icons/fi';
 import { AiOutlineEye } from 'react-icons/ai';
 import axios from '../../../api/axios';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LoadingOverlay from 'react-loading-overlay';
@@ -18,71 +18,55 @@ import DOMPurify from 'dompurify';
 import Meta from '../../../components/frontend/Meta';
 import Swal from 'sweetalert2';
 
+function CellRenderer(props) {
+  const { value, endpoint, fieldName } = props;
+  const [data, setData] = useState('');
+
+  useEffect(() => {
+    axios.get(endpoint + `?id=${value}`)
+      .then(response => {
+        const res = response.data
+        setData(res[fieldName])
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }, [value, fieldName, endpoint]);
+
+  return <span>{data}</span>;
+}
+
 
 export default function DataGridDemo() {
+
   const columns = useMemo(
     () => [
       {
         field: 'id',
         headerName: 'ID',
-        align: 'center'
       },
       {
-        field: 'user_id',
-        headerName: 'User Code',
+        field: 'contact_id',
+        headerName: 'Contact Code',
         editable: true,
-        width: 200, // Thêm thuộc tính width vào đây
-        align: 'center'
       },
       {
-        field: 'name',
-        headerName: 'Name',
+        field: 'name_contact',
+        headerName: 'Title Contact',
         editable: true,
-        width: 100, // Thêm thuộc tính width vào đây
-        align: 'center'
       },
       {
-        field: 'email',
+        field: 'email_contact',
         headerName: 'Email',
         editable: true,
-        width: 100, // Thêm thuộc tính width vào đây
-        align: 'center'
       },
       {
-        field: 'avatar',
-        headerName: 'avatar',
-        sortable: false,
-        cellClassName: 'custom-cell',
-        width: 100, // Thêm thuộc tính width vào đây
-        align: 'center',
-        renderCell: (params) => (
-          <img
-            className='img img-fluid img-thumbnail'
-            src={`http://localhost:8000/storage/user/${params.value}`}
-            alt={params.row.name_category}
-            style={{ width: '100%', height: 'auto' }} // Thêm CSS cho hình ảnh
-          />
-        ),
-      },
-      {
-        field: 'roles',
-        headerName: 'Role',
-        width: 150, // Thêm thuộc tính width vào đây
-        align: 'center',
-        valueFormatter: (params) => {
-          if (params.value === "admin") {
-            return 'admin';
-          } else if (params.value === 'user') {
-            return 'user';
-          } else {
-            return `${params.value}`;
-          }
-        },
+        field: 'phone_contact',
+        headerName: 'Phone',
+        editable: true,
       },
       {
         field: 'detail', headerName: 'Detail',
-        width: 100, // Thêm thuộc tính width vào đây
-        align: 'center',
         renderCell: (params) => (
           <Button className=''
             variant="contained"
@@ -96,15 +80,11 @@ export default function DataGridDemo() {
       {
         field: 'author',
         headerName: 'Author',
-        width: 100, // Thêm thuộc tính width vào đây
-        align: 'center',
         editable: true,
       },
       {
         field: 'status',
         headerName: 'Status',
-        width: 100, // Thêm thuộc tính width vào đây
-        align: 'center',
         renderCell: (params) => {
           const statusStyle = {
             padding: '5px',
@@ -126,18 +106,8 @@ export default function DataGridDemo() {
         field: 'actions',
         headerName: 'Actions',
         sortable: false,
-        width: 100, // Thêm thuộc tính width vào đây
-        align: 'center',
         renderCell: (params) => (
           <>
-            <Link
-              className='mx-1'
-              style={{ fontSize: '20px', cursor: 'pointer' }}
-              title='Edit'
-              to={`edit-user/${params.id}`}
-            >
-              <GrEdit />
-            </Link>
             <span
               className='text-danger mx-1'
               style={{ fontSize: '20px', cursor: 'pointer' }}
@@ -146,6 +116,7 @@ export default function DataGridDemo() {
             >
               <BsFillTrashFill />
             </span>
+
           </>
         ),
       },
@@ -153,11 +124,11 @@ export default function DataGridDemo() {
   )
 
   // xử lý hiện modal chi tiết sản phẩm
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [open, setOpen] = useState(false);
 
-  const handleClickOpen = (user) => {
-    setSelectedUser(user);
+  const handleClickOpen = (product) => {
+    setSelectedProduct(product);
     setOpen(true);
   };
 
@@ -173,7 +144,7 @@ export default function DataGridDemo() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('/api/user/v1/users');
+      const response = await axios.get('/api/contact/v1/contacts');
       setRecords(response.data);
       setInitialData(response.data);
       setIsLoading(false);
@@ -186,7 +157,7 @@ export default function DataGridDemo() {
   const fetchTrash = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('/api/user/v1/user/trash');
+      const response = await axios.get('/api/contact/v1/contact/trash');
       setCountTrash(response.data.length);
       setIsLoading(false);
     } catch (error) {
@@ -197,36 +168,27 @@ export default function DataGridDemo() {
 
   const handleDelete = useCallback(async (id) => {
     try {
-      const response = await axios.delete(`/api/user/v1/soft-delete/${id}`, {
+      const res = await axios.delete(`/api/contact/v1/soft-delete/${id}`, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
-      if (response.data.message.includes('products')) {
-        Swal.fire(
-          'Delete User Successfully',
-          response.data.message,
-          'success'
-        )
-      } else {
-        // toast.success('User has been softly deleted.');
-        Swal.fire(
-          'Delete User Successfully',
-          response.data.message,
-          'success'
-        )
-      }
+      Swal.fire(
+        'Delete Contact Successfully',
+        res.data.message,
+        'success'
+      )
       updateData();
     } catch (error) {
       console.error(error);
-      toast.error('Failed to delete category or its products.');
+      toast.error('Failed to delete Contact.');
     }
   }, []);
   /// xác nhận xóa tạm
   const confirmDelete = useCallback((id) => {
     Swal.fire({
       title: 'Are you sure?',
-      text: 'Are you sure you want to temporarily delete this user!',
+      text: 'Are you sure you want to temporarily delete this contact!',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Yes, delete it!',
@@ -241,8 +203,8 @@ export default function DataGridDemo() {
   const updateData = async () => {
     try {
       const [productsResponse, trashResponse] = await Promise.all([
-        axios.get('/api/user/v1/users'),
-        axios.get('/api/user/v1/user/trash')
+        axios.get('/api/contact/v1/contacts'),
+        axios.get('/api/contact/v1/contact/trash')
       ]);
       setRecords(productsResponse.data);
       setInitialData(productsResponse.data);
@@ -260,7 +222,7 @@ export default function DataGridDemo() {
         return [...initialData];
       }
       return prevRecords.filter(record =>
-        record.name_category.toLowerCase().includes(value.toLowerCase())
+        record.name_contact.toLowerCase().includes(value.toLowerCase())
       );
     });
   };
@@ -273,44 +235,38 @@ export default function DataGridDemo() {
     btn.innerHTML = "Load page";
   };
 
-  useEffect(() => {
-    fetchData();
-    fetchTrash();
-  }, []);
-
   // xóa tạm nhiều sản phẩm
   const [arrDmr, setArrDmr] = useState([])
   const handleDeleteAll = useCallback(async () => {
     try {
-      const res = await axios.delete(`/api/user/v1/user_all/soft-delete`, {
+      const res = await axios.delete(`/api/contact/v1/contact_all/soft-delete`, {
         headers: {
           'Content-Type': 'application/json'
         },
         data: JSON.stringify({ ids: arrDmr })
       });
       Swal.fire(
-        'Delete User Successfully',
+        'Delete Contact Successfully',
         res.data.message,
         'success'
       )
-      setArrDmr('');
+      setArrDmr([]);
       updateData();
     } catch (error) {
       console.error(error);
-      // toast.error('Failed to delete product.');
+      // toast.error('Failed to delete Contact.');
       Swal.fire(
-        'Delete User Successfully',
+        'Delete Contact Successfully',
         error.data.message,
         'success'
       )
     }
   }, [arrDmr])
-
   /// xác nhận xóa tạm
   const confirmDeleteALL = useCallback(() => {
     Swal.fire({
       title: 'Are you sure?',
-      text: 'Are you sure you want to temporarily delete all this user!',
+      text: 'Are you sure you want to temporarily delete all Contact!',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Yes, delete all!',
@@ -322,6 +278,11 @@ export default function DataGridDemo() {
     });
   }, [handleDeleteAll]);
 
+  useEffect(() => {
+    fetchData();
+    fetchTrash();
+  }, []);
+
   if (isLoading === true) {
     return <>
       <LoadingOverlay className='text-danger'
@@ -332,25 +293,19 @@ export default function DataGridDemo() {
       ></LoadingOverlay>
     </>
   }
-
   return (
     <>
-      <Meta title={"User"} />
+      <Meta title={"Contact"} />
       <div className="container-xxl">
         <div className="row">
           <input
             type="text"
             className="form-control my-3"
-            placeholder="Search User..."
+            placeholder="Search Contact..."
             onChange={handleFilter}
           />
-          <div className="col-3">
-            <Link to="create-user" className="btn btn-info mb-3 text-white d-flex align-items-center" type="button">
-              <IoCreateOutline className='fs-4' /> Create new User
-            </Link>
-          </div>
           <div className="col-3 d-flex">
-            <Link to="trash-user" className="btn btn-danger mb-3 text-white d-flex align-items-center" type="button">
+            <Link to="trash-contact" className="btn btn-danger mb-3 text-white d-flex align-items-center" type="button">
               <FiTrash2 className='fs-4' /> Trash <span>( {!countTrash ? "0" : countTrash} )</span>
             </Link>
             {
@@ -360,7 +315,6 @@ export default function DataGridDemo() {
               </button>
             }
           </div>
-
           {/* hiện data product */}
           <Box sx={{ height: 600, width: '100%' }}>
             <DataGrid
@@ -386,22 +340,20 @@ export default function DataGridDemo() {
               onFilterModelChange={(model) => console.log(model)}
             />
           </Box>
+
           {/* hiện data product end*/}
 
           {/* Hiển thị modal - chi tiết sản phẩm*/}
           <Dialog open={open} onClose={handleClose} className="dialog" maxWidth="xl" maxHeight="lg">
-            <DialogTitle>User Detail</DialogTitle>
+            <DialogTitle>Contact Detail</DialogTitle>
             <DialogContent className="dialog-content">
-              {selectedUser && (
+              {selectedProduct && (
                 <>
-                  <Typography className="product-name" variant="h6">{selectedUser.name}</Typography>
-                  <Typography className="product-info">{`User Code: ${selectedUser.user_id}`}</Typography>
-                  <Typography className="product-info">{`Email: ${selectedUser.email}`}</Typography>
-                  <Typography className="product-info">{`Phone: ${selectedUser.phone}`}</Typography>
-                  <Typography className="product-info">{`Gender: ${selectedUser.gender}`}</Typography>
-                  <Typography className="product-info">{`Address: ${selectedUser.address}`}</Typography>
-                  <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedUser.detail) }} />
-                  <img className="product-image" src={`http://localhost:8000/storage/user/${selectedUser.avatar}`} alt={selectedUser.avatar} />
+                  <Typography className="product-name" variant="h6">{selectedProduct.name_contact}</Typography>
+                  <Typography className="product-info">{`Email: ${selectedProduct.email_contact}`}</Typography>
+                  <Typography className="product-info">{`Phone: ${selectedProduct.phone_contact}`}</Typography>
+                  <h5><strong>Comment:</strong></h5>
+                  <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedProduct.comments_contact) }} />
                 </>
               )}
             </DialogContent>

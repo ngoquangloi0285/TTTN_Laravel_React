@@ -369,7 +369,7 @@ const Edit = () => {
     }
     return (
         <>
-            <Meta title={`Update Product with ID: ${encodedId}`} />
+            <Meta title={`Update Contact with ID: ${encodedId}`} />
             <div className="row">
                 <div className="row">
                     <div className="col-12">
@@ -380,11 +380,11 @@ const Edit = () => {
                         </div>
                         <button onClick={confirmUpdate} className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
                             <IoCreateOutline className='fs-4' />
-                            Update product: <strong className='text-dark'>{id}</strong>
+                            Update Contact: <strong className='text-dark'>{id}</strong>
                         </button>
-                        <Link to="../product" className="btn btn-info text-white mr-2" type="button">
+                        <Link to="../contact" className="btn btn-info text-white mr-2" type="button">
                             <AiOutlineRollback className='fs-4' />
-                            Back Product
+                            Back Contact
                         </Link>
 
                     </div>
@@ -669,7 +669,7 @@ const Edit = () => {
                         }
                         <br />
                         {
-                            images === null ? "Không có ảnh" :
+                            images === null ? "" :
                                 <div style={{ width: '100%' }}>
                                     <h4 className='mt-3'>Images selected: </h4>
                                     <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
@@ -700,9 +700,9 @@ const Edit = () => {
                             </div>
                         )}
                         <br />
-                        <Link to="../product" className="btn btn-info text-white mr-2" type="button">
+                        <Link to="../contact" className="btn btn-info text-white mr-2" type="button">
                             <AiOutlineRollback className='fs-4' />
-                            Back Product
+                            Back Contact
                         </Link>
                         <br />
                         <div className="row mt-5">

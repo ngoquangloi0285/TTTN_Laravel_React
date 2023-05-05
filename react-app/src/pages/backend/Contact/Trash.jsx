@@ -14,7 +14,7 @@ import LoadingOverlay from 'react-loading-overlay';
 
 import LRU from 'lru-cache';
 import useAuthContext from '../../../context/AuthContext';
-import { Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
+import { Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
 import { Button } from 'react-bootstrap';
 import Modal from 'react-modal';
 import DOMPurify from 'dompurify';
@@ -30,64 +30,29 @@ export default function DataGridDemo() {
             {
                 field: 'id',
                 headerName: 'ID',
-                align: 'center'
             },
             {
-                field: 'user_id',
-                headerName: 'User Code',
+                field: 'contact_id',
+                headerName: 'Contact Code',
                 editable: true,
-                width: 200, // Thêm thuộc tính width vào đây
-                align: 'center'
             },
             {
-                field: 'name',
-                headerName: 'Name',
+                field: 'name_contact',
+                headerName: 'Title Contact',
                 editable: true,
-                width: 100, // Thêm thuộc tính width vào đây
-                align: 'center'
             },
             {
-                field: 'email',
+                field: 'email_contact',
                 headerName: 'Email',
                 editable: true,
-                width: 100, // Thêm thuộc tính width vào đây
-                align: 'center'
             },
             {
-                field: 'avatar',
-                headerName: 'avatar',
-                sortable: false,
-                cellClassName: 'custom-cell',
-                width: 100, // Thêm thuộc tính width vào đây
-                align: 'center',
-                renderCell: (params) => (
-                    <img
-                        className='img img-fluid img-thumbnail'
-                        src={`http://localhost:8000/storage/user/${params.value}`}
-                        alt={params.row.name_category}
-                        style={{ width: '100%', height: 'auto' }} // Thêm CSS cho hình ảnh
-                    />
-                ),
-            },
-            {
-                field: 'roles',
-                headerName: 'Role',
-                width: 150, // Thêm thuộc tính width vào đây
-                align: 'center',
-                valueFormatter: (params) => {
-                    if (params.value === "admin") {
-                        return 'admin';
-                    } else if (params.value === 'user') {
-                        return 'user';
-                    } else {
-                        return `${params.value}`;
-                    }
-                },
+                field: 'phone_contact',
+                headerName: 'Phone',
+                editable: true,
             },
             {
                 field: 'detail', headerName: 'Detail',
-                width: 100, // Thêm thuộc tính width vào đây
-                align: 'center',
                 renderCell: (params) => (
                     <Button className=''
                         variant="contained"
@@ -101,15 +66,11 @@ export default function DataGridDemo() {
             {
                 field: 'author',
                 headerName: 'Author',
-                width: 100, // Thêm thuộc tính width vào đây
-                align: 'center',
                 editable: true,
             },
             {
                 field: 'status',
                 headerName: 'Status',
-                width: 100, // Thêm thuộc tính width vào đây
-                align: 'center',
                 renderCell: (params) => {
                     const statusStyle = {
                         padding: '5px',
@@ -156,11 +117,11 @@ export default function DataGridDemo() {
     )
 
     // xử lý hiện modal chi tiết sản phẩm
-    const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedProduct, setSelectedProduct] = useState(null);
     const [open, setOpen] = useState(false);
 
-    const handleClickOpen = (user) => {
-        setSelectedUser(user);
+    const handleClickOpen = (product) => {
+        setSelectedProduct(product);
         setOpen(true);
     };
 
@@ -174,19 +135,18 @@ export default function DataGridDemo() {
     const [initialData, setInitialData] = useState([]);
     const [countTrash, setCountTrash] = useState(0);
 
-    const fetchData = useCallback(() => {
+    const fetchData = useCallback(async () => {
         setIsLoading(true);
-        return axios.get('/api/user/v1/user/trash')
-            .then((response) => {
-                setRecords(response.data);
-                setInitialData(response.data);
-                setCountTrash(response.data.length);
-                setIsLoading(false);
-            })
-            .catch((error) => {
-                setIsLoading(false);
-                toast.error(error);
-            });
+        try {
+            const response = await axios.get('/api/contact/v1/contact/trash');
+            setIsLoading(false);
+            setRecords(response.data);
+            setInitialData(response.data);
+            setCountTrash(response.data.length);
+        } catch (error) {
+            setIsLoading(false);
+            toast.error('Failed to load contact.');
+        }
     }, []);
 
     useEffect(() => {
@@ -198,40 +158,35 @@ export default function DataGridDemo() {
 
     const handleRestore = useCallback(async (id) => {
         try {
-            const res = await axios.post(`/api/user/v1/restore/${id}`, {
+            const res = await axios.post(`/api/contact/v1/restore/${id}`, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
-            const users = cache.get('users');
-            if (users) {
+            const contact = cache.get('contact');
+            if (contact) {
                 // Tìm và cập nhật sản phẩm đã bị xóa trong cache
-                const updatedUsers = users.filter((user) => user.id !== id);
-                cache.set('users', updatedUsers);
+                const updatedProducts = contact.filter((contact) => contact.id !== id);
+                cache.set('contact', updatedProducts);
             }
             // toast.success('Product has been softly deleted.');
             Swal.fire(
-                'Restore User',
+                'Restore Contact Successfully',
                 res.data.message,
                 'success'
             )
             console.log(`ID của sản phẩm để xóa tạm: ${id}`);
             fetchData(); // Cập nhật lại bảng sản phẩm
         } catch (error) {
-            Swal.fire(
-                'Restore Not User Successfully',
-                error.response.data.message,
-                'error'
-            )
             console.error(error);
-            // toast.error(error);/
+            toast.error('Failed to delete contact.');
         }
     }, [fetchData, cache]);
     // xác nhận khôi phục
     const confirmRestore = useCallback((id) => {
         Swal.fire({
             title: 'Are you sure?',
-            text: 'Are you sure you want to restore this user!',
+            text: 'Are you sure you want to restore this contact!',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, restore it!',
@@ -247,23 +202,22 @@ export default function DataGridDemo() {
     //Khôi phục nhiều sản phẩm 
     const handleRestoreALL = useCallback(async () => {
         try {
-            const res = await axios.post('/api/user/v1/restoreALL', { ids: arrDmr }, {
+            const res = await axios.post('/api/contact/v1/restoreALL', { ids: arrDmr }, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
             Swal.fire(
-                'Restore User Successfully',
+                'Restore Contact Successfully',
                 res.data.message,
                 'success'
             );
-            console.log(arrDmr)
             setArrDmr([]);
             fetchData();
         } catch (error) {
             console.error(error);
             Swal.fire(
-                'Restore User Failed',
+                'Restore Contact Failed',
                 error.data.message,
                 'error'
             );
@@ -274,7 +228,7 @@ export default function DataGridDemo() {
     const confirmRestoreALL = useCallback(() => {
         Swal.fire({
             title: 'Are you sure?',
-            text: 'Are you sure you want to restore all this user!',
+            text: 'Are you sure you want to restore all this contacts!',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, restore all!',
@@ -285,47 +239,39 @@ export default function DataGridDemo() {
             }
         });
     }, [handleRestoreALL]);
-
     // xóa vĩnh viễn
     const handleDelete = useCallback(async (id) => {
         try {
-            const res = await axios.delete(`/api/user/v1/remove/ ${id}`, {
+            const res = await axios.delete(`/api/contact/v1/remove/${id}`, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
-            const users = cache.get('users');
-            if (users) {
+            const contact = cache.get('contact');
+            if (contact) {
                 // Tìm và cập nhật sản phẩm đã bị xóa trong cache
-                const updatedUsers = users.filter((user) => user.id !== id);
-                cache.set('users', updatedUsers);
+                const updatedContact = contact.filter((product) => product.id !== id);
+                cache.set('contact', updatedContact);
             }
             Swal.fire(
-                'Remove User Successfully',
+                'Remove Contact Successfully',
                 res.data.message,
                 'success'
-            )
-            // Xóa danh mục khỏi danh sách hiện tại trong state records
+            )            // Xóa sản phẩm khỏi danh sách hiện tại trong state `records`
             setRecords(prevRecords => {
-                return prevRecords.filter((item) => item.id !== id);
+                return prevRecords.filter((contact) => contact.id !== id);
             });
-            fetchData(); // Cập nhật lại dữ liệu
+            fetchData();
         } catch (error) {
-            console.error(error.response.data.status);
-            Swal.fire(
-                'Error',
-                error.response.data.status,
-                'Error'
-            )
-            toast.error('Failed to delete user.');
+            console.error(error);
+            toast.error('Failed to delete contact.');
         }
     }, [cache, setRecords, fetchData]);
-
     // xác nhận xóa vĩnh viễn
     const confirmDelete = useCallback((id) => {
         Swal.fire({
             title: 'Are you sure?',
-            text: 'You will not be able to Delete this user!',
+            text: 'You will not be able to Delete this contact!',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, delete it!',
@@ -337,17 +283,16 @@ export default function DataGridDemo() {
         });
     }, [handleDelete]);
 
-    // xóa nhiều category vĩnh viễn
     const handleDeleteALL = useCallback(async () => {
         try {
-            const res = await axios.delete('/api/user/v1/removeALL', {
+            const res = await axios.delete('/api/contact/v1/removeALL', {
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 data: { ids: arrDmr }
             });
             Swal.fire(
-                'Delete all User Successfully',
+                'Delete all Contact Successfully',
                 res.data.message,
                 'success'
             );
@@ -356,17 +301,18 @@ export default function DataGridDemo() {
         } catch (error) {
             console.error(error);
             Swal.fire(
-                'Delete all User Failed',
+                'Delete all Contact Failed',
                 error.data.message,
                 'error'
             );
         }
     }, [arrDmr, fetchData]);
+
     // xác nhận xóa vĩnh viễn nhiều sản phẩm
     const confirmDeleteALL = useCallback(() => {
         Swal.fire({
             title: 'Are you sure?',
-            text: 'You will not be able to Delete all this user!',
+            text: 'You will not be able to Delete all this Contact!',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, delete all!',
@@ -377,7 +323,6 @@ export default function DataGridDemo() {
             }
         });
     }, [handleDeleteALL]);
-
     // lọc sản phẩm theo tên
     const handleFilter = useCallback(e => {
         const { value } = e.target;
@@ -386,11 +331,10 @@ export default function DataGridDemo() {
                 return [...initialData];
             }
             return prevRecords.filter(record =>
-                record.name_category.toLowerCase().includes(value.toLowerCase())
+                record.name_contact.toLowerCase().includes(value.toLowerCase())
             );
         });
     }, [initialData, setRecords]);
-
 
     // load lại bảng data product
     const LoadPage = useCallback(async (e) => {
@@ -413,21 +357,21 @@ export default function DataGridDemo() {
     }
     return (
         <>
-            <Meta title={"Trash User"} />
+            <Meta title={"Trash Contact"} />
             <div className="container-xxl">
                 <div className="row">
                     <input
                         type="text"
                         className="form-control my-3"
-                        placeholder="Search Product..."
+                        placeholder="Search Contact..."
                         onChange={handleFilter}
                     />
                     <div className="col-12 d-flex">
                         <Link className="btn btn-danger m-1 text-white d-flex align-items-center" type="button">
                             <FiTrash2 className='fs-4' /> Trash <span>( {!countTrash ? "0" : countTrash} )</span>
                         </Link>
-                        <Link to='../user' className="btn btn-info m-1 text-white d-flex align-items-center" type="button">
-                            <AiOutlineRollback className='fs-4' /> Back User
+                        <Link to='../contact' className="btn btn-info m-1 text-white d-flex align-items-center" type="button">
+                            <AiOutlineRollback className='fs-4' /> Back Contact
                         </Link>
                         {
                             arrDmr.length > 1 &&
@@ -440,8 +384,8 @@ export default function DataGridDemo() {
                                 </button>
                             </>
                         }
-                    </div>
 
+                    </div>
                     {/* hiện data product */}
                     <Box sx={{ height: 600, width: '100%' }}>
                         <DataGrid
@@ -471,18 +415,15 @@ export default function DataGridDemo() {
 
                     {/* Hiển thị modal - chi tiết sản phẩm*/}
                     <Dialog open={open} onClose={handleClose} className="dialog" maxWidth="xl" maxHeight="lg">
-                        <DialogTitle>User Detail</DialogTitle>
+                        <DialogTitle>Contact Detail</DialogTitle>
                         <DialogContent className="dialog-content">
-                            {selectedUser && (
+                            {selectedProduct && (
                                 <>
-                                    <Typography className="product-name" variant="h6">{selectedUser.name}</Typography>
-                                    <Typography className="product-info">{`User Code: ${selectedUser.user_id}`}</Typography>
-                                    <Typography className="product-info">{`Email: ${selectedUser.email}`}</Typography>
-                                    <Typography className="product-info">{`Phone: ${selectedUser.phone}`}</Typography>
-                                    <Typography className="product-info">{`Gender: ${selectedUser.gender}`}</Typography>
-                                    <Typography className="product-info">{`Address: ${selectedUser.address}`}</Typography>
-                                    <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedUser.detail) }} />
-                                    <img className="product-image" src={`http://localhost:8000/storage/user/${selectedUser.avatar}`} alt={selectedUser.avatar} />
+                                    <Typography className="product-name" variant="h6">{selectedProduct.name_contact}</Typography>
+                                    <Typography className="product-info">{`Email: ${selectedProduct.email_contact}`}</Typography>
+                                    <Typography className="product-info">{`Phone: ${selectedProduct.phone_contact}`}</Typography>
+                                    <h5><strong>Comment:</strong></h5>
+                                    <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedProduct.comments_contact) }} />
                                 </>
                             )}
                         </DialogContent>
@@ -493,7 +434,6 @@ export default function DataGridDemo() {
                             </Button>
                         </DialogActions>
                     </Dialog>
-
                     {/* Hiển thị modal - chi tiết sản phẩm end*/}
 
 

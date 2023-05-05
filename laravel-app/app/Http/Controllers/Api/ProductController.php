@@ -282,7 +282,8 @@ class ProductController extends Controller
         foreach ($data as $id) {
             $product = Product::find($id);
             if (!$product) {
-                return response()->json(['message' => "Product with id $id does not exist."]);
+                $restoredUsers[] = ['id' => $id, 'message' => 'Product not found.'];
+                continue;
             }
             $product->deleted_at = $now;
             $product->status = 0;
@@ -334,7 +335,8 @@ class ProductController extends Controller
             $product = Product::withTrashed()->find($id);
 
             if (!$product) {
-                return response()->json(['message' => 'Product not found.'], 404);
+                $restoredUsers[] = ['id' => $id, 'message' => 'Product not found.'];
+                continue;
             }
 
             // tìm id có trong danh sách xóa tạm không
@@ -398,7 +400,8 @@ class ProductController extends Controller
             $product = Product::withTrashed()->find($id);
 
             if (!$product) {
-                return response()->json(['message' => 'Product not found.'], 404);
+                $restoredUsers[] = ['id' => $id, 'message' => 'Product not found.'];
+                continue;
             }
 
             // Xóa ảnh đại diện của category nếu có

@@ -243,6 +243,7 @@ class BrandController extends Controller
 
             // Kiểm tra xem có tồn tại Category không
             if (!$brand) {
+                $restoredUsers[] = ['id' => $id, 'message' => 'Brand not found.'];
                 continue;
             }
 
@@ -349,7 +350,8 @@ class BrandController extends Controller
 
             // Kiểm tra xem có tồn tại Category không
             if (!$brand) {
-                return response()->json(['message' => 'Brand not found.'], 404);
+                $restoredUsers[] = ['id' => $id, 'message' => 'Brand not found.'];
+                continue;
             }
 
             // Kiểm tra xem có sản phẩm nào có category_id bằng $category->id không
@@ -455,7 +457,8 @@ class BrandController extends Controller
             $brand = Brand::withTrashed()->findOrFail($id);
 
             if (!$brand) {
-                return response()->json(['message' => 'Brand not found.'], 404);
+                $restoredUsers[] = ['id' => $id, 'message' => 'Brand not found.'];
+                continue;
             }
 
             if (!$brand->trashed()) {

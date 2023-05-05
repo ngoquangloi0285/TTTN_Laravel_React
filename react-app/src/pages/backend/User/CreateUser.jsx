@@ -161,12 +161,12 @@ const CreateUser = () => {
             }
             ClearUp();
         } catch (error) {
+            // Xử lý lỗi
             setIsLoading(false);
-            // Nếu xảy ra lỗi, hiển thị thông báo lỗi
-            if (error.response.status === 500) {
+            if (error.response.data.error === 500) {
                 Swal.fire('Error!', error.response.data.error, 'error');
             } else {
-                Swal.fire('Error!', 'Failed to create new User.', 'error');
+                Swal.fire('Error!', 'Please double check the input or maybe this email already exists.', 'error');
             }
             btn.innerHTML = "Create New User";
         }

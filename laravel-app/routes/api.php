@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ChangePassController;
+use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\CountDownController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\NewsImagesController;
@@ -139,7 +140,7 @@ Route::prefix('user/v1')->group(function () {
     // Tạo sản phẩm mới
     Route::post("create-user", [UserController::class, 'store'])->name('user.store');
     // Cập nhật sp phuong thuc POST
-    Route::post('update/{id}', [UserController::class, 'update'])->name('user.update')->middleware('cors');
+    Route::post('update-user/{id}', [UserController::class, 'update'])->name('user.update')->middleware('cors');
     // Lấy tất cả SP trong đã xóa tạm
     Route::get('user/trash', [UserController::class, 'trash'])->name('user.trash');
     // Xóa tạm SP
@@ -156,6 +157,32 @@ Route::prefix('user/v1')->group(function () {
     Route::delete('removeALL', [UserController::class, 'removeALL'])->name('user.removeALL');
 });
 
+Route::prefix('contact/v1')->group(function () {
+    // News
+    Route::get("contacts", [ContactController::class, 'index']);
+    // Lấy thông tin sản phẩm theo id
+    Route::get('{id}', [ContactController::class, 'show'])->name('contact.show');
+    // Lấy thông tin sản phẩm theo id
+    Route::get('edit/{id}', [ContactController::class, 'edit'])->name('contact.edit');
+    // Tạo sản phẩm mới
+    Route::post("create-contact", [ContactController::class, 'store'])->name('contact.store');
+    // Cập nhật sp phuong thuc POST
+    Route::post('update-contact/{id}', [ContactController::class, 'update'])->name('contact.update')->middleware('cors');
+    // Lấy tất cả SP trong đã xóa tạm
+    Route::get('contact/trash', [ContactController::class, 'trash'])->name('contact.trash');
+    // Xóa tạm SP
+    Route::delete('soft-delete/{id}', [ContactController::class, 'destroy'])->name('contact.destroy');
+    // Xóa tạm ALL SP
+    Route::delete('contact_all/soft-delete', [ContactController::class, 'destroyALL'])->name('contact.destroyALL');
+    // Khôi phục SP với ID
+    Route::post('restore/{id}', [ContactController::class, 'restore'])->name('contact.restore');
+    // Khôi phục SP ALL
+    Route::post('restoreALL', [ContactController::class, 'restoreALL'])->name('contact.restoreALL');
+    // Xóa vĩnh viễn SP
+    Route::delete('/remove/{id}', [ContactController::class, 'remove'])->name('contact.remove');
+    // Xóa vĩnh viễn  nhiều SP
+    Route::delete('removeALL', [ContactController::class, 'removeALL'])->name('contact.removeALL');
+});
 
 Route::prefix('countdown/v1')->group(function () {
     // Brand

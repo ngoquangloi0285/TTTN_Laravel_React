@@ -15,7 +15,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2';
 
-const NewProduct = () => {
+const NewContact = () => {
     const { user } = useAuthContext();
     const [categories, setCategories] = useState([]);
     const [brands, setBrands] = useState([]);
@@ -218,6 +218,7 @@ const NewProduct = () => {
             newErrors.endTime = 'End time không được bằng với start time.';
         }
 
+
         if (!content) {
             newErrors.content = "Vui lòng nhập chi tiết sản phẩm.";
         }
@@ -306,7 +307,7 @@ const NewProduct = () => {
     }
     return (
         <>
-            <Meta title={"Create Product"} />
+            <Meta title={"Create Contact"} />
             <div className="row">
                 <form action="" onSubmit={handleSubmit}>
                     <div className="row">
@@ -318,11 +319,11 @@ const NewProduct = () => {
                             </div>
                             <button className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
                                 <IoCreateOutline className='fs-4' />
-                                Create new product
+                                Create new Contact
                             </button>
-                            <Link to="../product" className="btn btn-info text-white mr-2" type="button">
+                            <Link to="../contact" className="btn btn-info text-white mr-2" type="button">
                                 <AiOutlineRollback className='fs-4' />
-                                Back Product
+                                Back Contact
                             </Link>
 
                         </div>
@@ -606,9 +607,9 @@ const NewProduct = () => {
                                 </div>
                             )}
                             <br />
-                            <Link to="../product" className="btn btn-info text-white mr-2" type="button">
+                            <Link to="../contact" className="btn btn-info text-white mr-2" type="button">
                                 <AiOutlineRollback className='fs-4' />
-                                Back Product
+                                Back Contact
                             </Link>
                             <br />
                             <div className="row mt-5">
@@ -629,4 +630,4 @@ const NewProduct = () => {
     );
 };
 
-export default NewProduct;
+export default NewContact;

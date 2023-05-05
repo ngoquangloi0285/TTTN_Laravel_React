@@ -47,7 +47,7 @@ class UserController extends Controller
             return response()->json([
                 'error' => 'User this email already exists, please choose another email.',
                 'user' => $user
-            ], 500);
+            ], 422);
         } else {
             /** Generate id */
             $id = random_int(0, 9999999999);
@@ -83,7 +83,7 @@ class UserController extends Controller
                     Storage::disk('public')->put('user/' . $path, (string) $image->encode());
                     $paths[] = $path;
 
-                    // Lưu ảnh đầu tiên vào trường images của bảng products
+                    // Lưu ảnh đầu tiên vào trường images của bảng users
                     if ($key == 0) {
                         $user->avatar = $path;
                         $user->save();
@@ -110,9 +110,87 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+
+    public function edit($id)
     {
-        //
+        $data = User::find($id);
+
+        if ($data) {
+            return response()->json([
+                'status' => 200,
+                'user' => $data,
+            ]);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'No User Found',
+            ]);
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $user = User::find($id);
+
+        // Kiểm tra xem email đã tồn tại hay chưa
+        if (User::where('email', $request->email)->where('id', '<>', $user->id)->count() > 0) {
+            return response()->json([
+                'status' => 400,
+                'message' => 'Email already exists',
+            ], 400);
+        }
+
+        if (Hash::check($request->currentPassword, $user->password)) {
+            // Mật khẩu hiện tại trùng với mật khẩu đã được mã hóa trong cơ sở dữ liệu
+            $user->update([
+                'name' => $request['name'],
+                'email' => $request['email'],
+                'phone' => $request['phone'],
+                'address' => $request['address'],
+                'gender' => $request['gender'],
+                'roles' => $request['role'],
+                'author' => $request->user()->name,
+                'status' => $request['status']
+            ]);
+
+            if ($request->hasFile('images')) {
+                $files = $request->file('images');
+                $paths = [];
+                if ($user->avatar && Storage::disk('public')->exists('user/' . $user->avatar)) {
+                    Storage::disk('public')->delete('user/' . $user->avatar);
+                }
+                foreach ($files as $key => $file) {
+                    $path = $request['name'] . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
+                    $image = Image::make($file);
+                    $image->resize(800, null, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize();
+                    });
+                    Storage::disk('public')->put('user/' . $path, (string) $image->encode());
+                    $paths[] = $path;
+
+                    // Lưu ảnh đầu tiên vào trường images của bảng users
+                    if ($key == 0) {
+                        $user->avatar = $path;
+                        $user->save();
+                    }
+                }
+            }
+
+            $user->update(['password' => Hash::make($request->password),]);
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Updated successfully',
+            ]);
+
+        } else {
+            // Mật khẩu hiện tại không trùng với mật khẩu đã được mã hóa trong cơ sở dữ liệu
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Current password does not match',
+            ], 400);
+        }
     }
 
     /**
@@ -159,5 +237,100 @@ class UserController extends Controller
     {
         $trashedUsers = User::onlyTrashed()->get();
         return $trashedUsers;
+    }
+
+    public function restore($id)
+    {
+        $user = User::withTrashed()->find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        if ($user->trashed()) {
+            $user->status = 1;
+            if ($user->save()) {
+                $user->restore();
+                return response()->json(['message' => 'User has been restored.', 'user' => $user->fresh()]);
+            } else {
+                return response()->json(['message' => 'Failed to restore user.'], 500);
+            }
+        } else {
+            return response()->json(['message' => 'User is not deleted.'], 400);
+        }
+    }
+
+    public function restoreALL(Request $request)
+    {
+        $data = $request['ids'];
+        $restoredUsers = [];
+
+        foreach ($data as $id) {
+            $user = User::withTrashed()->find($id);
+
+            if (!$user) {
+                $restoredUsers[] = ['id' => $id, 'message' => 'User not found.'];
+                continue;
+            }
+
+            if ($user->trashed()) {
+                $user->status = 1;
+                if ($user->save()) {
+                    $user->restore();
+                    $restoredUsers[] = ['id' => $id, 'message' => 'User has been restored.', 'user' => $user->fresh()];
+                } else {
+                    $restoredUsers[] = ['id' => $id, 'message' => 'Failed to restore user.'];
+                }
+            } else {
+                $restoredUsers[] = ['id' => $id, 'message' => 'User is not deleted.'];
+            }
+        }
+
+        return response()->json(['message' => 'Users have been restored.', 'restoredUsers' => $restoredUsers]);
+    }
+
+    public function remove($id)
+    {
+        $user = User::withTrashed()->find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        if ($user->avatar && Storage::disk('public')->exists('user/' . $user->avatar)) {
+            Storage::disk('public')->delete('user/' . $user->avatar);
+        }
+
+        if ($user->trashed()) {
+            $user->forceDelete();
+            return response()->json(['message' => 'User permanently deleted successfully']);
+        }
+
+        return response()->json(['message' => 'User is not deleted.'], 400);
+    }
+
+    public function removeALL(Request $request)
+    {
+        $data = $request['ids'];
+
+        foreach ($data as $id) {
+            $user = User::withTrashed()->find($id);
+
+            if (!$user) {
+                $restoredUsers[] = ['id' => $id, 'message' => 'user not found.'];
+                continue;
+            }
+
+            // Xóa ảnh đại diện của category nếu có
+            if ($user->avatar && Storage::disk('public')->exists('user/' . $user->avatar)) {
+                Storage::disk('public')->delete('user/' . $user->avatar);
+            }
+
+            // tìm id có trong danh sách xóa tạm không
+            if ($user->trashed()) {
+                $user->forceDelete();
+            }
+        }
+        return response()->json(['message' => 'Permanently deleted successfully']);
     }
 }
