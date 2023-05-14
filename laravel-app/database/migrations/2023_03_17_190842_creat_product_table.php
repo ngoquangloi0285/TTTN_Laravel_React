@@ -21,9 +21,9 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->string('summary', 255);
             $table->text('detail', 255);
-            $table->decimal('price', 8, 2);
-            $table->decimal('cost', 8, 2);
-            $table->decimal('discount', 8, 2);
+            $table->decimal('price', 8);
+            $table->decimal('cost', 8);
+            $table->decimal('discount', 8)->nullable();
             $table->string('color', 255);
             $table->string('inch', 255);
             $table->integer('total')->unsigned()->nullable();

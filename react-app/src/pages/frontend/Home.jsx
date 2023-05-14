@@ -30,16 +30,17 @@ const Home = () => {
                       {slideImages.map(image => (
                         <div className="each-slide carousel-item active" key={image}>
                           <img src={image.url} className="d-block img-fluid" alt="..." />
+                          <div className="main-banner-content position-absolute">
+                            <h4>SUPERCHANRGRED FOR PROS.</h4>
+                            <h5>iPad S13+ Pro.</h5>
+                            <p>From $999.00 or $41.62/mo.</p>
+                            <Link className="button">BUY NOW</Link>
+                          </div>
                         </div>
                       ))}
                     </Slide>
                   </div>
-                  <div className="main-banner-content position-absolute">
-                    <h4>SUPERCHANRGRED FOR PROS.</h4>
-                    <h5>iPad S13+ Pro.</h5>
-                    <p>From $999.00 or $41.62/mo.</p>
-                    <Link className="button">BUY NOW</Link>
-                  </div>
+
                 </div>
               </div>
             </div>

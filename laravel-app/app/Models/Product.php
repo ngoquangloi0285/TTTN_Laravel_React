@@ -22,6 +22,7 @@ class Product extends Model
         'discount',
         'color',
         'inch',
+        'type',
         'total',
         'detail',
         'author',

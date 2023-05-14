@@ -13,7 +13,13 @@ return new class extends Migration
     {
         Schema::create('menu', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('link');
+            $table->integer('position')->unsigned()->nullable();
+            $table->string('author', 255);
+            $table->tinyInteger('status')->unsigned()->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

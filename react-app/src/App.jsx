@@ -45,13 +45,17 @@ import User from './pages/backend/User/User'
 import EditUser from './pages/backend/User/Edit';
 import CreateUser from './pages/backend/User/CreateUser';
 import TrashUser from './pages/backend/User/Trash';
+// Route Menu
+import Menu from './pages/backend/Menu/Menu'
+import CreateMenu from './pages/backend/Menu/CreateMenu';
+import TrashMenu from './pages/backend/Menu/Trash';
 // Route Contact
 import ContactAdmin from './pages/backend/Contact/Contact'
-import DetailContact from './pages/backend/Contact/Detail';
 import CreateContact from './pages/backend/Contact/CreateContact';
 import TrashContact from './pages/backend/Contact/Trash';
 
 import LoginAdmin from './components/backend/LoginAdmin';
+import { Cart } from './pages/frontend/Cart';
 
 function App() {
 
@@ -68,6 +72,7 @@ function App() {
           <Route path="compare-product" element={<CompareProduct />} />
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="change-password" element={<ChangePasswordForm />} />
+          <Route path="cart" element={<Cart />} />
 
           <Route element={<GuestLayout />}>
             <Route path="login" element={<Login />} />
@@ -110,7 +115,10 @@ function App() {
             <Route path="contact" element={<ContactAdmin />} />
             <Route path="contact/create-contact" element={<CreateContact />} />
             <Route path="contact/trash-contact" element={<TrashContact />} />
-            <Route path="contact/contact-detail" element={<DetailContact />} />
+            {/* Menu */}
+            <Route path="menu" element={<Menu />} />
+            <Route path="menu/create-menu" element={<CreateMenu />} />
+            <Route path="menu/trash-menu" element={<TrashMenu />} />
           </Route>
         </Route>
 

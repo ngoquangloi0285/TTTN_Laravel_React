@@ -142,6 +142,13 @@ class CategoryController extends Controller
             $category->author = $request->user()->name;
             $category->status = $request['status'];
 
+            // // khi cập nhật xong thì tôi muốn cập nhật lại category của tất cả sản phẩm có liên quan đến category
+            // $products = Product::where('category_id', '=', $id)->get();
+            // foreach ($products as $product) {
+            //     $product->category_id = $category->id; // Gán lại id của danh mục vừa cập nhật
+            //     $product->save(); // Lưu lại thông tin sản phẩm
+            // }
+
             if ($request->hasFile('images')) {
                 $files = $request->file('images');
                 $paths = [];

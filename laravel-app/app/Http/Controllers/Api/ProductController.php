@@ -61,7 +61,7 @@ class ProductController extends Controller
                 'discount' => $request['discount'],
                 'color' => $request['color'],
                 'inch' => $request['inch'],
-                'total' => $request['total'],
+                'type' => $request['type'],
                 'detail' => $request['detail'],
                 'author' => $request->user()->name,
                 'status' => $request['status']
@@ -174,6 +174,7 @@ class ProductController extends Controller
             $product->discount = $request['discount'];
             $product->color = $request['color'];
             $product->inch = $request['inch'];
+            $product->type = $request['type'];
             $product->detail = $request['detail'];
             $product->author = $request->user()->name;
             $product->status = $request['status'];

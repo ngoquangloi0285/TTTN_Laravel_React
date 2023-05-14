@@ -9,10 +9,33 @@ import { AiOutlineDashboard } from "react-icons/ai";
 import { MdSwitchAccount } from "react-icons/md";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from "../../api/axios";
 
 const Header = () => {
   const { user, logout } = useAuthContext();
   const [location] = useLocation();
+
+  const [menuList, setMenuList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get('/api/menu/v1/menus');
+      setMenuList(response.data);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error);
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [])
+
+
 
   return (
     <>
@@ -54,7 +77,7 @@ const Header = () => {
                 <h2 className="mb-0 header-link d-flex align-items-center">
                   <BsShop style={{
                     fontSize: '3rem'
-                  }}/>
+                  }} />
                   E-Shop</h2>
               </Link>
             </div>
@@ -165,7 +188,7 @@ const Header = () => {
                     <img src="images/cart.svg" alt="cart" />
                     <div className="d-flex flex-column gap-10">
                       <span className="badge bg-white text-dark">0</span>
-                      <p className="mb-0 header-link">$ 500</p>
+                      {/* <p className="mb-0 header-link">$ 500</p> */}
                     </div>
                   </Link>
                 </div>
@@ -215,11 +238,16 @@ const Header = () => {
                 </div>
                 <div className="menu-links">
                   <div className="d-flex align-items-center gap-15">
-                    <NavLink className="header-link" to="/">Home</NavLink>
+                    {
+                      menuList.map(menu => (
+                        <NavLink className="header-link" to={menu.link}>{menu.name}</NavLink>
+                      ))
+                    }
+                    {/* <NavLink className="header-link" to="/">Home</NavLink>
                     <NavLink className="header-link" to="store">Our Store</NavLink>
                     <NavLink className="header-link" to="about">About</NavLink>
                     <NavLink className="header-link" to="contact">Contact</NavLink>
-                    <NavLink className="header-link" to="blog">Blog</NavLink>
+                    <NavLink className="header-link" to="blog">Blog</NavLink> */}
                   </div>
                 </div>
               </div>

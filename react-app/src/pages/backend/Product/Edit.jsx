@@ -37,6 +37,7 @@ const Edit = () => {
     const [discount, setDiscount] = useState();
     const [color, setColor] = useState();
     const [inch, setInch] = useState();
+    const [type, setType] = useState();
     const [total, setTotal] = useState();
 
 
@@ -58,13 +59,48 @@ const Edit = () => {
 
     const [status, setStatus] = useState(null);
 
+    const checkImage = (file, options) => {
+        const { maxSize, acceptedFormats } = options;
+
+        // Kiểm tra định dạng ảnh
+        const format = file.type.split('/')[1];
+        if (!acceptedFormats.includes(format)) {
+            return {
+                isValid: false,
+                message: `Định dạng ảnh không hợp lệ. Vui lòng chọn các định dạng: ${acceptedFormats.join(', ')}.`
+            };
+        }
+
+        // Kiểm tra kích thước ảnh
+        if (file.size > maxSize) {
+            const maxSizeInMb = maxSize / (1024 * 1024);
+            return {
+                isValid: false,
+                message: `Kích thước ảnh vượt quá giới hạn cho phép (${maxSizeInMb} MB). Vui lòng chọn một ảnh có kích thước nhỏ hơn.`
+            };
+        }
+
+        return { isValid: true };
+    };
+
     const handleUpload = (event) => {
         event.preventDefault();
         const fileList = event.target.files;
         const newFiles = Array.from(fileList);
         const shouldAddFiles = newFiles.filter(file => !files.some(f => f.name === file.name));
-        setFiles([...files, ...shouldAddFiles]);
 
+        // Kiểm tra tệp ảnh trước khi thêm vào danh sách
+        const options = { maxSize: 5 * 1024 * 1024, acceptedFormats: ['jpeg', 'jpg', 'png'] };
+        const invalidFiles = shouldAddFiles.filter(file => !checkImage(file, options).isValid);
+        if (invalidFiles.length > 0) {
+            // Hiển thị thông báo lỗi
+            const message = invalidFiles.map(file => checkImage(file, options).message).join('\n');
+            alert(message);
+            return;
+        }
+
+        // Thêm các tệp hợp lệ vào danh sách và tạo URL đối tượng của chúng
+        setFiles([...files, ...shouldAddFiles]);
         const newPreviewUrls = shouldAddFiles.map(file => URL.createObjectURL(file));
         setPreviewUrls([...previewUrls, ...newPreviewUrls]);
     };
@@ -79,11 +115,11 @@ const Edit = () => {
         });
     };
 
-    const clearImageUrls =useCallback( () => {
+    const clearImageUrls = useCallback(() => {
         previewUrls.forEach((url) => URL.revokeObjectURL(url));
         setPreviewUrls([]);
         setFiles([]);
-    },[previewUrls]);
+    }, [previewUrls]);
 
     const ClearUpPhotos = () => {
         document.getElementById("file").value = "";
@@ -154,7 +190,8 @@ const Edit = () => {
                     setDiscount(productResponse.data.product.discount);
                     setColor(productResponse.data.product.color);
                     setInch(productResponse.data.product.inch);
-                    setTotal(productResponse.data.product.total);
+                    // setTotal(productResponse.data.product.total);
+                    setType(productResponse.data.product.type);
                     setContent(productResponse.data.product.detail);
                 }
                 if (imagesResponse.data) {
@@ -189,6 +226,21 @@ const Edit = () => {
     const getEnd_Time = start_end_time ? start_end_time.end_time : '';
 
 
+    const [statusType, setStatusType] = useState('new_product');
+    // const [discount, setDiscount] = useState('');
+
+    const handleDiscountChange = (e) => {
+        const value = e.target.value;
+        setDiscount(value);
+        console.log(value);
+        // Nếu có giá trị discount, chuyển select sang giá trị 'product_sale'
+        if (value === "0") {
+            setStatusType('new_product');
+        } else {
+            setStatusType('product_sale');
+        }
+    };
+
     // Xử lý khi người dùng ấn nút Submit
     const handleSubmit = useCallback(async () => {
         const btn = document.getElementById('btn_create');
@@ -197,6 +249,7 @@ const Edit = () => {
         const category = document.getElementById("category").value;
         const brand = document.getElementById("brand").value;
         const status = document.getElementById("status").value;
+        const type = document.getElementById("type").value;
 
         // định nghĩa lỗi
         const newErrors = {};
@@ -224,12 +277,14 @@ const Edit = () => {
         if (isNaN(priceSale)) {
             newErrors.priceSale = "Giá bán phải là số.";
         }
-        if (isNaN(discount)) {
-            newErrors.discount = "Giảm giá phải là số.";
-        } else if (discount <= 0) {
-            newErrors.discount = "Giảm giá phải lớn hơn 0.";
-        } else if (discount > 100) {
-            newErrors.discount = "Giảm giá phải nhỏ hơn hoặc bằng 100.";
+        if (discount) {
+            if (isNaN(discount)) {
+                newErrors.discount = "Giảm giá phải là số.";
+            } else if (discount <= 0) {
+                newErrors.discount = "Giảm giá phải lớn hơn 0.";
+            } else if (discount > 100) {
+                newErrors.discount = "Giảm giá phải nhỏ hơn hoặc bằng 100.";
+            }
         }
         if (!color) {
             newErrors.color = "Vui lòng nhập màu.";
@@ -239,9 +294,6 @@ const Edit = () => {
         }
         if (isNaN(inch)) {
             newErrors.inch = "Inch phải là số.";
-        }
-        if (isNaN(total)) {
-            newErrors.total = "Total phải là số.";
         }
 
         const nowDate = moment().tz(moment.tz.guess());
@@ -290,7 +342,7 @@ const Edit = () => {
         formData.append('discount', discount);
         formData.append('color', color);
         formData.append('inch', inch);
-        formData.append('total', total);
+        formData.append('type', type);
         formData.append('start_time', startTime);
         formData.append('end_time', endTime);
         formData.append('detail', content);
@@ -333,7 +385,7 @@ const Edit = () => {
             }
             btn.innerHTML = "Update Product";
         }
-    }, [content, color, costProduct, discount, encodedId, endTime, files, inch, nameProduct, priceSale, startTime, total, summary, navigate]);
+    }, [content, color, costProduct, discount, encodedId, endTime, files, inch, nameProduct, priceSale, startTime, summary, navigate]);
     // xác nhận  update
     const confirmUpdate = useCallback(() => {
         Swal.fire({
@@ -500,8 +552,9 @@ const Edit = () => {
                                     <label className='form-label fw-bold' htmlFor="discount">Discount(%):</label>
                                     <input className='form-control'
                                         value={discount}
-                                        onChange={(e) => setDiscount(e.target.value)}
-                                        id='discount' maxLength={2} type="text" placeholder='Enter discount %' />
+                                        // onChange={(e) => setDiscount(e.target.value)}
+                                        onChange={handleDiscountChange}
+                                        id='discount' maxLength={3} type="text" placeholder='Enter discount %' />
                                     {errors.discount && (
                                         <div className="alert alert-danger"
                                             style={
@@ -514,7 +567,6 @@ const Edit = () => {
                                 </div>
                             </div>
                         </div>
-                        <label className='form-label fw-bold' htmlFor="floatingTextarea">Options:</label>
                         <div className="row">
                             <div className="col-4">
                                 <label className='form-label fw-bold' htmlFor="color">Color:</label>
@@ -548,23 +600,7 @@ const Edit = () => {
                                     </div>
                                 )}
                             </div>
-                            <div className="col-4">
-                                <label className='form-label fw-bold' htmlFor="inch">Total:</label>
-                                <input className='form-control'
-                                    value={total}
-                                    onChange={(e) => setTotal(e.target.value)}
-                                    id='total' type="text" placeholder='Enter total' />
-                                {errors.total && (
-                                    <div className="alert alert-danger"
-                                        style={
-                                            { fontSize: '14px' }
-                                        }
-                                        role="alert">
-                                        {errors.total}
-                                    </div>
-                                )}
-                            </div>
-                            <div className="row my-3">
+                            <div className="row my-2">
                                 <div className="col-6">
                                     <div className="mb-2">
                                         <label className='form-label fw-bold' htmlFor="startTime">Start Time:</label>
@@ -684,6 +720,17 @@ const Edit = () => {
                                     </div>
                                 </div>
                         }
+                        <br />
+                        <label className='form-label fw-bold' htmlFor="status">Type:</label>
+                        <p className='bg-info text-white p-2'>Selected Type: {type}</p>
+                        <select className="form-select mb-2" id="type" aria-label="Default select example"
+                            value={statusType}
+                            onChange={(e) => setStatusType(e.target.value)}
+                        >
+                            <option value="new_product" selected>New Product</option>
+                            <option value="product_sale">Sale Product</option>
+                            <option value="product_special">Special Product</option>
+                        </select>
                         <label className='form-label fw-bold' htmlFor="status">Status:</label>
                         <select className="form-select mb-2" id="status" aria-label="Default select example">
                             <option value="" selected>Select Status</option>

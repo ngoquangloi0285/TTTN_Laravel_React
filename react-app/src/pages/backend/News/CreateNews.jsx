@@ -32,13 +32,48 @@ const NewProduct = () => {
 
     const [status, setStatus] = useState(null);
 
+    const checkImage = (file, options) => {
+        const { maxSize, acceptedFormats } = options;
+
+        // Kiểm tra định dạng ảnh
+        const format = file.type.split('/')[1];
+        if (!acceptedFormats.includes(format)) {
+            return {
+                isValid: false,
+                message: `Định dạng ảnh không hợp lệ. Vui lòng chọn các định dạng: ${acceptedFormats.join(', ')}.`
+            };
+        }
+
+        // Kiểm tra kích thước ảnh
+        if (file.size > maxSize) {
+            const maxSizeInMb = maxSize / (1024 * 1024);
+            return {
+                isValid: false,
+                message: `Kích thước ảnh vượt quá giới hạn cho phép (${maxSizeInMb} MB). Vui lòng chọn một ảnh có kích thước nhỏ hơn.`
+            };
+        }
+
+        return { isValid: true };
+    };
+
     const handleUpload = (event) => {
         event.preventDefault();
         const fileList = event.target.files;
         const newFiles = Array.from(fileList);
         const shouldAddFiles = newFiles.filter(file => !files.some(f => f.name === file.name));
-        setFiles([...files, ...shouldAddFiles]);
 
+        // Kiểm tra tệp ảnh trước khi thêm vào danh sách
+        const options = { maxSize: 5 * 1024 * 1024, acceptedFormats: ['jpeg', 'jpg', 'png'] };
+        const invalidFiles = shouldAddFiles.filter(file => !checkImage(file, options).isValid);
+        if (invalidFiles.length > 0) {
+            // Hiển thị thông báo lỗi
+            const message = invalidFiles.map(file => checkImage(file, options).message).join('\n');
+            alert(message);
+            return;
+        }
+
+        // Thêm các tệp hợp lệ vào danh sách và tạo URL đối tượng của chúng
+        setFiles([...files, ...shouldAddFiles]);
         const newPreviewUrls = shouldAddFiles.map(file => URL.createObjectURL(file));
         setPreviewUrls([...previewUrls, ...newPreviewUrls]);
     };

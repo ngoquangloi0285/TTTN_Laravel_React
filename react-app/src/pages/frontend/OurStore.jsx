@@ -34,10 +34,6 @@ const OurStore = () => {
     };
     const [grid, setGird] = useState(4);
 
-
-
-
-
     return (
         <>
             <Meta title={"Our Store"} />

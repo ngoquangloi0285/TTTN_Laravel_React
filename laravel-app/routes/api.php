@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ChangePassController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\CountDownController;
+use App\Http\Controllers\Api\MenuController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\NewsImagesController;
 use App\Http\Controllers\Api\OptionController;
@@ -60,7 +61,7 @@ Route::prefix('category/v1')->group(function () {
     // Xóa tạm ALL SP
     Route::delete('category_all/soft-delete', [CategoryController::class, 'destroyALL'])->name('category.destroyALL');
     // Khôi phục SP với ID
-    Route::get('restore/{id}', [CategoryController::class, 'restore'])->name('category.restore');
+    Route::post('restore/{id}', [CategoryController::class, 'restore'])->name('category.restore');
     // Khôi phục SP ALL
     Route::post('restoreALL', [CategoryController::class, 'restoreALL'])->name('category.restoreALL');
     // Xóa vĩnh viễn SP
@@ -182,6 +183,33 @@ Route::prefix('contact/v1')->group(function () {
     Route::delete('/remove/{id}', [ContactController::class, 'remove'])->name('contact.remove');
     // Xóa vĩnh viễn  nhiều SP
     Route::delete('removeALL', [ContactController::class, 'removeALL'])->name('contact.removeALL');
+});
+
+Route::prefix('menu/v1')->group(function () {
+    // News
+    Route::get("menus", [MenuController::class, 'index']);
+    // Lấy thông tin sản phẩm theo id
+    Route::get('{id}', [MenuController::class, 'show'])->name('menu.show');
+    // Lấy thông tin sản phẩm theo id
+    Route::get('edit/{id}', [MenuController::class, 'edit'])->name('menu.edit');
+    // Tạo sản phẩm mới
+    Route::post("create-menu", [MenuController::class, 'store'])->name('menu.store');
+    // Cập nhật sp phuong thuc POST
+    Route::post('update-menu/{id}', [MenuController::class, 'update'])->name('menu.update')->middleware('cors');
+    // Lấy tất cả SP trong đã xóa tạm
+    Route::get('menu/trash', [MenuController::class, 'trash'])->name('menu.trash');
+    // Xóa tạm SP
+    Route::delete('soft-delete/{id}', [MenuController::class, 'destroy'])->name('menu.destroy');
+    // Xóa tạm ALL SP
+    Route::delete('menu_all/soft-delete', [MenuController::class, 'destroyALL'])->name('menu.destroyALL');
+    // Khôi phục SP với ID
+    Route::post('restore/{id}', [MenuController::class, 'restore'])->name('menu.restore');
+    // Khôi phục SP ALL
+    Route::post('restoreALL', [MenuController::class, 'restoreALL'])->name('menu.restoreALL');
+    // Xóa vĩnh viễn SP
+    Route::delete('/remove/{id}', [MenuController::class, 'remove'])->name('menu.remove');
+    // Xóa vĩnh viễn  nhiều SP
+    Route::delete('removeALL', [MenuController::class, 'removeALL'])->name('menu.removeALL');
 });
 
 Route::prefix('countdown/v1')->group(function () {
