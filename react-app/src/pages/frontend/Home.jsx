@@ -1,25 +1,47 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import Marquee from "react-fast-marquee";
 import BlogCard from "../../components/frontend/BlogCard";
-import ProductCard from "../../components/frontend/ProductCard";
+import { NewProduct, ProductList } from "../../components/frontend/ProductCard";
 import SpecialProducts from "../../components/frontend/SpecialProducts";
-import Suggestions from "../../components/frontend/Suggestions";
 import { Slide } from 'react-slideshow-image';
 import 'react-slideshow-image/dist/styles.css';
 import Meta from '../../components/frontend/Meta';
+import axios from "../../api/axios";
+import { setCountProduct } from "../../globalState";
+import ReactStars from "react-rating-stars-component";
 
 const slideImages = [
   { url: 'http://localhost:3000/images/main-banner.jpg', title: 'main-banner.jpg' },
   { url: 'http://localhost:3000/images/main-banner-1.jpg', title: 'main-banner.jpg' },
 ];
 
-const Home = () => {
+const Home = (props) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [brandList, setBrandList] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const [brandResponse] = await Promise.all([
+          axios.get('/api/brand/v1/brand'),
+        ]);
+        setBrandList(brandResponse.data);
+        setIsLoading(false);
+      } catch (error) {
+        console.log(error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <>
       <Meta title={"Home"} />
-      <section className="home-wrapper-2 py-5">
+      <section className="home-wrapper-2 py-4">
         <div className="container-xxl">
           <div className="row">
             <div className="col-6">
@@ -107,7 +129,7 @@ const Home = () => {
           </div>
         </div>
       </section>
-      <section className="home-wrapper-2 py-5">
+      <section className="home-wrapper-2 py-4">
         <div className="container-xxl">
           <div className="row">
             <div className="col-12">
@@ -152,7 +174,7 @@ const Home = () => {
           </div>
         </div>
       </section>
-      <section className="home-wrapper-3 py-5">
+      {/* <section className="home-wrapper-3 py-5">
         <div className="container-xxl">
           <div className="row">
             <div className="col-12">
@@ -233,99 +255,104 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </section>
-      <section className="featured-wrapper py-5 home-wrapper-2">
+      </section> */}
+      <section className="featured-wrapper py-4 home-wrapper-2">
         <div className="container-xxl">
           <div className="row">
             <div className="col-12">
-              <h3 className="section-heading">Our Popular Products</h3>
+              <h3 className="section-heading">Our New Products</h3>
             </div>
             <div className="row">
-              <ProductCard />
+              <ProductList newProduct='new_product' saleProduct='product_sale' />
+            </div>
+            <div className="d-flex justify-content-center">
+              <Link className="view_more" to='store'>View more...</Link>
             </div>
           </div>
         </div>
       </section>
-      <section className="famous-wrapper py-5 home-wrapper-2">
-        <div className="container-xxl">
-          <div className="row">
-            <div className="col-12">
-              <h3 className="section-heading">Suggestions for you</h3>
-            </div>
-            <div className="row">
-              <Suggestions />
-              <Suggestions />
-              <Suggestions />
-              <Suggestions />
-              <Suggestions />
-              <Suggestions />
-              <Suggestions />
-              <Suggestions />
-            </div>
-          </div>
-        </div>
-      </section>
-      <div className="special-wrapper py-5 hom-wrapper-2">
+      <div className="special-wrapper py-4 hom-wrapper-2">
         <div className="container-xxl">
           <div className="row">
             <div className="col-12">
               <h3 className="section-heading">Special  Products</h3>
             </div>
             <div className="row">
-              <SpecialProducts />
-              <SpecialProducts />
-              <SpecialProducts />
-              <SpecialProducts />
+              <SpecialProducts special='product_special' />
+            </div>
+            <div className="d-flex justify-content-center">
+              <Link className="view_more" to='store'>View more...</Link>
             </div>
           </div>
         </div>
       </div>
-      <section className="marque-wrapper py-5">
+      <section className="famous-wrapper py-4 home-wrapper-2">
         <div className="container-xxl">
           <div className="row">
             <div className="col-12">
+              <h3 className="section-heading">Suggestions for you</h3>
+            </div>
+            <div className="row">
+              <ProductList suggestion='suggestion' />
+            </div>
+            <div className="d-flex justify-content-center">
+              <Link className="view_more" to='store'>View more...</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="marque-wrapper py-4">
+        <div className="container-xxl">
+          <div className="row">
+            
+            <div className="col-12">
               <div className="marquee-inner-wrapper bg-white py-3 card-wrapper">
-                <Marquee className="d-flex">
-                  <div className="mx-4 w-25">
-                    <img src="images/brand-01.png" alt="brand" />
-                  </div>
-                  <div className="mx-4 w-25">
-                    <img src="images/brand-02.png" alt="brand" />
-                  </div>
-                  <div className="mx-4 w-25">
-                    <img src="images/brand-03.png" alt="brand" />
-                  </div>
-                  <div className="mx-4 w-25">
-                    <img src="images/brand-04.png" alt="brand" />
-                  </div>
-                  <div className="mx-4 w-25">
-                    <img src="images/brand-05.png" alt="brand" />
-                  </div>
-                </Marquee>
+                {
+                  isLoading ? (
+                    <div className="row">
+                      {/* <h1>Loading...</h1>
+                      <ProductPlaceholder/> */}
+                      <div className="card product-card" aria-hidden="true">
+                        <img
+                          style={
+                            {
+                              height: '200px',
+                            }
+                          }
+                          src="" className="card-img-top placeholder-glow placeholder" alt="" />
+                      </div>
+                    </div>
+                  ) : (
+                    <Marquee className="d-flex">
+                      {
+                        brandList.map((brand) => (
+                          <div className="mx-4 w-25">
+                            <img
+                              style={
+                                {
+                                  height: '100px'
+                                }
+                              }
+                              className="img-fluid img-thumbnai" src={`http://localhost:8000/storage/brand/${brand.image}`} alt={brand.name} />
+                          </div>
+                        ))
+                      }
+                    </Marquee>
+                  )
+                }
               </div>
             </div>
           </div>
         </div>
       </section>
-      <section className="blog-wrapper py-5 home-wrapper-2">
+      <section className="blog-wrapper py-4 home-wrapper-2">
         <div className="container-xxl">
           <div className="row">
             <div className="col-12">
               <h3 className="section-heading">Our Latest Blogs</h3>
             </div>
             <div className="d-flex flex-wrap gap-2 justify-content-center">
-              <div className="gr-4 shadow mb-4">
-                <BlogCard />
-              </div>
-              <div className="gr-4 shadow mb-4">
-                <BlogCard />
-              </div>
-              <div className="gr-4 shadow mb-4">
-                <BlogCard />
-              </div>
-              <div className="gr-4 shadow mb-4">
-                <BlogCard />
-              </div>
               <div className="gr-4 shadow mb-4">
                 <BlogCard />
               </div>

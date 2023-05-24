@@ -183,7 +183,6 @@ class UserController extends Controller
                 'status' => 200,
                 'message' => 'Updated successfully',
             ]);
-
         } else {
             // Mật khẩu hiện tại không trùng với mật khẩu đã được mã hóa trong cơ sở dữ liệu
             return response()->json([
@@ -193,6 +192,41 @@ class UserController extends Controller
         }
     }
 
+    public function Profile(Request $request, $id)
+    {
+        $data = $request->all();
+        if (isset($data['address'])) {
+            // Lấy dữ liệu địa chỉ từ request
+            $address = $request['address'];
+
+            // Thực hiện các thao tác cập nhật địa chỉ cho người dùng có id tương ứng
+            // Ví dụ: sử dụng Eloquent hoặc DB facade để cập nhật dữ liệu trong CSDL
+            $user = User::findOrFail($id);
+            $user->address = $address;
+            $user->save();
+
+            // Trả về phản hồi thành công (hoặc bất kỳ phản hồi nào khác theo yêu cầu của bạn)
+            return response()->json(
+                [
+                    'message' => 'Address update successful, Log in again to update, Thank!.'
+                ],200
+            );
+        }
+        if (isset($data['phone'])) {
+            // Lấy dữ liệu địa chỉ từ request
+            $phone = $request['phone'];
+
+            // Thực hiện các thao tác cập nhật địa chỉ cho người dùng có id tương ứng
+            // Ví dụ: sử dụng Eloquent hoặc DB facade để cập nhật dữ liệu trong CSDL
+            $user = User::findOrFail($id);
+            $user->phone = $phone;
+            $user->save();
+
+            // Trả về phản hồi thành công (hoặc bất kỳ phản hồi nào khác theo yêu cầu của bạn)
+            return response()->json(['message' => 'Phone update successful, Log in again to update, Thank!.']);
+        }
+        return response()->json(['message' => 'Update unsuccessful.']);
+    }
     /**
      * Remove the specified resource from storage.
      */

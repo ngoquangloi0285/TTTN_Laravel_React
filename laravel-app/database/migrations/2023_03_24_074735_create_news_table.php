@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('slug', 255)->unique();
             $table->string('content_news', 255);
             $table->string('images', 255)->nullable();
+            $table->string('type', 255)->nullable();
             $table->unsignedBigInteger('category_id');
             $table->string('author', 255);
             $table->tinyInteger('status')->unsigned()->nullable();

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Product;
 use App\Http\Controllers\Controller;
+use App\Models\Brand;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\CountDown;
 use App\Models\Options;
@@ -12,20 +14,95 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Storage;
+use PhpOption\Option;
 
 class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $query = Product::query();
+        $params = $request->all();
+        $filter = $request->query('filter');
 
-        $products = $query->get();
+        // tìm kiếm sản phẩm
+        if (isset($params['search'])) {
+            $searchTerm = $params['search'];
+            $products = Product::where('name_product', 'like', "%{$searchTerm}%")->get();
+        }
+        // lọc sản phẩm
+        elseif ($filter === 'bestSelling') {
+            $products = Product::orderBy('sales', 'desc')->get();
+        } elseif ($filter === 'lowToHigh') {
+            $products = Product::orderBy('price', 'asc')->get();
+        } elseif ($filter === 'highToLow') {
+            $products = Product::orderBy('price', 'desc')->get();
+        } elseif ($filter === 'oldToNew') {
+            $products = Product::orderBy('created_at', 'asc')->get();
+        } elseif ($filter === 'newToOld') {
+            $products = Product::orderBy('created_at', 'desc')->get();
+        }
+        // tiềm kiếm sản phẩm theo slug với category_id
+        else if (isset($params['slug'])) {
+            $category = Category::where('slug', $params['slug'])->first();
+            $brand = Brand::where('slug', $params['slug'])->first();
+
+            $option = Options::where('color', $params['slug'])
+                ->orWhere('inch', $params['slug'])
+                ->get();
+            $idProductOption = $option->pluck('product_id')->toArray();
+
+            if ($category) {
+                // Lấy ra tất cả sản phẩm có category_id trùng khớp
+                $products = Product::where('category_id', $category->id)
+                    ->get();
+            } else if ($brand) {
+                // Lấy ra tất cả sản phẩm có brand_id trùng khớp
+                $products = Product::where('brand_id', $brand->id)
+                    ->get();
+            } else {
+                // Lấy ra tất cả sản phẩm tương ứng với idProductOption
+                $products = Product::whereIn('id', $idProductOption)->get();
+            }
+
+            // Tiếp tục xử lý với danh sách sản phẩm lấy được
+            // ...
+        }
+
+        // Load sản phẩm mới và sản phẩm giảm giá
+        else if (isset($params['newProduct']) && isset($params['saleProduct'])) {
+            $type = isset($params['newProduct']) ? $params['newProduct'] : $params['saleProduct'];
+
+            $products = Product::where('type', $type)
+                ->limit(8)
+                ->get();
+        }
+        // sản phẩm gợi ý random
+        else if (isset($params['suggestion'])) {
+            $products = Product::inRandomOrder()
+                ->limit(12) // Số lượng sản phẩm gợi ý muốn lấy (có thể điều chỉnh tùy ý)
+                ->get();
+        }
+        // sản phẩm đặt biệt
+        else if (isset($params['product_special'])) {
+            $products = Product::where('type', '=', $params['product_special'])
+                ->inRandomOrder()
+                ->limit(10) // Số lượng sản phẩm gợi ý muốn lấy (có thể điều chỉnh tùy ý)
+                ->get();
+        }
+        // random product
+        else if (isset($params['random'])) {
+            $products = Product::where('type', 'product_sale')
+                ->inRandomOrder()
+                ->limit(3)
+                ->get();
+        } else
+            $products = Product::get();
 
         return response()->json($products);
     }
+
 
     /**
      * Store a newly created resource in storage.

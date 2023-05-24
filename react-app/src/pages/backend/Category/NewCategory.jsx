@@ -105,8 +105,8 @@ const NewCategory = () => {
         clearImageUrls();
     }
 
-    useEffect(() => {
-        axios.get('api/category/v1/category')
+    const fetchCategory = async () => {
+        await axios.get('api/category/v1/category')
             .then(response => {
                 setIsLoading(false);
                 if (response.data.length === 0) {
@@ -119,6 +119,10 @@ const NewCategory = () => {
                 console.log(error);
                 setIsLoading(false);
             });
+    };
+
+    useEffect(() => {
+        fetchCategory();
     }, []);
 
     // Xử lý khi người dùng ấn nút Submit

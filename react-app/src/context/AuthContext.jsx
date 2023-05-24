@@ -5,7 +5,10 @@ import axios from "../api/axios";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+    // const [user, setUser] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
     const [errors, setErrors] = useState({});
     const [status, setStatus] = useState([]);
 
@@ -32,14 +35,18 @@ export const AuthProvider = ({ children }) => {
     const getUser = useCallback(async () => {
         try {
             const { data } = await axios.get("/api/users/v1/user");
-            setUser(data);
+            setCurrentUser(data);
+            setIsLoggedIn(true);
             if (data.roles === "admin") {
                 navigate("/admin");
             }
         } catch (error) {
+            setIsLoggedIn(false);
             console.error(error);
         }
     }, [navigate]);
+
+
 
     const login = async (formData, callback) => {
         setIsLoading(false);
@@ -57,6 +64,7 @@ export const AuthProvider = ({ children }) => {
             handleErrors(error);
         }
     };
+
 
     // const loginAdmin = async (formData, callback) => {
     //     setIsLoading(false);
@@ -93,12 +101,14 @@ export const AuthProvider = ({ children }) => {
     const logout = async () => {
         try {
             await axios.post('/logout');
-            setUser(null);
-            // navigate("/login");
+            setCurrentUser(null);
+            setIsLoggedIn(false);
+            navigate("/login");
         } catch (error) {
             console.log(error);
         }
     };
+
 
     const changepassword = async (data, callback) => {
         try {
@@ -119,14 +129,15 @@ export const AuthProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        if (!user) {
+        if (!currentUser) {
             getUser();
         }
-    }, [user, getUser])
+    }, [currentUser, getUser])
 
-    return <AuthContext.Provider value={{ user, errors, getUser, login, logout, register, csrf, isLoading, changepassword, status }}>
+    return <AuthContext.Provider value={{ currentUser, errors, getUser, login, logout, register, csrf, isLoading, changepassword, status }}>
         {children}
-    </AuthContext.Provider>
+    </AuthContext.Provider>;
+
 }
 
 export default function useAuthContext() {

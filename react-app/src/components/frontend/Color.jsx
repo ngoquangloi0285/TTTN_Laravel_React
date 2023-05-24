@@ -1,14 +1,22 @@
 import React from 'react'
+import { Link } from 'react-router-dom';
 
-const Color = () => {
+const Color = (props) => {
+    const color = props.color;
+
+    console.log('color', color)
     return (
         <>
             <ul className="colors">
-                <li></li>
-                <li></li>
-                <li></li>
-                <li></li>
-                <li></li>
+                {
+                    color.map((color) => (
+                        <Link to={`../product/color/${color}`}>
+                            <li style={{
+                                backgroundColor: color
+                            }}></li>
+                        </Link>
+                    ))
+                }
             </ul>
         </>
     )

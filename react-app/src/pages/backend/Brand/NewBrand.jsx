@@ -105,8 +105,8 @@ const NewBrand = () => {
         clearImageUrls();
     }
 
-    useEffect(() => {
-        axios.get('api/brand/v1/brand')
+    const fetchBrand = async () => {
+        await axios.get('api/brand/v1/brand')
             .then(response => {
                 setIsLoading(false);
                 if (response.data.length === 0) {
@@ -119,6 +119,10 @@ const NewBrand = () => {
                 console.log(error);
                 setIsLoading(false);
             });
+    };
+
+    useEffect(() => {
+        fetchBrand();
     }, []);
 
     // Xử lý khi người dùng ấn nút Submit

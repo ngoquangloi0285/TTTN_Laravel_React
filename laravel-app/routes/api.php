@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ChangePassController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\CountDownController;
+use App\Http\Controllers\Api\ImageSlideController;
 use App\Http\Controllers\Api\MenuController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\NewsImagesController;
@@ -12,7 +13,6 @@ use App\Http\Controllers\Api\OptionController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductImagesController;
 use App\Http\Controllers\Api\UserController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
@@ -142,6 +142,8 @@ Route::prefix('user/v1')->group(function () {
     Route::post("create-user", [UserController::class, 'store'])->name('user.store');
     // Cập nhật sp phuong thuc POST
     Route::post('update-user/{id}', [UserController::class, 'update'])->name('user.update')->middleware('cors');
+    // Cập nhật profile
+    Route::post('profile-user/{id}', [UserController::class, 'profile'])->name('user.profile')->middleware('cors');
     // Lấy tất cả SP trong đã xóa tạm
     Route::get('user/trash', [UserController::class, 'trash'])->name('user.trash');
     // Xóa tạm SP
@@ -226,5 +228,8 @@ Route::prefix('news_images/v1')->group(function () {
     // images
     Route::get("news_images", [NewsImagesController::class, 'index']);
 });
-
+Route::prefix('slide/v1')->group(function () {
+    // images
+    Route::get("slide", [ImageSlideController::class, 'index']);
+});
 Route::post("change-password", [ChangePassController::class, 'ChangePassWord']);

@@ -1,56 +1,111 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import ReactStars from "react-rating-stars-component";
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import axios from '../../api/axios';
-import ProductPlaceholder from './Placeholder';
+import { setNumber, setPage, setProduct } from '../../globalState';
 
-const ProductCard = (props) => {
+function calculateDiscountedPrice(price, discountPercent) {
+    const discountAmount = (price * discountPercent) / 100;
+    const discountedPrice = price - discountAmount;
+    return discountedPrice;
+}
+
+const fetchData = async (slug, newProduct, suggestion, saleProduct, setProductList, setCategoryMap, setIsLoading) => {
+    setIsLoading(true);
+    try {
+        const [productResponse, categoryResponse] = await Promise.all([
+            axios.get('/api/product/v1/products', {
+                params: {
+                    newProduct: newProduct,
+                    saleProduct: saleProduct,
+                    slug: slug,
+                    suggestion: suggestion,
+                },
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }),
+            axios.get('/api/category/v1/category')
+        ]);
+
+        const newCategoryMap = {};
+        categoryResponse.data.forEach((category) => {
+            newCategoryMap[category.id] = category.name_category;
+        });
+        setProductList(productResponse.data);
+        setCategoryMap(newCategoryMap);
+        setIsLoading(false);
+    } catch (error) {
+        console.log(error);
+        setIsLoading(false);
+    }
+};
+
+export const ProductList = (props) => {
     const ratingChanged = (newRating) => {
         console.log(newRating);
     };
+    const { slug } = useParams(); // lấy ID từ URL
+    console.log("slug", slug)
+    const newProduct = props.newProduct
+    const saleProduct = props.saleProduct
+    console.log(saleProduct)
+    const suggestion = props.suggestion
+    console.log(suggestion)
     const { grid } = props;
     let location = useLocation();
-    // console.log(location);
-
     const [isLoading, setIsLoading] = useState(true);
-
-    const [products, setProducts] = useState([]);
-    const [categoryList, setCategoryList] = useState([]);
+    const [productList, setProductList] = useState([]);
     const [categoryMap, setCategoryMap] = useState({});
+    const fetchDataRef = useRef(null);
 
     useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true);
-            try {
-                const [productResponse, categoryResponse] = await Promise.all([
-                    axios.get('/api/product/v1/products'),
-                    axios.get('/api/category/v1/category')
-                ]);
-
-                // lấy tên category tương ứng với category_id
-                const newCategoryMap = {};
-                categoryResponse.data.forEach((category) => {
-                    newCategoryMap[category.id] = category.name_category;
-                });
-
-                setProducts(productResponse.data);
-                setCategoryList(categoryResponse.data);
-                setCategoryMap(newCategoryMap);
-
-                setIsLoading(false);
-            } catch (error) {
-                console.log(error);
-                setIsLoading(false);
-            }
-        };
-        fetchData();
+        fetchDataRef.current = fetchData;
     }, []);
 
-    function calculateDiscountedPrice(price, discountPercent) {
-        const discountAmount = (price * discountPercent) / 100;
-        const discountedPrice = price - discountAmount;
-        return discountedPrice;
-    }
+    useEffect(() => {
+        const { current: fetchData } = fetchDataRef;
+        if (!fetchData) return;
+
+        fetchData(slug, newProduct, suggestion, saleProduct, setProductList, setCategoryMap, setIsLoading);
+    }, [slug, newProduct, suggestion, saleProduct]);
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         setIsLoading(true);
+    //         try {
+    //             const [productResponse, categoryResponse] = await Promise.all([
+    //                 axios.get('/api/product/v1/products', {
+    //                     params: {
+    //                         newProduct: newProduct,
+    //                         saleProduct: saleProduct,
+    //                         slug: slug,
+    //                         suggestion: suggestion,
+    //                     },
+    //                     headers: {
+    //                         'Content-Type': 'application/json'
+    //                     }
+    //                 }),
+    //                 axios.get('/api/category/v1/category')
+    //             ]);
+
+    //             const newCategoryMap = {};
+    //             categoryResponse.data.forEach((category) => {
+    //                 newCategoryMap[category.id] = category.name_category;
+    //             });
+    //             setProductList(productResponse.data);
+    //             setCategoryMap(newCategoryMap);
+
+    //             const product = productResponse.data;
+    //             setProduct(product);
+    //             setIsLoading(false);
+    //         } catch (error) {
+    //             console.log(error);
+    //             setIsLoading(false);
+    //         }
+    //     };
+
+    //     fetchData();
+    // }, [slug, newProduct, suggestion, saleProduct]);
 
     return (
         <>
@@ -83,11 +138,14 @@ const ProductCard = (props) => {
                     </div>
                 ) :
                     (
-                        products.map((product) => (
+                        productList.map((product) => (
                             <div key={product.id} className={` ${location.pathname === '/store' ? `gr-${grid}` : "col-3"} `}>
                                 <Link className="product-card position-relative shadow ">
                                     <div className='discount position-absolute'>
-                                        <span>down {product.discount}%</span>
+                                        <span>{product.discount === null ? "" : `down ${parseInt(product.discount)}%`}</span>
+                                    </div>
+                                    <div className='discount position-absolute'>
+                                        <span>{product.type === 'new_product' ? 'New Product' : ''}</span>
                                     </div>
                                     {/* <div className="wishlist-icon position-absolute">
                                         <Link>
@@ -96,7 +154,7 @@ const ProductCard = (props) => {
                                         </Link>
                                     </div> */}
                                     <div className="product-image">
-                                        <img className='img-fluid' src={`http://localhost:8000/storage/product/${product.image}`} alt="" />
+                                        <img className='img-fluid' src={`http://localhost:8000/storage/product/${product.image}`} alt={product.name_product} />
                                         {/* <img className='img-fluid' src="images/tab1.jpg" alt="" /> */}
                                     </div>
                                     <div className="product-detail">
@@ -119,7 +177,7 @@ const ProductCard = (props) => {
                                                 <strong>
                                                     ${calculateDiscountedPrice(product.price, product.discount)}
                                                 </strong> &nbsp;
-                                                <span className="original-price"><del>${product.price}</del></span>
+                                                <span className="original-price"><del>{product.discount === null ? '' : `$ ${product.price}`}</del></span>
                                             </p>
                                             <p className={`description ${grid === 12 ? "d-block" : "d-none"} `}>
                                                 {product.summary}
@@ -133,15 +191,18 @@ const ProductCard = (props) => {
                                             <Link to='/blog'><img src="images/view.svg" alt="add-cart" /></Link>
                                         </div>
                                     </div> */}
-                                    <button className="add-to-cart">Add to cart</button>
+                                    <button
+                                        className="add-to-cart"
+                                    >
+                                        Add to cart
+                                    </button>
                                 </Link>
                             </div>
+
                         ))
                     )
             }
-
         </>
     )
 }
 
-export default ProductCard

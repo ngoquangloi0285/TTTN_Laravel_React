@@ -53,11 +53,15 @@ import TrashMenu from './pages/backend/Menu/Trash';
 import ContactAdmin from './pages/backend/Contact/Contact'
 import CreateContact from './pages/backend/Contact/CreateContact';
 import TrashContact from './pages/backend/Contact/Trash';
-
+// Slide 
+import Slide from './pages/backend/Slide/Slide'
 import LoginAdmin from './components/backend/LoginAdmin';
 import { Cart } from './pages/frontend/Cart';
+import { SearchProduct } from './components/frontend/Search';
+import SlugProduct from './pages/frontend/SlugProduct';
+import ProfilePage from './pages/frontend/ProfilePage';
 
-function App() {
+function App(props) {
 
   return (
     <>
@@ -73,6 +77,12 @@ function App() {
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="change-password" element={<ChangePasswordForm />} />
           <Route path="cart" element={<Cart />} />
+          <Route path='category/:slug' element={<SlugProduct />} />
+          <Route path='brand-product/:slug' element={<SlugProduct />} />
+          <Route path="search/:keyword" element={<OurStore />} />
+          <Route path="product/color/:slug" element={<OurStore />} />
+          <Route path="product/inch/:slug" element={<OurStore />} />
+          <Route path="profile" element={<ProfilePage />} />
 
           <Route element={<GuestLayout />}>
             <Route path="login" element={<Login />} />
@@ -119,6 +129,9 @@ function App() {
             <Route path="menu" element={<Menu />} />
             <Route path="menu/create-menu" element={<CreateMenu />} />
             <Route path="menu/trash-menu" element={<TrashMenu />} />
+            {/* Slide */}
+            <Route path="slide" element={<Slide />} />
+
           </Route>
         </Route>
 

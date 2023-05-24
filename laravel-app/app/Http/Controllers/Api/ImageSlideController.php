@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\ImageSlide;
 use App\Http\Controllers\Controller;
+use App\Models\Product;
+use App\Models\ProductImages;
 use Illuminate\Http\Request;
 
 class ImageSlideController extends Controller
@@ -11,9 +13,13 @@ class ImageSlideController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $filter = $request->query('filter');
+        $products = Product::where('type', $filter)->with('images')
+            ->limit(8)
+            ->get();
+        return response()->json($products);
     }
 
     /**

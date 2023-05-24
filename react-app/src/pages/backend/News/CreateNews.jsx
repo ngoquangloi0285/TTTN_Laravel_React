@@ -279,6 +279,12 @@ const NewProduct = () => {
                                     {errors.category}
                                 </div>
                             )}
+                            <label className='form-label fw-bold' htmlFor="category">Type News:</label>
+                            <select className="form-select mb-2" id='category' aria-label="Default select example">
+                                <option value="" selected>Type</option>
+                                <option value="" selected>Type</option>
+                                <option value="" selected>Type</option>
+                            </select>
                         </div>
                         <div className="col-5">
                             <label className='form-label fw-bold' htmlFor="detail">Content News:</label>

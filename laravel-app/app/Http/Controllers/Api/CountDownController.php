@@ -19,7 +19,7 @@ class CountDownController extends Controller
             return $countdown;
         } else {
             $countdown = CountDown::get();
-            return $countdown;
+            return response()->json($countdown);
         }
     }
 

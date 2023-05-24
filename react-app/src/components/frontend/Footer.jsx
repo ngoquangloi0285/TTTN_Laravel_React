@@ -34,7 +34,7 @@ const Footer = () => {
         </div>
       </footer>
 
-      <footer className="py-4">
+      {/* <footer className="py-4">
         <div className="container-xxl">
           <div className="row">
             <div className="col-4">
@@ -44,6 +44,7 @@ const Footer = () => {
                   Location: Ho Chi Minh city <br/>
                 </address>
                 <a className="text-white mt-3" href="tel: (+84) 0352412318">Number Phone: (+84) 0352412318</a>
+                <br />
                 <a className="text-white mt-2" href="mailto: nqlit2109@gmail.com">Emaill: nqlit2109@gmail.com</a>
               </div>
               <div className="social-icons d-flex gap-30 align-items-center mt-4">
@@ -83,7 +84,7 @@ const Footer = () => {
             </div>
           </div>
         </div>
-      </footer>
+      </footer> */}
 
       <footer className="py-4">
         <div className="container-xxl">

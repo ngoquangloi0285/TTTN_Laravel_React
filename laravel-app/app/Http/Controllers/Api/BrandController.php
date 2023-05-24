@@ -29,7 +29,8 @@ class BrandController extends Controller
             return $brand;
         } else {
             $brand = Brand::all();
-            return $brand;
+            // return $brand;
+            return response()->json($brand);
         }
     }
 

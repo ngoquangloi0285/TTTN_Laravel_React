@@ -8,9 +8,9 @@ import Meta from '../../frontend/Meta';
 import { AiOutlineEye } from 'react-icons/ai';
 
 const MasterLayout = () => {
-    const { user, logout } = useAuthContext();
+    const { currentUser, logout } = useAuthContext();
     // Middleware check if user is an admin
-    if (user && user.roles !== "admin") {
+    if (currentUser && currentUser.roles !== "admin") {
         return <h1>Bạn không có quyền truy cập</h1>;
     }
 
@@ -35,13 +35,13 @@ const MasterLayout = () => {
                             {/* Sidebar user panel (optional) */}
                             <div className="user-panel mt-3 pb-3 mb-3 d-flex align-items-center">
                                 <div className="image">
-                                    {!user.avatar ?
+                                    {!currentUser.avatar ?
                                         <img src="https://haycafe.vn/wp-content/uploads/2022/02/Avatar-trang-den.png" alt="null" />:
-                                        <img src={`http://localhost:8000/storage/user/${user.avatar}`} alt={user.avatar} /> 
+                                        <img src={`http://localhost:8000/storage/user/${currentUser.avatar}`} alt={currentUser.avatar} /> 
                                     }
                                 </div>
                                 <div className="info">
-                                    <Link to="#" className="d-block fs-4">{user?.name}</Link>
+                                    <Link to="#" className="d-block fs-4">{currentUser?.name}</Link>
                                     <br />
                                     <div className="row">
                                         <button onClick={logout} style={{
