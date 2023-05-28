@@ -63,200 +63,188 @@ const Header = () => {
 
 
   return (
-      <>
-        {/* {`The current page is: ${location}`} */}
-        {/* header top */}
-        <ToastContainer />
-        <header className="header-top-strip py-3">
-          <div className="container-xxl">
-            <div className="row">
-              <div className="col-6">
-                {
-                  currentUser ? <h5 className="mb-0 text-warning">
-                    Welcome to Our web page!
-                  </h5> :
-                    <h5 className="mb-0 text-warning">
-                      Bạn chưa đặng nhập!
-                    </h5>
-                }
-              </div>
-              <div className="col-6">
-                <p className="text-end text-white mb-0">
-                  Hotline:
-                  <a className="text-white" href="tel: 0382983095">
-                    (+84) 0382983095
-                  </a>
-                </p>
-              </div>
+    <>
+      {/* {`The current page is: ${location}`} */}
+      {/* header top */}
+      <ToastContainer />
+      <header className="header-top-strip py-3">
+        <div className="container-xxl">
+          <div className="row">
+            <div className="col-6">
+              {
+                currentUser ? <h5 className="mb-0 text-warning">
+                  Welcome to Our web page!
+                </h5> :
+                  <h5 className="mb-0 text-warning">
+                    Bạn chưa đặng nhập!
+                  </h5>
+              }
+            </div>
+            <div className="col-6">
+              <p className="text-end text-white mb-0">
+                Hotline:
+                <a className="text-white" href="tel: 0382983095">
+                  (+84) 0382983095
+                </a>
+              </p>
             </div>
           </div>
-        </header>
-        {/* end header top */}
+        </div>
+      </header>
+      {/* end header top */}
 
-        {/* header upper */}
-        <header className="header-upper py-3">
-          <div className="container-xxl">
-            <div className="row align-items-center">
-              <div className="col-2">
-                <Link to="/" className="text-white">
-                  <h2 className="mb-0 header-link d-flex align-items-between">
-                    <BsShop style={{
-                      fontSize: '3rem'
-                    }} />
-                    E-Shop</h2>
-                </Link>
-              </div>
-              <div className="col-6">
-                 <Search />
-              </div>
-              <div className="col-3">
-                <div className="header-upper-links d-flex justify-content-center align-items-center">
-                  <div className="mx-2">
-                    <Link to='/compare-product' className="d-flex align-items-center gap-10 text-white">
-                      <img src="images/compare.svg" alt="compare" />
-                      <p className="mb-0 header-link">
-                        Compare <br /> Products{" "}
-                      </p>
-                    </Link>
-                  </div>
-                  {/* <div>
-                    <Link to="/wishlist" className="d-flex align-items-center gap-10 text-white">
-                      <img src="images/wishlist.svg" alt="wishlist" />
-                      <p className="mb-0 header-link">
-                        Favourit <br /> Wishlist{" "}
-                      </p>
-                    </Link>
-                  </div> */}
-                  <div className="mx-2">
-                    <div className="d-flex align-items-center gap-10">
-                      <img src="images/user.svg" alt="user" />
-                      <p className="mb-0">
-                        {currentUser ? (<>
-                          {/* Hello! <strong>{user?.name}</strong> <br /> */}
-                          <div className="dropdown">
-                            <button
-                              className="btn btn-secondary dropdown-toggle bg-transparent border-0 d-flex align-items-center"
-                              type="button"
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                            >
-                              <span className="me-1 d-inline-block header-link">
-                                {
-                                  currentUser?.roles === 'admin' ? "Admin" : currentUser.name
-                                }
-                              </span>
-                            </button>
-                            <ul className="dropdown-menu">
-
-                              <li>
-                                <Link to="../profile" className="dropdown-item">
-                                  Profile <MdSwitchAccount className="icon-item" />
-                                </Link>
-                              </li>
-                              <li>
-                                <Link className="dropdown-item" to="#">
-                                  Order <BsCartCheck className="icon-item" />
-                                </Link>
-                              </li>
-                              <li>
-                                <Link className="dropdown-item" to="change-password">
-                                  Change Password <RiAccountCircleLine className="icon-item" />
-                                </Link>
-                              </li>
-                              {currentUser?.roles === "admin" ? (
-                                <li>
-                                  <Link className="dropdown-item" to="admin">
-                                    Dashboard <AiOutlineDashboard className="icon-item" />
-                                  </Link>
-                                </li>
-                              ) : (
-                                " "
-                              )
+      {/* header upper */}
+      <header className="header-upper py-3">
+        <div className="container-xxl">
+          <div className="row align-items-center">
+            <div className="col-2">
+              <Link to="/" className="text-white">
+                <h2 className="mb-0 header-link d-flex align-items-between">
+                  <BsShop style={{
+                    fontSize: '3rem'
+                  }} />
+                  E-Shop</h2>
+              </Link>
+            </div>
+            <div className="col-6">
+              <Search />
+            </div>
+            <div className="col-3">
+              <div className="header-upper-links d-flex justify-content-center align-items-center">
+                <div className="mx-2">
+                  <div className="d-flex align-items-center gap-10">
+                    <img src="images/user.svg" alt="user" />
+                    <p className="mb-0">
+                      {currentUser ? (<>
+                        {/* Hello! <strong>{user?.name}</strong> <br /> */}
+                        <div className="dropdown">
+                          <button
+                            className="btn btn-secondary dropdown-toggle bg-transparent border-0 d-flex align-items-center"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                          >
+                            <span className="me-1 d-inline-block header-link">
+                              {
+                                currentUser?.roles === 'admin' ? "Admin" : currentUser.name
                               }
+                            </span>
+                          </button>
+                          <ul className="dropdown-menu">
+
+                            <li>
+                              <Link to="../profile" className="dropdown-item">
+                                Profile <MdSwitchAccount className="icon-item" />
+                              </Link>
+                            </li>
+                            <li>
+                              <Link className="dropdown-item" to="#">
+                                Order <BsCartCheck className="icon-item" />
+                              </Link>
+                            </li>
+                            <li>
+                              <Link className="dropdown-item" to="change-password">
+                                Change Password <RiAccountCircleLine className="icon-item" />
+                              </Link>
+                            </li>
+                            {currentUser?.roles === "admin" ? (
                               <li>
-                                <button onClick={logout} className="dropdown-item header-btn d-block header-link">Logout <BiLogOut className="icon-item" /></button>
+                                <Link className="dropdown-item" to="admin">
+                                  Dashboard <AiOutlineDashboard className="icon-item" />
+                                </Link>
                               </li>
-                            </ul>
-                          </div>
-                        </>) :
-                          (
-                            <>
-                              <Link className="text-white header-link" to="login">Login</Link> / <br />
-                              <Link className="text-white header-link" to="signup">Register</Link>
-                            </>
-                          )}
-                      </p>
+                            ) : (
+                              " "
+                            )
+                            }
+                            <li>
+                              <button onClick={logout} className="dropdown-item header-btn d-block header-link">Logout <BiLogOut className="icon-item" /></button>
+                            </li>
+                          </ul>
+                        </div>
+                      </>) :
+                        (
+                          <>
+                            <Link className="text-white header-link" to="login">Login</Link> / <br />
+                            <Link className="text-white header-link" to="signup">Register</Link>
+                          </>
+                        )}
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <Link to="/cart" className="d-flex align-items-center gap-10 text-white">
+                    <img src="images/cart.svg" alt="cart" />
+                    <div className="d-flex flex-column gap-10">
+                      <span className="badge bg-white text-dark">0</span>
+                      {/* <p className="mb-0 header-link">$ 500</p> */}
                     </div>
-                  </div>
-                  <div>
-                    <Link to="/cart" className="d-flex align-items-center gap-10 text-white">
-                      <img src="images/cart.svg" alt="cart" />
-                      <div className="d-flex flex-column gap-10">
-                        <span className="badge bg-white text-dark">0</span>
-                        {/* <p className="mb-0 header-link">$ 500</p> */}
-                      </div>
-                    </Link>
-                  </div>
+                  </Link>
                 </div>
               </div>
             </div>
           </div>
-        </header>
-        {/* header end upper */}
+        </div>
+      </header>
+      {/* header end upper */}
 
-        {/* header bottom */}
-        <header className="header-bottom py-3">
-          <div className="container-xxl">
-            <div className="row">
-              <div className="col-12">
-                <div className="menu-bottom d-flex align-items-center gap-30">
-                  <div>
-                    <div class="dropdown">
-                      <button class="btn btn-secondary dropdown-toggle bg-transparent border-0 gap-15 d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="me-5 d-inline-block header-link">Shop Categories</span>
-                      </button>
-                      <ul class="dropdown-menu">
-                        {categoryList.map((category) => (
-                          <li key={category.id} class="dropdown-submenu">
-                            <Link to={`../category/${category.slug}`} class="dropdown-item dropdown-toggle text-dark" href="#">{category.name_category}</Link>
-                            {category.children.length > 0 && (
-                              <ul class="dropdown-menu">
-                                {category.children.map((subcategory) => (
-                                  <li key={subcategory.id}>
-                                    <Link to={`../category/${subcategory.slug}`} class="dropdown-item text-dark" href="#">
-                                      {subcategory.name_category}
-                                    </Link>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+      {/* header bottom */}
+      <header className="header-bottom py-3">
+        <div className="container-xxl">
+          <div className="row">
+            <div className="col-12">
+              <div className="menu-bottom d-flex align-items-center gap-30">
+                <div>
+                  <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle bg-transparent border-0 gap-15 d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <span class="me-5 d-inline-block header-link">Shop Categories</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                      {categoryList.map((category) => (
+                        <li key={category.id} class="dropdown-submenu">
+                          <Link to={`../category/${category.slug}`} class="dropdown-item dropdown-toggle text-dark" href="#">{category.name_category}</Link>
+                          {category.children.length > 0 && (
+                            <ul class="dropdown-menu">
+                              {category.children.map((subcategory) => (
+                                <li key={subcategory.id}>
+                                  <Link to={`../category/${subcategory.slug}`} class="dropdown-item text-dark" href="#">
+                                    {subcategory.name_category}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
+                </div>
 
-                  <div className="menu-links">
-                    <div className="d-flex align-items-center gap-15">
-                      {
+                <div className="menu-links">
+                  <div className="d-flex align-items-center gap-15">
+                    {
+                      isLoading ?
+                        <>
+                          <NavLink className="header-link" to="/">Home</NavLink>
+                          <NavLink className="header-link" to="store">Our Store</NavLink>
+                          <NavLink className="header-link" to="contact">Contact</NavLink>
+                          <NavLink className="header-link" to="blog">Blog</NavLink>
+                        </>
+                        :
                         menuList.map(menu => (
                           <NavLink className="header-link" to={menu.link}>{menu.name}</NavLink>
                         ))
-                      }
-                      {/* <NavLink className="header-link" to="/">Home</NavLink>
-                    <NavLink className="header-link" to="store">Our Store</NavLink>
-                    <NavLink className="header-link" to="about">About</NavLink>
-                    <NavLink className="header-link" to="contact">Contact</NavLink>
-                    <NavLink className="header-link" to="blog">Blog</NavLink> */}
-                    </div>
+                    }
+
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </header>
-        {/* header end bottom */}
-      </>
+        </div>
+      </header>
+      {/* header end bottom */}
+    </>
   );
 };
 

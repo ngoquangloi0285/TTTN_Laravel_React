@@ -212,6 +212,7 @@ const Edit = () => {
     const images = arrImages.filter(c => c.product_id === product.product.id);
     const image_0 = product.product
     images.unshift(image_0);
+    console.log(image_0)
     //   tìm id category trùng với id trong bảng category
     const category = categories.find(c => c.id === product.product.category_id);
     // khi trùng id thì lấy name_category ra
@@ -339,7 +340,7 @@ const Edit = () => {
         formData.append('summary', summary);
         formData.append('costProduct', costProduct);
         formData.append('priceSale', priceSale);
-        formData.append('discount', discount);
+        formData.append('discount', discount ? discount : '');
         formData.append('color', color);
         formData.append('inch', inch);
         formData.append('type', type);

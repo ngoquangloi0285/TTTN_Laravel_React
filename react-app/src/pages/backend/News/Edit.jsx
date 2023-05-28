@@ -91,25 +91,25 @@ const EditNews = () => {
         });
     };
 
-    const clearImageUrls = () => {
+    const clearImageUrls = useCallback(() => {
         previewUrls.forEach((url) => URL.revokeObjectURL(url));
         setPreviewUrls([]);
         setFiles([]);
-    };
+    }, [previewUrls]);
 
     const ClearUpPhotos = () => {
         document.getElementById("file").value = "";
         clearImageUrls();
     };
 
-    const ClearUp = (e) => {
+    const ClearUp = useCallback((e) => {
         document.getElementById("category").value = "";
         setTitleNews("");
         setContent("");
         document.getElementById("file").value = "";
         document.getElementById("status").value = "";
         clearImageUrls();
-    }
+    }, [clearImageUrls])
 
     const handleContentChange = (value) => {
         setContent(value);
@@ -169,8 +169,7 @@ const EditNews = () => {
 
 
     // Xử lý khi người dùng ấn nút Submit
-    const handleSubmit = useCallback(async (e) => {
-        e.preventDefault();
+    const handleSubmit = useCallback(async () => {
         const btn = document.getElementById('btn_create');
 
         // lấy dữ liệu thì form
@@ -250,7 +249,7 @@ const EditNews = () => {
             }
             btn.innerHTML = "Update News";
         }
-    },[ClearUp,id,content,files,navigate,titleNews]);
+    }, [ClearUp, id, content, files, navigate, titleNews]);
     // xác nhận  update
     const confirmUpdate = useCallback(() => {
         Swal.fire({
@@ -288,149 +287,149 @@ const EditNews = () => {
         <>
             <Meta title={"Update New News"} />
             <div className="row">
-                    <div className="row">
-                        <div className="col-12">
-                            <div className='d-flex align-items-center justify-content-center'>
-                                <div className="mb-2 text-center">
-                                    <label className='form-label fw-bold' htmlFor="author">Author: <span className='text-danger'>{user?.name}</span></label>
-                                </div>
+                <div className="row">
+                    <div className="col-12">
+                        <div className='d-flex align-items-center justify-content-center'>
+                            <div className="mb-2 text-center">
+                                <label className='form-label fw-bold' htmlFor="author">Author: <span className='text-danger'>{user?.name}</span></label>
                             </div>
-                            <button onClick={confirmUpdate} className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
-                                <IoCreateOutline className='fs-4' />
-                                Update News: <strong className='text-dark'>{id}</strong>
-                            </button>
-                            <Link to="../news" className="btn btn-info text-white mr-2" type="button">
-                                <AiOutlineRollback className='fs-4' />
-                                Back News
-                            </Link>
-
                         </div>
-                        <div className="col-3">
-                            <div className="mb-2">
-                                <label className='form-label fw-bold' htmlFor="titleNews">Title News:</label>
-                                <input
-                                    value={titleNews}
-                                    onChange={(e) => setTitleNews(e.target.value)}
-                                    className='form-control' id='titleNews' type="text" placeholder='Enter Title News' />
-                                {errors.titleNews && (
-                                    <div className="alert alert-danger" role="alert">
-                                        {errors.titleNews}
-                                    </div>
-                                )}
-                            </div>
+                        <button onClick={confirmUpdate} className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
+                            <IoCreateOutline className='fs-4' />
+                            Update News: <strong className='text-dark'>{id}</strong>
+                        </button>
+                        <Link to="../news" className="btn btn-info text-white mr-2" type="button">
+                            <AiOutlineRollback className='fs-4' />
+                            Back News
+                        </Link>
 
-                            <label className='form-label fw-bold' htmlFor="category">Category News:</label>
-                            {showCategoryToast && (
-                                <Toast bg="warning" delay={5000} autohide onClose={() => setShowCategoryToast(false)} style={{ width: "100%", height: "50px" }}>
-                                    <Toast.Body className='my-toast fw-bold fs-6'>Category has no data</Toast.Body>
-                                </Toast>
-                            )}
-                            <select className="form-select mb-2" id='category' aria-label="Default select example">
-                                <option value={categoryGetName ? categoryGetName.id : ""} selected>
-                                    {categoryName ? `Selected: ${categoryName}` : 'Select category'}
-                                </option>
-                                {categories.map(category => (
-                                    <option key={category.id} value={category.id}>{category.name_category}</option>
-                                ))}
-                            </select>
-                            {errors.category && (
+                    </div>
+                    <div className="col-3">
+                        <div className="mb-2">
+                            <label className='form-label fw-bold' htmlFor="titleNews">Title News:</label>
+                            <input
+                                value={titleNews}
+                                onChange={(e) => setTitleNews(e.target.value)}
+                                className='form-control' id='titleNews' type="text" placeholder='Enter Title News' />
+                            {errors.titleNews && (
                                 <div className="alert alert-danger" role="alert">
-                                    {errors.category}
+                                    {errors.titleNews}
                                 </div>
                             )}
                         </div>
-                        <div className="col-5">
-                            <label className='form-label fw-bold' htmlFor="detail">Content News:</label>
-                            {errors.content && (
-                                <div className="alert alert-danger"
-                                    style={
-                                        { fontSize: '14px' }
-                                    }
-                                    role="alert">
-                                    {errors.content}
-                                </div>
-                            )}
-                            <div className="form-floating mb-2">
-                                <div>
-                                    <ReactQuill value={content} onChange={handleContentChange} />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-4">
-                            <label className='form-label fw-bold' htmlFor="detail">Upload Image:</label>
-                            <input className='form-control' name='file[]' id='file' type="file" multiple onChange={handleUpload} />
-                            {errors.files && (
-                                <div className="alert alert-danger"
-                                    style={
-                                        { fontSize: '14px' }
-                                    }
-                                    role="alert">
-                                    {errors.files}
-                                </div>
-                            )}
-                            <div className="row">
-                                {renderPreview()}
 
+                        <label className='form-label fw-bold' htmlFor="category">Category News:</label>
+                        {showCategoryToast && (
+                            <Toast bg="warning" delay={5000} autohide onClose={() => setShowCategoryToast(false)} style={{ width: "100%", height: "50px" }}>
+                                <Toast.Body className='my-toast fw-bold fs-6'>Category has no data</Toast.Body>
+                            </Toast>
+                        )}
+                        <select className="form-select mb-2" id='category' aria-label="Default select example">
+                            <option value={categoryGetName ? categoryGetName.id : ""} selected>
+                                {categoryName ? `Selected: ${categoryName}` : 'Select category'}
+                            </option>
+                            {categories.map(category => (
+                                <option key={category.id} value={category.id}>{category.name_category}</option>
+                            ))}
+                        </select>
+                        {errors.category && (
+                            <div className="alert alert-danger" role="alert">
+                                {errors.category}
                             </div>
-                            <br />
-                            {
-                                files.length > 0 &&
-                                <div className="col-6">
-                                    <button className="btn btn-danger d-flex text-white mx-2" type="button" onClick={ClearUpPhotos}>
-                                        <AiOutlineClear className='fs-4' />
-                                        Clean up photos
-                                    </button>
-                                </div>
-                            }
-                            <br />
-                            {
-                                images === null ? "" :
-                                    <div style={{ width: '100%' }}>
-                                        <h4 className='mt-3'>Images selected: </h4>
-                                        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
-                                            {images.map((image, index) => (
-                                                <img className='img img-fluid img-thumbnail'
-                                                    key={index}
-                                                    style={{ width: '100px', height: '100px', margin: '5px', objectFit: 'cover' }}
-                                                    src={`http://localhost:8000/storage/news/${image.image}`}
-                                                    alt={image.image}
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                            }
-                            <label className='form-label fw-bold' htmlFor="status">Status:</label>
-                            <select className="form-select mb-2" id="status" aria-label="Default select example">
-                                <option value="" selected>Select Status</option>
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
-                            </select>
-                            {errors.status && (
-                                <div className="alert alert-danger"
-                                    style={
-                                        { fontSize: '14px' }
-                                    }
-                                    role="alert">
-                                    {errors.status}
-                                </div>
-                            )}
-                            <br />
-                            <Link to="../news" className="btn btn-info text-white mr-2" type="button">
-                                <AiOutlineRollback className='fs-4' />
-                                Back News
-                            </Link>
-                            <br />
-                            <div className="row mt-5">
-                                <div className="col-6">
-                                    <button className="mb-5 btn btn-danger d-flex text-white mx-2" type="button" onClick={ClearUp}>
-                                        <AiOutlineClear className='fs-4' />
-                                        Clear up
-                                    </button>
-                                </div>
+                        )}
+                    </div>
+                    <div className="col-5">
+                        <label className='form-label fw-bold' htmlFor="detail">Content News:</label>
+                        {errors.content && (
+                            <div className="alert alert-danger"
+                                style={
+                                    { fontSize: '14px' }
+                                }
+                                role="alert">
+                                {errors.content}
+                            </div>
+                        )}
+                        <div className="form-floating mb-2">
+                            <div>
+                                <ReactQuill value={content} onChange={handleContentChange} />
                             </div>
                         </div>
                     </div>
-                    <ToastContainer />
+                    <div className="col-4">
+                        <label className='form-label fw-bold' htmlFor="detail">Upload Image:</label>
+                        <input className='form-control' name='file[]' id='file' type="file" multiple onChange={handleUpload} />
+                        {errors.files && (
+                            <div className="alert alert-danger"
+                                style={
+                                    { fontSize: '14px' }
+                                }
+                                role="alert">
+                                {errors.files}
+                            </div>
+                        )}
+                        <div className="row">
+                            {renderPreview()}
+
+                        </div>
+                        <br />
+                        {
+                            files.length > 0 &&
+                            <div className="col-6">
+                                <button className="btn btn-danger d-flex text-white mx-2" type="button" onClick={ClearUpPhotos}>
+                                    <AiOutlineClear className='fs-4' />
+                                    Clean up photos
+                                </button>
+                            </div>
+                        }
+                        <br />
+                        {
+                            images === null ? "" :
+                                <div style={{ width: '100%' }}>
+                                    <h4 className='mt-3'>Images selected: </h4>
+                                    <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+                                        {images.map((image, index) => (
+                                            <img className='img img-fluid img-thumbnail'
+                                                key={index}
+                                                style={{ width: '100px', height: '100px', margin: '5px', objectFit: 'cover' }}
+                                                src={`http://localhost:8000/storage/news/${image.image}`}
+                                                alt={image.image}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                        }
+                        <label className='form-label fw-bold' htmlFor="status">Status:</label>
+                        <select className="form-select mb-2" id="status" aria-label="Default select example">
+                            <option value="" selected>Select Status</option>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                        {errors.status && (
+                            <div className="alert alert-danger"
+                                style={
+                                    { fontSize: '14px' }
+                                }
+                                role="alert">
+                                {errors.status}
+                            </div>
+                        )}
+                        <br />
+                        <Link to="../news" className="btn btn-info text-white mr-2" type="button">
+                            <AiOutlineRollback className='fs-4' />
+                            Back News
+                        </Link>
+                        <br />
+                        <div className="row mt-5">
+                            <div className="col-6">
+                                <button className="mb-5 btn btn-danger d-flex text-white mx-2" type="button" onClick={ClearUp}>
+                                    <AiOutlineClear className='fs-4' />
+                                    Clear up
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ToastContainer />
             </div>
 
         </>

@@ -65,9 +65,6 @@ class ProductController extends Controller
                 // Lấy ra tất cả sản phẩm tương ứng với idProductOption
                 $products = Product::whereIn('id', $idProductOption)->get();
             }
-
-            // Tiếp tục xử lý với danh sách sản phẩm lấy được
-            // ...
         }
 
         // Load sản phẩm mới và sản phẩm giảm giá
@@ -76,7 +73,7 @@ class ProductController extends Controller
 
             $products = Product::where('type', $type)
                 ->limit(8)
-                ->get();
+                ->orderBy('created_at', 'desc')->latest()->get();
         }
         // sản phẩm gợi ý random
         else if (isset($params['suggestion'])) {
@@ -211,7 +208,13 @@ class ProductController extends Controller
     {
         return $product;
     }
-
+    
+    public function product_detail(Request $request)
+    {
+        $data = $request['slug'];
+        $product = Product::where('slug', $data)->with('images')->first();
+        return response()->json($product);
+    }
     /**
      * Update the specified resource in storage.
      */
@@ -255,12 +258,12 @@ class ProductController extends Controller
             $product->detail = $request['detail'];
             $product->author = $request->user()->name;
             $product->status = $request['status'];
+
             if ($request->hasFile('images')) {
                 $files = $request->file('images');
                 $paths = [];
-                if ($product->image && Storage::disk('public')->exists('product/' . $product->image)) {
-                    Storage::disk('public')->delete('product/' . $product->image);
-                }
+
+                // Xóa các đường dẫn đã tồn tại trong folder "product" trước khi tạo mới
                 foreach ($files as $key => $file) {
                     $path = $request['nameProduct'] . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
                     $image = Image::make($file);
@@ -270,36 +273,39 @@ class ProductController extends Controller
                     });
                     Storage::disk('public')->put('product/' . $path, (string) $image->encode());
                     $paths[] = $path;
+                }
 
-                    // Lưu ảnh đầu tiên vào trường images của bảng products
-                    if ($key == 0) {
-                        $product->image = $path;
-                        $product->save();
-                    } else {
-                        $productImage = ProductImages::where('product_id', '=', $product->id)->first();
-
-                        if ($productImage) {
-                            // Nếu có bản ghi ảnh cho sản phẩm này trong bảng product_images
-                            if ($productImage->image && Storage::disk('public')->exists('product/' . $productImage->image)) {
-                                // Nếu có ảnh trong bảng và tồn tại file ảnh trên disk, thực hiện xóa ảnh cũ
-                                Storage::disk('public')->delete('product/' . $productImage->image);
-                            }
-                            // Cập nhật thông tin ảnh mới vào bảng
-                            $productImage->image = $path;
-                            $productImage->author = $request->user()->name;
-                            $productImage->status = $request['status'];
-                            $productImage->save();
-                        } else {
-                            // Nếu không có bản ghi ảnh cho sản phẩm này trong bảng product_images, thêm bản ghi mới
-                            $productImage = new ProductImages;
-                            $productImage->product_id = $product->id;
-                            $productImage->image = $path;
-                            $productImage->author = $request->user()->name;
-                            $productImage->status = $request['status'];
-                            $productImage->save();
-                        }
+                // Xóa đường dẫn đã tồn tại trong folder "product" trước khi tạo mới
+                if ($product->image && Storage::disk('public')->exists('product/' . $product->image)) {
+                    Storage::disk('public')->delete('product/' . $product->image);
+                }
+                foreach ($product->productImages as $productImage) {
+                    if ($productImage->image && Storage::disk('public')->exists('product/' . $productImage->image)) {
+                        Storage::disk('public')->delete('product/' . $productImage->image);
                     }
                 }
+
+                // Lưu ảnh đầu tiên vào trường "image" của bảng "products"
+                if (isset($paths[0])) {
+                    $product->image = $paths[0];
+                    $product->save();
+                }
+
+                // Xóa các bản ghi cũ trong bảng "product_images" liên quan đến sản phẩm
+                $product->productImages()->delete();
+
+                // Tạo các bản ghi mới trong bảng "product_images"
+                foreach ($paths as $key => $path) {
+                    if ($key > 0) {
+                        $productImage = new ProductImages;
+                        $productImage->product_id = $product->id;
+                        $productImage->image = $path;
+                        $productImage->author = $request->user()->name;
+                        $productImage->status = $request['status'];
+                        $productImage->save();
+                    }
+                }
+
                 // Lưu thông tin options của sản phẩm vào bảng Options
                 $options = Options::where('product_id', '=', $product->id)->first();
                 $options->color = $request['color'];

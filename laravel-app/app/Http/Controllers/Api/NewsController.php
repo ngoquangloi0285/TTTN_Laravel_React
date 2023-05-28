@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\News;
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\CountDown;
 use App\Models\NewsImages;
@@ -21,10 +22,9 @@ class NewsController extends Controller
      */
     public function index()
     {
-        $query = News::query();
-
-        $news = $query->get();
-
+        if (isset($params['slug'])) {
+        }
+        $news = News::limit(6)->orderBy('created_at', 'desc')->latest()->get();
         return response()->json($news);
     }
 
@@ -55,6 +55,8 @@ class NewsController extends Controller
                 'title_news' => $request['titleNews'],
                 'slug' => Str::slug($request['titleNews'], '-'),
                 'category_id' => $request['category'],
+                'description' => $request['description'],
+                'type' => $request['type'],
                 'content_news' => $request['contentNews'],
                 'author' => $request->user()->name,
                 'status' => $request['status']
@@ -63,7 +65,6 @@ class NewsController extends Controller
             if ($request->hasFile('images')) {
                 $files = $request->file('images');
                 $paths = [];
-                $count = count($files);
 
                 foreach ($files as $key => $file) {
                     $path = $news->title_news . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
@@ -104,6 +105,18 @@ class NewsController extends Controller
     {
         return $news;
     }
+
+    public function news_detail(Request $request)
+    {
+        if ($request['slug']) {
+            $slug = $request['slug'];
+            $news = News::where('slug', $slug)->with('images')->first();
+            return response()->json($news);
+        } else {
+            return response()->json(['error' => 'Slug is missing.'], 400);
+        }
+    }
+
 
     /**
      * Display the specified resource.
@@ -146,12 +159,11 @@ class NewsController extends Controller
             $news->author = $request->user()->name;
             $news->status = $request['status'];
         }
+
         if ($request->hasFile('images')) {
             $files = $request->file('images');
             $paths = [];
-            if ($news->image && Storage::disk('public')->exists('news/' . $news->image)) {
-                Storage::disk('public')->delete('news/' . $news->image);
-            }
+
             foreach ($files as $key => $file) {
                 $path = $request['titleNews'] . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
                 $image = Image::make($file);
@@ -161,41 +173,44 @@ class NewsController extends Controller
                 });
                 Storage::disk('public')->put('news/' . $path, (string) $image->encode());
                 $paths[] = $path;
+            }
 
-                // Lưu ảnh đầu tiên vào trường images của bảng products
-                if ($key == 0) {
-                    $news->image = $path;
-                    $news->save();
-                } else {
-                    $newsImages = NewsImages::where('news_id', '=', $news->id)->first();
-
-                    if ($newsImages) {
-                        // Nếu có bản ghi ảnh cho sản phẩm này trong bảng product_images
-                        if ($newsImages->image && Storage::disk('public')->exists('news/' . $newsImages->image)) {
-                            // Nếu có ảnh trong bảng và tồn tại file ảnh trên disk, thực hiện xóa ảnh cũ
-                            Storage::disk('public')->delete('news/' . $newsImages->image);
-                        }
-                        // Cập nhật thông tin ảnh mới vào bảng
-                        $newsImages->image = $path;
-                        $newsImages->author = $request->user()->name;
-                        $newsImages->status = $request['status'];
-                        $newsImages->save();
-                    } else {
-                        // Nếu không có bản ghi ảnh cho sản phẩm này trong bảng product_images, thêm bản ghi mới
-                        $newsImages = new NewsImages();
-                        $newsImages->news_id = $news->id;
-                        $newsImages->image = $path;
-                        $newsImages->author = $request->user()->name;
-                        $newsImages->status = $request['status'];
-                        $newsImages->save();
-                    }
+            if ($news->image && Storage::disk('public')->exists('news/' . $news->image)) {
+                Storage::disk('public')->delete('news/' . $news->image);
+            }
+            foreach ($news->newsImages as $newsImage) {
+                if ($newsImage->image && Storage::disk('public')->exists('news/' . $newsImage->image)) {
+                    Storage::disk('public')->delete('news/' . $newsImage->image);
                 }
             }
+            // Lưu ảnh đầu tiên vào trường "image" của bảng "products"
+            if (isset($paths[0])) {
+                $news->image = $paths[0];
+                $news->save();
+            }
+            // Xóa các bản ghi cũ trong bảng "product_images" liên quan đến sản phẩm
+            $news->newsImages()->delete();
+
+            foreach ($paths as $key => $path) {
+                if ($key > 0) {
+                    $newsImages = new NewsImages();
+                    $newsImages->news_id = $news->id;
+                    $newsImages->image = $path;
+                    $newsImages->author = $request->user()->name;
+                    $newsImages->status = $request['status'];
+                    $newsImages->save();
+                }
+            }
+
             return response()->json([
                 'status' => 'Update successfully',
                 'news' => $news
             ], 200);
         }
+        return response()->json([
+            'status' => 'Update Unsuccessfully',
+            'news' => $news
+        ], 500);
     }
 
     /**

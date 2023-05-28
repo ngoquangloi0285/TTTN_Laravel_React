@@ -79,7 +79,6 @@ const SpecialProducts = (props) => {
                 ) :
                     (
                         productList.map((product) => (
-
                             <div className='col-6 mb-4'>
                                 <div className="special-product-card shadow position-relative">
                                     <div className="d-flex justify-content-around ">
@@ -90,7 +89,7 @@ const SpecialProducts = (props) => {
                                             <span>Special Products</span>
                                         </div>
                                         <div className='px-5'>
-                                            <Link>
+                                            <Link to={`../product-detail/${product.slug}`}>
                                                 <img
                                                     className='img-fluid' src={`http://localhost:8000/storage/product/${product.image}`} alt={product.name_product} />
                                             </Link>

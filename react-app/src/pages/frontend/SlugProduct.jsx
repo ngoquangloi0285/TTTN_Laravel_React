@@ -7,8 +7,6 @@ import ReactStars from "react-rating-stars-component";
 import { ProductList } from '../../components/frontend/ProductCard';
 import CategoryProduct from '../../components/frontend/CategoryProduct';
 
-
-
 const SlugProduct = () => {
     const ratingChanged = (newRating) => {
         console.log(newRating);
@@ -22,18 +20,13 @@ const SlugProduct = () => {
                     <div className="filter-sort-gird mb-4">
                         <div className="row">
                             <div className="col-12">
-                                <h3 className="section-heading">Get products by category</h3>
-                            </div>
-                            <div className="col-12">
                                 <div className="products-list pd-5">
                                     <CategoryProduct slug={slug} />
                                 </div>
                             </div>
                         </div>
                     </div>
-
                 </div>
-
             </div>
         </>
     )

@@ -42,7 +42,8 @@ a {
 .section-heading {
   font-size: 26px;
   line-height: 32px;
-  font-weight: 500;
+  /* font-weight: 500; */
+  font-weight: bold;
   margin-bottom: 30px;
 }
 
@@ -255,9 +256,9 @@ header {
 
 .main-banner-content h4 {
   font-size: 16px;
-  font-weight: 400;
   line-height: 24px;
-  color: var(--color-bf4800);
+  color: #FF523b;
+  /* color: var(--color-bf4800); */
   margin: 0 0 12px;
   letter-spacing: 0.3px;
   text-transform: uppercase;
@@ -646,7 +647,8 @@ header {
 }
 
 .filter-card ul a:hover {
-  color: var(--color-febd69);
+  /* color: var(--color-febd69); */
+  color: #ea25af;
 }
 
 .sub-title {
@@ -1398,19 +1400,145 @@ footer .input-group-text {
 @keyframes blink {
   from {
     /* opacity: 0.5; */
-    color: #FFF; /* Thay đổi màu chữ khi bắt đầu animation */
-    background-color: #ff7f50; /* Thay đổi màu nền khi bắt đầu animation */
+    color: #FFF;
+    /* Thay đổi màu chữ khi bắt đầu animation */
+    background-color: #ff7f50;
+    /* Thay đổi màu nền khi bắt đầu animation */
   }
+
   to {
     /* opacity: 1; */
-    color: #FFF; /* Thay đổi màu chữ khi kết thúc animation */
-    background-color: #eb18a1; /* Thay đổi màu nền khi kết thúc animation */
+    color: #FFF;
+    /* Thay đổi màu chữ khi kết thúc animation */
+    background-color: #eb18a1;
+    /* Thay đổi màu nền khi kết thúc animation */
   }
 }
+
 .view_more {
   margin-top: 20px;
   color: #F79327;
   text-transform: capitalize;
 }
 
+/* css product detail */
+.single-product .col-2 img {
+  padding: 0;
+}
 
+.single-product .col-2 {
+  padding: 20px;
+
+}
+
+.single-product select {
+  display: block;
+  border: 1px solid #FF523b;
+  margin-bottom: 10px;
+}
+
+.single-product h4 {
+  margin: 20px 0;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.single-product input {
+  width: 60px;
+  height: 40px;
+  padding-left: 10px;
+  font-size: 20px;
+  border: 1px solid #FF523b;
+}
+
+.single-product input:focus {
+  outline: none;
+}
+
+.single-product .fa {
+  color: #FF523b;
+  margin-left: 10px;
+}
+
+.single-product .btn-product-detail {
+  margin-left: 20px;
+}
+
+.single-product .small-img-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.single-product #parentImg {
+  border: 1px solid #FF523b;
+  width: 100%;
+  /* Kích thước tuyệt đối của hình ảnh cha */
+  height: 400px;
+  /* Đảm bảo tỷ lệ khung hình được giữ nguyên */
+  object-fit: contain;
+  /* Hiển thị toàn bộ hình ảnh trong khung */
+  padding: 10px;
+}
+
+.single-product .small-img-col {
+  flex-basis: 25%;
+  border: 1px solid #FF523b;
+  margin-bottom: 20px;
+}
+
+.single-product .small-img-col img {
+  width: 100%;
+  /* Kích thước hình ảnh nhỏ để điền đầy cột */
+  height: auto;
+  /* Đảm bảo tỷ lệ khung hình được giữ nguyên */
+}
+
+.single-product h3 {
+  margin-top: 20px;
+}
+
+.single-product .price {
+  font-size: 23px;
+  font-weight: bold;
+}
+
+/* endcss product detail */
+/* slide  */
+.slider {
+  width: 600px;
+  height: 400px;
+  overflow: hidden;
+  position: relative;
+}
+
+.slide {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  transition: transform 0.5s ease-in-out;
+}
+
+/* CSS cho hiệu ứng chuyển động */
+.slide.active {
+  transform: translateX(0%);
+}
+
+/* CSS cho nút điều hướng */
+.navigation {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.navigation button {
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-size: 18px;
+  margin: 0 5px;
+}
+
+/* end slide  */

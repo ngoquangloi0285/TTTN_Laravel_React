@@ -21,6 +21,7 @@ Route::prefix('product/v1')->group(function () {
     Route::get('products', [ProductController::class, 'index'])->name('product.index');
     // Lấy thông tin sản phẩm theo id
     Route::get('product/{product}', [ProductController::class, 'show'])->name('product.show');
+    Route::get('product', [ProductController::class, 'product_detail'])->name('product.product_detail');
     // Lấy thông tin sản phẩm theo id
     Route::get('edit/{id}', [ProductController::class, 'edit'])->name('product.edit');
     // Tạo sản phẩm mới
@@ -102,6 +103,7 @@ Route::prefix('news/v1')->group(function () {
     Route::get("news", [NewsController::class, 'index']);
     // Lấy thông tin sản phẩm theo id
     Route::get('news/{id}', [NewsController::class, 'show'])->name('news.show');
+    Route::get('news_detail', [NewsController::class, 'news_detail'])->name('news.news_detail');
     // Lấy thông tin sản phẩm theo id
     Route::get('edit/{id}', [NewsController::class, 'edit'])->name('news.edit');
     // Tạo sản phẩm mới
@@ -231,5 +233,9 @@ Route::prefix('news_images/v1')->group(function () {
 Route::prefix('slide/v1')->group(function () {
     // images
     Route::get("slide", [ImageSlideController::class, 'index']);
+    Route::get("show_slide", [ImageSlideController::class, 'show_slide']);
+    Route::post("create_slide", [ImageSlideController::class, 'store']);
+    // Xóa vĩnh viễn SP
+    Route::delete('/remove/{id}', [ImageSlideController::class, 'remove'])->name('slide.remove');
 });
 Route::post("change-password", [ChangePassController::class, 'ChangePassWord']);

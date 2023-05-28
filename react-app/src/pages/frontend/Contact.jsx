@@ -5,73 +5,44 @@ import { AiOutlineHome, AiOutlineMail, AiOutlineInfoCircle, AiOutlineClear } fro
 import { BiPhoneCall } from "react-icons/bi";
 import axios from '../../api/axios';
 import Swal from 'sweetalert2';
+import useAuthContext from '../../context/AuthContext';
+import { useNavigate } from 'react-router';
 
 const Contact = () => {
-
-  const [previewUrls, setPreviewUrls] = useState([]);
+  const { currentUser } = useAuthContext();
   const [errors, setErrors] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [status, setStatus] = useState(null);
 
-  const [files, setFiles] = useState([]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [comment, setComment] = useState("");
 
-  const handleUpload = (event) => {
-    event.preventDefault();
-    const fileList = event.target.files;
-    const newFiles = Array.from(fileList);
-    const shouldAddFiles = newFiles.filter(file => !files.some(f => f.name === file.name));
-    setFiles([...files, ...shouldAddFiles]);
 
-    const newPreviewUrls = shouldAddFiles.map(file => URL.createObjectURL(file));
-    setPreviewUrls([...previewUrls, ...newPreviewUrls]);
-  };
-
-  const renderPreview = () => {
-    return previewUrls.map((url) => {
-      return (
-        <div className='col-4' key={url}>
-          <img className='img-thumbnail' src={url} alt='Preview' />
-        </div>
-      );
-    });
-  };
-
-  const clearImageUrls = () => {
-    previewUrls.forEach((url) => URL.revokeObjectURL(url));
-    setPreviewUrls([]);
-    setFiles([]);
-  };
-
-  const ClearUpPhotos = () => {
-    document.getElementById("file").value = "";
-    clearImageUrls();
-  };
-
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     const btn = document.getElementById('btn-submit');
-
-    // Xử lý khi người dùng ấn nút Submit
 
     // định nghĩa lỗi
     const newErrors = {};
 
     if (!name) {
-      newErrors.name = "Vui lòng nhập tên của bạn.";
+      newErrors.name = "Please enter your name.";
     }
     if (!email) {
-      newErrors.email = "Vui lòng nhập Email của bạn.";
+      newErrors.email = "Please enter your email";
     }
     if (!phone) {
-      newErrors.phone = "Vui lòng nhập số điện thoại của bạn.";
+      newErrors.phone = "Please enter your phone";
+    }
+    if (isNaN(phone)) {
+      newErrors.phone = "Phone number must be a number.";
+    }
+    else if (phone.length !== 10 && phone.length !== 11) {
+      newErrors.phone = "Phone number must be 10 or 11 digits.";
     }
     if (!comment) {
-      newErrors.comment = "Vui lòng để lại lời nhắn của bạn.";
+      newErrors.comment = "Please leave your message.";
     }
 
     // Kiểm tra các giá trị khác và thêm thông báo lỗi tương ứng vào object `newErrors`
@@ -111,7 +82,7 @@ const Contact = () => {
       setEmail("");
       setPhone("");
       setComment("");
-      setStatus("chúng tôi sẽ liên hệ với bạn sớm nhất!")
+      setStatus("We will contact you as soon as possible!")
     } catch (error) {
       setIsLoading(false);
       // Nếu xảy ra lỗi, hiển thị thông báo lỗi
@@ -121,6 +92,26 @@ const Contact = () => {
         Swal.fire('Error!', 'Failed to create new Category.', 'error');
       }
       btn.innerHTML = "Submit";
+    }
+  }
+  const navigate = useNavigate();
+
+  const checkLogin = (e) => {
+    e.preventDefault();
+    if (!currentUser) {
+      Swal.fire({
+        icon: 'error',
+        title: 'You are not logged in!',
+        text: "Please login to send your message!",
+        confirmButtonText: 'Back to Login'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate('../login')
+        }
+      });
+    }
+    if (currentUser) {
+      handleSubmit();
     }
   }
 
@@ -144,48 +135,46 @@ const Contact = () => {
                 }
                 <div className="col-6">
                   <h3 className='contact-title mb-4'>Contact</h3>
-                  <form action='' className='d-flex flex-column gap-15' method='POST'>
-                    <div>
-                      <input name='name' value={name} onChange={(e) => setName(e.target.value)} type="text" className='form-control' placeholder='Name' />
-                      {errors.name && (
-                        <div className="alert alert-danger" role="alert">
-                          {errors.name}
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <input name='email' value={email} onChange={(e) => setEmail(e.target.value)} type="email" className='form-control'
-                        placeholder='Email' />
-                      {errors.email && (
-                        <div className="alert alert-danger" role="alert">
-                          {errors.email}
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <input name='mobile' value={phone} onChange={(e) => setPhone(e.target.value)} type="tel" className='form-control'
-                        placeholder='Mobile Number' />
-                      {errors.phone && (
-                        <div className="alert alert-danger" role="alert">
-                          {errors.phone}
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <textarea name='comments' value={comment} onChange={(e) => setComment(e.target.value)} type="text" className='w-100 form-control' placeholder='Comments'
-                        cols='30'
-                        rows='4'
-                      />
-                      {errors.comment && (
-                        <div className="alert alert-danger" role="alert">
-                          {errors.comment}
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <button className='button' id='btn-submit' onClick={handleSubmit} type='submit'>Submit</button>
-                    </div>
-                  </form>
+                  <div className='my-2'>
+                    <input name='name' value={name} onChange={(e) => setName(e.target.value)} type="text" className='form-control' placeholder='Name' />
+                    {errors.name && (
+                      <div className="alert alert-danger" role="alert">
+                        {errors.name}
+                      </div>
+                    )}
+                  </div>
+                  <div className='my-2'>
+                    <input name='email' value={email} onChange={(e) => setEmail(e.target.value)} type="email" className='form-control'
+                      placeholder='Email' />
+                    {errors.email && (
+                      <div className="alert alert-danger" role="alert">
+                        {errors.email}
+                      </div>
+                    )}
+                  </div>
+                  <div className='my-2'>
+                    <input name='mobile' value={phone} onChange={(e) => setPhone(e.target.value)} type="tel" className='form-control'
+                      placeholder='Mobile Number' />
+                    {errors.phone && (
+                      <div className="alert alert-danger" role="alert">
+                        {errors.phone}
+                      </div>
+                    )}
+                  </div>
+                  <div className='my-2'>
+                    <textarea name='comments' value={comment} onChange={(e) => setComment(e.target.value)} type="text" className='w-100 form-control' placeholder='Comments'
+                      cols='30'
+                      rows='4'
+                    />
+                    {errors.comment && (
+                      <div className="alert alert-danger" role="alert">
+                        {errors.comment}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <button className='button' id='btn-submit' onClick={checkLogin} type='submit'>Submit</button>
+                  </div>
                 </div>
                 <div className="col-6">
                   <h3 className='contact-title mb-4'>Get in touch with Us</h3>

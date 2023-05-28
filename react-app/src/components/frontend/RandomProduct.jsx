@@ -78,11 +78,11 @@ const RandomProduct = (props) => {
                     productList.map((product) => (
                         <div className="random-products d-flex position-relative">
                             <div className="w-50">
-                                <Link to="#">
+                                <Link to={`../product-detail/${product.slug}`} className="product-card position-relative shadow ">
                                     <img className='img-fluid' src={`http://localhost:8000/storage/product/${product.image}`} alt={product.name_product} />
                                 </Link>
                             </div>
-                            <div className="w-50">
+                            <div className="w-50 mx-2">
                                 <h5>{product.name_product}</h5>
                                 <ReactStars
                                     count={5}

@@ -20,13 +20,14 @@ const OurStore = () => {
         console.log(newRating);
     };
     const { keyword, slug } = useParams(); // lấy ID từ URL
-    console.log(slug);
+    console.log(slug)
     let location = useLocation();
     const [grid, setGird] = useState(4);
     const [isLoading, setIsLoading] = useState(true);
     const [productList, setProductList] = useState([]);
     const [brandList, setBrandList] = useState([]);
     const [categoryMap, setCategoryMap] = useState({});
+    const [brandMap, setBrandMap] = useState({});
     const [filter, setFilter] = useState('');
 
     useEffect(() => {
@@ -51,9 +52,15 @@ const OurStore = () => {
                 categoryResponse.data.forEach((category) => {
                     newCategoryMap[category.id] = category.name_category;
                 });
+
+                const newBrandMap = {};
+                brandResponse.data.forEach((brand) => {
+                    newBrandMap[brand.id] = brand.name;
+                });
                 setProductList(productResponse.data);
                 setBrandList(brandResponse.data)
                 setCategoryMap(newCategoryMap);
+                setBrandMap(newBrandMap);
                 setIsLoading(false);
             } catch (error) {
                 console.log(error);
@@ -63,7 +70,7 @@ const OurStore = () => {
 
         fetchData();
     }, [keyword, filter, slug]);
-
+    console.log(brandList)
     const product_List = productList;
     const types = [...new Set(product_List.map(product => product.color))];
     const inch = [...new Set(product_List.map(product => product.inch))];
@@ -155,27 +162,6 @@ const OurStore = () => {
                                             <option value="newToOld">Date, new to old</option>
                                         </select>
                                     </div>
-                                    <div className="d-flex align-items-center gap-10">
-                                        {/* <p className='m-0 totalproducts'><strong>{countProduct ? countProduct : 0} Products</strong></p> */}
-                                        {/* <div className="d-flex align-items-center gap-10 gird">
-                                            <img onClick={() => {
-                                                setGird(3)
-                                            }}
-                                                className='d-block img-fluid' src="images/gr4.svg" alt="gird" />
-                                            <img onClick={() => {
-                                                setGird(4)
-                                            }}
-                                                className='d-block img-fluid' src="images/gr3.svg" alt="gird" />
-                                            <img onClick={() => {
-                                                setGird(6)
-                                            }}
-                                                className='d-block img-fluid' src="images/gr2.svg" alt="gird" />
-                                            <img onClick={() => {
-                                                setGird(12)
-                                            }}
-                                                className='d-block img-fluid' src="images/gr.svg" alt="gird" />
-                                        </div> */}
-                                    </div>
                                 </div>
                             </div>
                             <div className="products-list pd-5">
@@ -210,28 +196,25 @@ const OurStore = () => {
                                             (
                                                 records.map((product) => (
                                                     <div key={product.id} className='gr-4'>
-                                                        <Link className="product-card position-relative shadow ">
+                                                        <Link to={`../product-detail/${product.slug}`} className="product-card position-relative shadow ">
                                                             <div className='discount position-absolute'>
                                                                 <span>{product.discount === null ? "" : `down ${parseInt(product.discount)}%`}</span>
                                                             </div>
                                                             <div className='discount position-absolute'>
                                                                 <span>{product.type === 'new_product' ? 'New Product' : ''}</span>
                                                             </div>
-                                                            {/* <div className="wishlist-icon position-absolute">
-                                        <Link>
-                                            <img src="images/wish.svg" alt="wishlist"
-                                            />
-                                        </Link>
-                                    </div> */}
                                                             <div className="product-image">
                                                                 <img className='img-fluid' src={`http://localhost:8000/storage/product/${product.image}`} alt={product.name_product} />
                                                                 {/* <img className='img-fluid' src="images/tab1.jpg" alt="" /> */}
                                                             </div>
                                                             <div className="product-detail">
                                                                 <div className="row">
-                                                                    <h6 className="brand">
+                                                                    <p className="text-dark m-0">
                                                                         {categoryMap[product.category_id]}
-                                                                    </h6>
+                                                                    </p>
+                                                                    <p className="text-danger brand m-0">
+                                                                        {brandMap[product.brand_id]}
+                                                                    </p>
                                                                     <h5 className='product-title'>
                                                                         {product.name_product}
                                                                     </h5>
@@ -254,13 +237,6 @@ const OurStore = () => {
                                                                     </p>
                                                                 </div>
                                                             </div>
-                                                            {/* <div className="action-bar position-absolute">
-                                        <div className="d-flex flex-column gap-15">
-                                            <Link to='/about'><img src="images/prodcompare.svg" alt="add-cart" /></Link>
-                                            <Link to='/contact'><img src="images/add-cart.svg" alt="add-cart" /></Link>
-                                            <Link to='/blog'><img src="images/view.svg" alt="add-cart" /></Link>
-                                        </div>
-                                    </div> */}
                                                             <button
                                                                 className="add-to-cart"
                                                             >

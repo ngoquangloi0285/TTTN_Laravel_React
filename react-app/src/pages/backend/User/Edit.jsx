@@ -149,8 +149,8 @@ const EditUser = () => {
     }, [encodedId]);
 
     // Xử lý khi người dùng ấn nút Submit
-    const handleSubmit = useCallback(async (e) => {
-        e.preventDefault();
+    const handleSubmit = useCallback(async () => {
+        // e.preventDefault();
 
         const btn = document.getElementById('btn_create');
         const option_status = document.getElementById('status').value;
@@ -264,7 +264,7 @@ const EditUser = () => {
     const confirmUpdate = useCallback(() => {
         Swal.fire({
             title: 'Are you sure?',
-            text: 'Are you sure you want to update Product this!',
+            text: 'Are you sure you want to update User this!',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, update it!',
@@ -309,7 +309,7 @@ const EditUser = () => {
                                 <label className='form-label fw-bold' htmlFor="author">Author: <span className='text-danger'>{user?.name}</span></label>
                             </div>
                         </div>
-                        <button className="btn btn-success text-white mr-2" onClick={handleSubmit} type="submit" id='btn_create'>
+                        <button className="btn btn-success text-white mr-2" onClick={confirmUpdate} type="submit" id='btn_create'>
                             <IoCreateOutline className='fs-4' />
                             Update User
                         </button>

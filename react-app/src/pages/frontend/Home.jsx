@@ -19,6 +19,7 @@ const slideImages = [
 const Home = (props) => {
   const [isLoading, setIsLoading] = useState(true);
   const [brandList, setBrandList] = useState([]);
+  const [slideList, setSlideList] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,9 +35,23 @@ const Home = (props) => {
         setIsLoading(false);
       }
     };
-
+    const showSlide = async () => {
+      setIsLoading(true)
+      try {
+        const [slideResponse] = await Promise.all([
+          axios.get('/api/slide/v1/show_slide'),
+        ]);
+        setSlideList(slideResponse.data);
+        setIsLoading(false);
+      } catch (error) {
+        console.log(error);
+        setIsLoading(false);
+      }
+    }
     fetchData();
+    showSlide();
   }, []);
+  console.log(slideList)
 
   return (
     <>
@@ -44,34 +59,55 @@ const Home = (props) => {
       <section className="home-wrapper-2 py-4">
         <div className="container-xxl">
           <div className="row">
-            <div className="col-6">
+            {/* <div className="col-6">
               <div className="main-banner position-relative  ">
                 <div id="carouselExample" class="carousel slide">
                   <div className="carousel-inner rounded-3 slide-container">
-                    <Slide>
-                      {slideImages.map(image => (
-                        <div className="each-slide carousel-item active" key={image}>
-                          <img src={image.url} className="d-block img-fluid" alt="..." />
-                          <div className="main-banner-content position-absolute">
-                            <h4>SUPERCHANRGRED FOR PROS.</h4>
-                            <h5>iPad S13+ Pro.</h5>
-                            <p>From $999.00 or $41.62/mo.</p>
-                            <Link className="button">BUY NOW</Link>
+                    {
+                      isLoading ? (
+                        <div className="row">
+                          <div className="card product-card" aria-hidden="true">
+                            <img
+                              style={
+                                {
+                                  height: '200px',
+                                }
+                              }
+                              src="" className="card-img-top placeholder-glow placeholder" alt="" />
+                            <div className="card-body">
+                              <h5 className="card-title placeholder-glow">
+                                <span className="placeholder col-6"></span>
+                              </h5>
+                            </div>
                           </div>
                         </div>
-                      ))}
-                    </Slide>
+                      ) : (
+                        <Slide>
+                          {slideList.map(image => (
+                            <div className="each-slide carousel-item active" key={image.id}>
+                              <img src={`http://localhost:8000/storage/product/${image.image}`} width="100%" className="d-block img-fluid" alt="..." />
+                              <div className="main-banner-content position-absolute">
+                                <h4>SUPERCHANRGRED FOR PROS.</h4>
+                                <h5>iPad S13+ Pro.</h5>
+                                <p>From $999.00 or $41.62/mo.</p>
+                                <Link className="button">BUY NOW</Link>
+                              </div>
+                            </div>
+                          ))}
+                        </Slide>
+                      )
+                    }
                   </div>
-
                 </div>
               </div>
-            </div>
-            <div className="col-6">
+            </div> */}
+            {/* <div className="col-6">
               <div className="d-flex flex-wrap justify-content-between align-items-center gap-10">
                 <div className="small-banner position-relative   ">
                   <img
                     className="img-fluid rounded-3"
-                    src="images/catbanner-01.jpg"
+                    src={`http://localhost:8000/storage/product/iPhone 14 Promax_1684923482_0.png`}
+                    width="100%"
                     alt="main-banner"
                   />
                   <div className="small-banner-content position-absolute">
@@ -125,7 +161,7 @@ const Home = (props) => {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>
@@ -174,93 +210,11 @@ const Home = (props) => {
           </div>
         </div>
       </section>
-      {/* <section className="home-wrapper-3 py-5">
-        <div className="container-xxl">
-          <div className="row">
-            <div className="col-12">
-              <div className="categories d-flex flex-wrap align-items-center justify-content-between">
-                <div className="d-flex gap-30 align-items-center">
-                  <div>
-                    <h6>Cameras</h6>
-                    <p>10 Items</p>
-                  </div>
-                  <Link>
-                    <img src="images/camera.jpg" alt="" />
-                  </Link>
-                </div>
-                <div className="d-flex gap-30 align-items-center">
-                  <div>
-                    <h6>Smart TV</h6>
-                    <p>10 Items</p>
-                  </div>
-                  <Link>
-                    <img src="images/tv.jpg" alt="" />
-                  </Link>
-                </div>
-                <div className="d-flex gap-30 align-items-center">
-                  <div>
-                    <h6>Smart Wactches</h6>
-                    <p>10 Items</p>
-                  </div>
-                  <Link>
-                    <img src="images/headphone.jpg" alt="" />
-                  </Link>
-                </div>
-                <div className="d-flex gap-30 align-items-center">
-                  <div>
-                    <h6>Cameras</h6>
-                    <p>10 Items</p>
-                  </div>
-                  <Link>
-                    <img src="images/camera.jpg" alt="" />
-                  </Link>
-                </div>
-                <div className="d-flex gap-30 align-items-center">
-                  <div>
-                    <h6>Cameras</h6>
-                    <p>10 Items</p>
-                  </div>
-                  <Link>
-                    <img src="images/camera.jpg" alt="" />
-                  </Link>
-                </div>
-                <div className="d-flex gap-30 align-items-center">
-                  <div>
-                    <h6>Smart TV</h6>
-                    <p>10 Items</p>
-                  </div>
-                  <Link>
-                    <img src="images/tv.jpg" alt="" />
-                  </Link>
-                </div>
-                <div className="d-flex gap-30 align-items-center">
-                  <div>
-                    <h6>Smart Wactches</h6>
-                    <p>10 Items</p>
-                  </div>
-                  <Link>
-                    <img src="images/headphone.jpg" alt="" />
-                  </Link>
-                </div>
-                <div className="d-flex gap-30 align-items-center">
-                  <div>
-                    <h6>Cameras</h6>
-                    <p>10 Items</p>
-                  </div>
-                  <Link>
-                    <img src="images/camera.jpg" alt="" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section> */}
       <section className="featured-wrapper py-4 home-wrapper-2">
         <div className="container-xxl">
           <div className="row">
             <div className="col-12">
-              <h3 className="section-heading">Our New Products</h3>
+              <h3 className="text-danger section-heading">Our New Products</h3>
             </div>
             <div className="row">
               <ProductList newProduct='new_product' saleProduct='product_sale' />
@@ -275,7 +229,7 @@ const Home = (props) => {
         <div className="container-xxl">
           <div className="row">
             <div className="col-12">
-              <h3 className="section-heading">Special  Products</h3>
+              <h3 className="text-danger section-heading">Special  Products</h3>
             </div>
             <div className="row">
               <SpecialProducts special='product_special' />
@@ -290,7 +244,7 @@ const Home = (props) => {
         <div className="container-xxl">
           <div className="row">
             <div className="col-12">
-              <h3 className="section-heading">Suggestions for you</h3>
+              <h3 className="text-danger section-heading">Suggestions for you</h3>
             </div>
             <div className="row">
               <ProductList suggestion='suggestion' />
@@ -305,7 +259,7 @@ const Home = (props) => {
       <section className="marque-wrapper py-4">
         <div className="container-xxl">
           <div className="row">
-            
+
             <div className="col-12">
               <div className="marquee-inner-wrapper bg-white py-3 card-wrapper">
                 {
@@ -350,12 +304,13 @@ const Home = (props) => {
         <div className="container-xxl">
           <div className="row">
             <div className="col-12">
-              <h3 className="section-heading">Our Latest Blogs</h3>
+              <h3 className="text-danger section-heading">Our Latest Blogs</h3>
             </div>
             <div className="d-flex flex-wrap gap-2 justify-content-center">
-              <div className="gr-4 shadow mb-4">
-                <BlogCard />
-              </div>
+              <BlogCard blog="blog" />
+            </div>
+            <div className="d-flex justify-content-center">
+              <Link to='../blog' className="view_more" >View more...</Link>
             </div>
           </div>
         </div>

@@ -7,7 +7,6 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     // const [user, setUser] = useState(null);
     const [currentUser, setCurrentUser] = useState(null);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     const [errors, setErrors] = useState({});
     const [status, setStatus] = useState([]);
@@ -36,17 +35,13 @@ export const AuthProvider = ({ children }) => {
         try {
             const { data } = await axios.get("/api/users/v1/user");
             setCurrentUser(data);
-            setIsLoggedIn(true);
             if (data.roles === "admin") {
                 navigate("/admin");
             }
         } catch (error) {
-            setIsLoggedIn(false);
             console.error(error);
         }
     }, [navigate]);
-
-
 
     const login = async (formData, callback) => {
         setIsLoading(false);
@@ -64,23 +59,6 @@ export const AuthProvider = ({ children }) => {
             handleErrors(error);
         }
     };
-
-
-    // const loginAdmin = async (formData, callback) => {
-    //     setIsLoading(false);
-    //     try {
-    //         await csrf();
-    //         await axios.post("/login", formData);
-    //         await getUser();
-    //         setIsLoading(true);
-    //         if (callback) {
-    //             callback();
-    //         }
-    //     } catch (error) {
-    //         setIsLoading(true);
-    //         handleErrors(error);
-    //     }
-    // };
 
     const register = async (data, callback) => {
         setIsLoading(false);
@@ -102,7 +80,6 @@ export const AuthProvider = ({ children }) => {
         try {
             await axios.post('/logout');
             setCurrentUser(null);
-            setIsLoggedIn(false);
             navigate("/login");
         } catch (error) {
             console.log(error);

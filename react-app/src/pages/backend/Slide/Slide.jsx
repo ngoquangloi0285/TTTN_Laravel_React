@@ -51,7 +51,7 @@ export default function DataGridDemo() {
                 key={index}
                 src={`http://localhost:8000/storage/product/${image.image}`}
                 alt={`Image ${index}`}
-                style={{ width: '100%', height: 'auto', margin: '4px' }}
+                style={{ width: '24%', height: 'auto', margin: '4px' }}
               />
             ))}
           </div>
@@ -73,8 +73,8 @@ export default function DataGridDemo() {
       },
       {
         field: 'status',
-        headerName: 'Status',
-        width: 100, // Thêm thuộc tính width vào đây
+        headerName: 'Status Product',
+        width: 120, // Thêm thuộc tính width vào đây
         align: 'center',
         renderCell: (params) => {
           const statusStyle = {
@@ -97,12 +97,12 @@ export default function DataGridDemo() {
         field: 'actions',
         headerName: 'Actions',
         sortable: false,
-        width: 150, // Thêm thuộc tính width vào đây
+        width: 200, // Thêm thuộc tính width vào đây
 
         renderCell: (params) => (
           <>
-            <button type="button" class="btn btn-primary">Tạo</button>
-            <button type="button" class="btn btn-outline-danger ms-1">Xóa</button>
+            <button onClick={() => handleCreateSlide(params.id)} type="button" id='create_slide' class="btn btn-primary">Create</button>
+            <button onClick={() => handleDeleteSlide(params.id)} type="button" id='delete_slide' class="btn btn-outline-danger ms-1">Delete</button>
           </>
         ),
       },
@@ -136,6 +136,77 @@ export default function DataGridDemo() {
   }, [filter]);
 
 
+
+
+  const handleCreateSlide = async (id) => {
+    const btn = document.getElementById('create_slide');
+
+    try {
+      const product = records.find(product => product.id === id);
+      if (!product) {
+        console.log("Product not found");
+        return;
+      }
+
+      const { image, type, slug, images } = product;
+
+      const uniqueImages = [...new Set(images.map(image => image.image))];
+      uniqueImages.unshift(image);
+
+      const formData = new FormData();
+      formData.append('product_id', id);
+      formData.append('type', type);
+      formData.append('slug_product', slug);
+      uniqueImages.forEach(file => formData.append('images[]', file));
+      console.log(formData)
+      if (btn) {
+        btn.innerHTML = "Creating...";
+
+        const res = await axios.post('/api/slide/v1/create_slide', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        if (res.status === 200) {
+          toast.success(res.data.status);
+        }
+        btn.innerHTML = "Create";
+        console.log("Slide created successfully");
+      }
+    } catch (error) {
+      console.log("Error creating slide:", error);
+      if (error.response.status) {
+        toast.error(error.response.data.error);
+      }
+      btn.innerHTML = "Create";
+    }
+  };
+  const handleDeleteSlide = async (id) => {
+    const btn = document.getElementById('delete_slide');
+
+    try {
+      if (btn) {
+        btn.innerHTML = "Deleting...";
+        const res = await axios.delete(`/api/slide/v1/remove/${id}`, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        if (res.status === 200) {
+          toast.success(res.data.message);
+        }
+        btn.innerHTML = "Delete";
+        console.log("Slide Deleted successfully");
+      }
+    } catch (error) {
+      console.log("Error deleting slide:", error);
+      if (error.response.status) {
+        toast.error(error.response.data.error);
+      }
+      btn.innerHTML = "Delete";
+    }
+  }
+
   if (isLoading === true) {
     return <>
       <LoadingOverlay className='text-danger'
@@ -156,45 +227,49 @@ export default function DataGridDemo() {
         text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
         }
       ></LoadingOverlay>
-      <div className="container-xxl">
-        <div className="row">
-          <div className="col-5 mt-2">
-            <p className='mb-0 title-sort d-block'>Type Slide Product:</p>
-            <select value={filter} onChange={(e) => setFilter(e.target.value)} className='form-control form-select' name="" id="">
-              <option value="" selected>Select Filter Slide Product</option>
-              <option value="new_product">New Product</option>
-              <option value="product_sale">Sale Product</option>
-              <option value="product_special">Special Product</option>
-            </select>
-          </div>
-        </div>
-        <div className="row">
-          {/* hiện data product */}
-          <Box sx={{ height: 600, width: '100%' }}>
-            <DataGrid
-              rows={records}
-              columns={columns}
-              initialState={{
-                pagination: {
-                  paginationModel: {
-                    pageSize: 10,
-                  },
-                },
-              }}
-              pageSizeOptions={[5, 10, 20]}
-              checkboxSelection
-              disableRowSelectionOnClick
 
-              components={{
-                Toolbar: GridToolbar,
-              }}
-              // Hàm này sẽ được gọi mỗi khi thực hiện tìm kiếm
-              onFilterModelChange={(model) => console.log(model)}
-            />
-          </Box>
-          <ToastContainer />
-        </div>
+      <div className="container-xxl">
+        <form method="POST" enctype="multipart/form-data">
+          <div className="row">
+            <div className="col-5 mt-2">
+              <p className='mb-0 title-sort d-block'>Type Slide Product:</p>
+              <select value={filter} onChange={(e) => setFilter(e.target.value)} className='form-control form-select' name="" id="">
+                <option value="" selected>Select Filter Slide Product</option>
+                {/* <option value="new_product">New Product</option> */}
+                <option value="product_sale">Sale Product</option>
+                <option value="product_special">Special Product</option>
+              </select>
+            </div>
+          </div>
+          <div className="row">
+            {/* hiện data product */}
+            <Box sx={{ height: 600, width: '100%' }}>
+              <DataGrid
+                rows={records}
+                columns={columns}
+                initialState={{
+                  pagination: {
+                    paginationModel: {
+                      pageSize: 10,
+                    },
+                  },
+                }}
+                pageSizeOptions={[5, 10, 20]}
+                checkboxSelection
+                disableRowSelectionOnClick
+
+                components={{
+                  Toolbar: GridToolbar,
+                }}
+                // Hàm này sẽ được gọi mỗi khi thực hiện tìm kiếm
+                onFilterModelChange={(model) => console.log(model)}
+              />
+            </Box>
+            <ToastContainer />
+          </div>
+        </form>
       </div>
+
     </>
   );
 }

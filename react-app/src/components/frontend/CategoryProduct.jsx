@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router';
-import { Link, useLocation } from 'wouter';
+import { Link, useLocation } from 'react-router-dom';
 import axios from '../../api/axios';
 import ReactStars from "react-rating-stars-component";
 
@@ -87,16 +87,20 @@ const CategoryProduct = (props) => {
                         (
                             productList.map((product) => (
                                 <div key={product.id} className='gr-4'>
-                                    <Link to={`../product-detail/${product.slug}`} className="product-card position-relative shadow ">
+                                    <div className='product-card position-relative shadow'>
+
                                         <div className='discount position-absolute'>
                                             <span>{product.discount === null ? "" : `down ${parseInt(product.discount)}%`}</span>
                                         </div>
                                         <div className='discount position-absolute'>
                                             <span>{product.type === 'new_product' ? 'New Product' : ''}</span>
                                         </div>
-                                        <div className="product-image">
-                                            <img className='img-fluid' src={`http://localhost:8000/storage/product/${product.image}`} alt={product.name_product} />
-                                        </div>
+                                        <Link to={`../product-detail/${product.slug}`} className="d-flex justify-content-center">
+                                            <div className="product-image">
+                                                <img className='img-fluid' src={`http://localhost:8000/storage/product/${product.image}`} alt={product.name_product} />
+                                            </div>
+                                        </Link>
+
                                         <div className="product-detail">
                                             <div className="row">
                                                 <h6 className="brand">
@@ -129,7 +133,7 @@ const CategoryProduct = (props) => {
                                         >
                                             Add to cart
                                         </button>
-                                    </Link>
+                                    </div>
                                 </div>
 
                             ))

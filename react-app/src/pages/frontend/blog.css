@@ -1,0 +1,51 @@
+@charset "UTF-8";
+.blog-category {
+  /* CSS cho danh sách cha */
+  /* CSS cho danh sách con */
+  /* CSS cho hiệu ứng khi hover */
+}
+.blog-category ul {
+  list-style: none;
+  padding: 0;
+}
+.blog-category ul li {
+  position: relative;
+}
+.blog-category ul li a {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: #000;
+}
+.blog-category ul ul {
+  display: none;
+  position: absolute;
+  top: 0%;
+  right: 0;
+  background-color: #fff;
+  padding: 10px;
+  z-index: 10;
+}
+.blog-category ul li:hover > ul {
+  display: block;
+}
+.blog-category ul ul li {
+  width: 100%;
+}
+.blog-category ul ul li a {
+  padding: 5px;
+}
+.blog-category ul ul ul {
+  top: 0;
+  left: 100%;
+  padding-left: 10px;
+}
+.blog-category ul li:hover > a {
+  background-color: #ccc;
+}
+.blog-category ul li:hover > ul > li > a {
+  background-color: #f1f1f1;
+}
+.blog-category ul ul li:hover > a {
+  background-color: #e5e5e5;
+}/*# sourceMappingURL=blog.css.map */

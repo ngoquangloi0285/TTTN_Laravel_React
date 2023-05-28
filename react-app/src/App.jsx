@@ -60,6 +60,8 @@ import { Cart } from './pages/frontend/Cart';
 import { SearchProduct } from './components/frontend/Search';
 import SlugProduct from './pages/frontend/SlugProduct';
 import ProfilePage from './pages/frontend/ProfilePage';
+import ProductDetailPage from './pages/frontend/ProductDetailPage';
+import BlogSlugPage from './pages/frontend/BlogSlugPage';
 
 function App(props) {
 
@@ -72,6 +74,8 @@ function App(props) {
           <Route path='about' element={<About />} />
           <Route path='contact' element={<Contact />} />
           <Route path='blog' element={<Blog />} />
+          <Route path='blog/:slug' element={<BlogSlugPage />} />
+          {/* <Route path='blog/category/:slug' element={<B />} /> */}
           <Route path="store" element={<OurStore />} />
           <Route path="compare-product" element={<CompareProduct />} />
           <Route path="wishlist" element={<Wishlist />} />
@@ -82,6 +86,7 @@ function App(props) {
           <Route path="search/:keyword" element={<OurStore />} />
           <Route path="product/color/:slug" element={<OurStore />} />
           <Route path="product/inch/:slug" element={<OurStore />} />
+          <Route path="product-detail/:slug" element={<ProductDetailPage />} />
           <Route path="profile" element={<ProfilePage />} />
 
           <Route element={<GuestLayout />}>

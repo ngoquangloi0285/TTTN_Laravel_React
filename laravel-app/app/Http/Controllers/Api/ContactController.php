@@ -22,9 +22,7 @@ class ContactController extends Controller
         return response()->json($products);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(Request $request)
     {
         $id = random_int(0, 9999999999);
@@ -157,7 +155,6 @@ class ContactController extends Controller
         $contact->forceDelete();
         return response()->json(['message' => 'Contact have been permanently deleted.']);
     }
-
 
     public function removeALL(Request $request)
     {

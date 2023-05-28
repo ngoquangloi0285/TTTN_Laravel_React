@@ -15,9 +15,21 @@ class News extends Model
         'news_id',
         'title_news',
         'slug',
+        'type',
+        'description',
         'content_news',
         'category_id',
         'author',
         'status'
     ];
+
+    public function images()
+    {
+        return $this->hasMany(NewsImages::class);
+    }
+
+    public function newsImages()
+    {
+        return $this->hasMany(NewsImages::class);
+    }
 }

@@ -195,37 +195,60 @@ class UserController extends Controller
     public function Profile(Request $request, $id)
     {
         $data = $request->all();
-        if (isset($data['address'])) {
-            // Lấy dữ liệu địa chỉ từ request
-            $address = $request['address'];
+        $user = User::find($id);
 
-            // Thực hiện các thao tác cập nhật địa chỉ cho người dùng có id tương ứng
-            // Ví dụ: sử dụng Eloquent hoặc DB facade để cập nhật dữ liệu trong CSDL
-            $user = User::findOrFail($id);
-            $user->address = $address;
-            $user->save();
+        if ($request->has('phone')) {
+            $phone = $request->input('phone');
 
-            // Trả về phản hồi thành công (hoặc bất kỳ phản hồi nào khác theo yêu cầu của bạn)
-            return response()->json(
-                [
-                    'message' => 'Address update successful, Log in again to update, Thank!.'
-                ],200
-            );
-        }
-        if (isset($data['phone'])) {
-            // Lấy dữ liệu địa chỉ từ request
-            $phone = $request['phone'];
-
-            // Thực hiện các thao tác cập nhật địa chỉ cho người dùng có id tương ứng
-            // Ví dụ: sử dụng Eloquent hoặc DB facade để cập nhật dữ liệu trong CSDL
             $user = User::findOrFail($id);
             $user->phone = $phone;
             $user->save();
 
-            // Trả về phản hồi thành công (hoặc bất kỳ phản hồi nào khác theo yêu cầu của bạn)
-            return response()->json(['message' => 'Phone update successful, Log in again to update, Thank!.']);
+            return response()->json([
+                'message' => 'Phone edit successful. Please log in again to update or load page. Thank you!'
+            ], 200);
         }
-        return response()->json(['message' => 'Update unsuccessful.']);
+
+        if ($request->has('address')) {
+            $address = $request->input('address');
+
+            $user = User::findOrFail($id);
+            $user->address = $address;
+            $user->save();
+
+            return response()->json([
+                'message' => 'Address edit successful. Please log in again to update or load page. Thank you!'
+            ], 200);
+        }
+
+        if ($request->hasFile('images')) {
+            $files = $request->file('images');
+            $paths = [];
+            if ($user->avatar && Storage::disk('public')->exists('user/' . $user->avatar)) {
+                Storage::disk('public')->delete('user/' . $user->avatar);
+            }
+            foreach ($files as $key => $file) {
+                $path = $user->name . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
+                $image = Image::make($file);
+                $image->resize(800, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                });
+                Storage::disk('public')->put('user/' . $path, (string) $image->encode());
+                $paths[] = $path;
+
+                // Lưu ảnh đầu tiên vào trường images của bảng users
+                if ($key == 0) {
+                    $user->avatar = $path;
+                    $user->save();
+                }
+            }
+            return response()->json([
+                'message' => 'Avatar edit successful. Please log in again to update or load page. Thank you!'
+            ], 200);
+        }
+
+        return response()->json(['message' => 'Update unsuccessful.'], 500);
     }
     /**
      * Remove the specified resource from storage.

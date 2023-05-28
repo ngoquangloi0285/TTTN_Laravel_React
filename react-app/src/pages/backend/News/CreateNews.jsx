@@ -21,9 +21,14 @@ const NewProduct = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [files, setFiles] = useState([]);
     const [previewUrls, setPreviewUrls] = useState([]);
-
     const [titleNews, setTitleNews] = useState();
+    const [description, setDescription] = useState();
     const [content, setContent] = useState('');
+
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [showOtherNews, setShowOtherNews] = useState(true);
+    const [selectedNews, setSelectedNews] = useState('');
+    const [showCategory, setShowCategory] = useState(true);
 
     const [showCategoryToast, setShowCategoryToast] = useState(false);
 
@@ -100,7 +105,10 @@ const NewProduct = () => {
     };
 
     const ClearUp = (e) => {
-        document.getElementById("category").value = "";
+        // document.getElementById("category").value = "";
+        setDescription("")
+        setSelectedCategory("");
+        setSelectedNews("");
         setTitleNews("");
         setContent("");
         document.getElementById("file").value = "";
@@ -131,6 +139,32 @@ const NewProduct = () => {
             });
     }, []);
 
+
+    
+    // Xử lý sự kiện thay đổi danh mục
+    const handleCategoryChange = (e) => {
+        const selectedValue = e.target.value;
+        setSelectedCategory(selectedValue);
+
+        // Ẩn trường "other news" nếu danh mục được chọn
+        if (selectedValue) {
+            setShowOtherNews(false);
+        } else {
+            setShowOtherNews(true);
+        }
+    };
+    // Xử lý sự kiện thay đổi danh mục
+    const handleOtherChange = (e) => {
+        const selectedValue = e.target.value;
+        setSelectedNews(selectedValue);
+
+        // Ẩn trường "other news" nếu danh mục được chọn
+        if (selectedValue) {
+            setShowCategory(false);
+        } else {
+            setShowCategory(true);
+        }
+    };
     // Xử lý khi người dùng ấn nút Submit
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -138,18 +172,23 @@ const NewProduct = () => {
 
         // lấy dữ liệu thì form
         const status = document.getElementById("status").value;
-        const category = document.getElementById("category").value;
+        // const category = document.getElementById("category").value;
+        // const otherNews = document.getElementById("other_new").value;
         // const nameProduct = document.getElementById("nameProduct").value;
-
         // định nghĩa lỗi
         const newErrors = {};
         if (!titleNews) {
             newErrors.titleNews = "Vui lòng nhập tiêu đề tin tức.";
         }
-        if (!category) {
-            newErrors.category = "Vui lòng chọn danh mục.";
+        if (!description) {
+            newErrors.description = "Vui lòng nhập đoạn mô tả.";
         }
-
+        // if (!selectedCategory) {
+        //     newErrors.selectedCategory = "Vui lòng nhập category.";
+        // }
+        // if (!selectedNews) {
+        //     newErrors.selectedNews = "Vui lòng nhập loại tin tức.";
+        // }
         if (!content) {
             newErrors.content = "Vui lòng nhập nội dung tin tức.";
         }
@@ -172,7 +211,9 @@ const NewProduct = () => {
         // chèn dữ liệu
         const formData = new FormData();
         formData.append('titleNews', titleNews);
-        formData.append('category', category);
+        formData.append('category', selectedCategory);
+        formData.append('type', selectedNews);
+        formData.append('description', description);
         formData.append('contentNews', content);
         formData.append('status', status);
         // quét files images
@@ -261,30 +302,56 @@ const NewProduct = () => {
                                     </div>
                                 )}
                             </div>
+                            <div className="mb-2">
+                                <label className='form-label fw-bold' htmlFor="description">Description:</label>
+                                <input
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    className='form-control' id='description' type="text" placeholder='Enter Description News' />
+                                {errors.description && (
+                                    <div className="alert alert-danger" role="alert">
+                                        {errors.description}
+                                    </div>
+                                )}
+                            </div>
 
-                            <label className='form-label fw-bold' htmlFor="category">Category News:</label>
-                            {showCategoryToast && (
-                                <Toast bg="warning" delay={5000} autohide onClose={() => setShowCategoryToast(false)} style={{ width: "100%", height: "50px" }}>
-                                    <Toast.Body className='my-toast fw-bold fs-6'>Category has no data</Toast.Body>
-                                </Toast>
-                            )}
-                            <select className="form-select mb-2" id='category' aria-label="Default select example">
-                                <option value="" selected>Select Category</option>
-                                {categories.map(category => (
-                                    <option key={category.id} value={category.id}>{category.name_category}</option>
-                                ))}
-                            </select>
-                            {errors.category && (
+                            {
+                                showCategory &&
+                                <>
+                                    <label className='form-label fw-bold' htmlFor="category">Category News:</label>
+                                    {showCategoryToast && (
+                                        <Toast bg="warning" delay={5000} autohide onClose={() => setShowCategoryToast(false)} style={{ width: "100%", height: "50px" }}>
+                                            <Toast.Body className='my-toast fw-bold fs-6'>Category has no data</Toast.Body>
+                                        </Toast>
+                                    )}
+                                    <select onChange={handleCategoryChange} value={selectedCategory} className="form-select mb-2" id='category' aria-label="Default select example">
+                                        <option value="" selected>Select Category</option>
+                                        {categories.map(category => (
+                                            <option key={category.id} value={category.id}>{category.name_category}</option>
+                                        ))}
+                                    </select>
+
+                                </>
+                            }
+                            {/* {errors.category && (
                                 <div className="alert alert-danger" role="alert">
                                     {errors.category}
                                 </div>
+                            )} */}
+                            {showOtherNews && (
+                                <>
+                                    <label className='form-label fw-bold' htmlFor="other_new">Type News:</label>
+                                    <select onChange={handleOtherChange} value={selectedNews} className="form-select mb-2" id='other_new' aria-label="Default select example">
+                                        <option value="" selected>Select</option>
+                                        <option value="other_news" selected>Other news</option>
+                                    </select>
+                                </>
                             )}
-                            <label className='form-label fw-bold' htmlFor="category">Type News:</label>
-                            <select className="form-select mb-2" id='category' aria-label="Default select example">
-                                <option value="" selected>Type</option>
-                                <option value="" selected>Type</option>
-                                <option value="" selected>Type</option>
-                            </select>
+                            {/* {errors.otherNews && (
+                                <div className="alert alert-danger" role="alert">
+                                    {errors.otherNews}
+                                </div>
+                            )} */}
                         </div>
                         <div className="col-5">
                             <label className='form-label fw-bold' htmlFor="detail">Content News:</label>

@@ -59,7 +59,7 @@ export default function DataGridDemo() {
           <img
             className='img img-fluid img-thumbnail'
             src={`http://localhost:8000/storage/user/${params.value}`}
-            alt={params.row.name_category}
+            alt={params.value}
             style={{ width: '100%', height: 'auto' }} // Thêm CSS cho hình ảnh
           />
         ),
@@ -219,7 +219,7 @@ export default function DataGridDemo() {
       updateData();
     } catch (error) {
       console.error(error);
-      toast.error('Failed to delete category or its products.');
+      toast.error('Failed to delete user.');
     }
   }, []);
   /// xác nhận xóa tạm

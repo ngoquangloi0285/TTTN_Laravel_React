@@ -9,5 +9,8 @@ class NewsImages extends Model
 {
     use HasFactory;
     protected $table = 'news_images';
-
+    public function news()
+    {
+        return $this->belongsTo(News::class);
+    }
 }
