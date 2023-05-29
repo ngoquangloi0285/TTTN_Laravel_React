@@ -4,21 +4,21 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { AuthProvider } from './context/AuthContext';
 import { Provider } from 'react-redux';
-import store from './store';
+import store from './state/store';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
-    <Provider store={store}>
-      {/* Đoạn mã khác */}
-      <BrowserRouter>
-        <AuthProvider>
+    {/* Đoạn mã khác */}
+    <BrowserRouter>
+      <AuthProvider>
+        <Provider store={store}>
           <App />
-        </AuthProvider>
-      </BrowserRouter>
-      {/* Đoạn mã khác */}
-    </Provider>
+        </Provider>
+      </AuthProvider>
+    </BrowserRouter>
+    {/* Đoạn mã khác */}
   </React.StrictMode>
 );
 

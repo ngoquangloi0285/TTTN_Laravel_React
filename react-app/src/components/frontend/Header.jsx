@@ -10,10 +10,19 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from "../../api/axios";
 import Search from "./Search";
+import { useDispatch, useSelector } from "react-redux";
+import { getTotals } from "../../state/cartSlice";
 
 const Header = () => {
   const { currentUser, logout } = useAuthContext();
+  const dispatch = useDispatch();
+  const cart = useSelector((state) => state.cart);
 
+  useEffect(() => {
+    dispatch(getTotals());
+  }, [cart, dispatch]);
+
+  const uniqueItemCount = useSelector(state => state.cart.uniqueItemCount);
   const [menuList, setMenuList] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -176,8 +185,8 @@ const Header = () => {
                   <Link to="/cart" className="d-flex align-items-center gap-10 text-white">
                     <img src="images/cart.svg" alt="cart" />
                     <div className="d-flex flex-column gap-10">
-                      <span className="badge bg-white text-dark">0</span>
-                      {/* <p className="mb-0 header-link">$ 500</p> */}
+                      <span className="badge bg-white text-dark fs-6">{uniqueItemCount}</span>
+                      <p className="mb-0 header-link">${cart.cartTotalAmount}</p>
                     </div>
                   </Link>
                 </div>

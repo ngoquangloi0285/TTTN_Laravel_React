@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactStars from "react-rating-stars-component";
 import Maps from '../../components/frontend/Maps'
 import Meta from '../../components/frontend/Meta';
@@ -8,6 +8,8 @@ import Color from '../../components/frontend/Color';
 import { getProduct } from '../../globalState';
 import axios from '../../api/axios';
 import RandomProduct from '../../components/frontend/RandomProduct';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../../state/cartSlice';
 
 function calculateDiscountedPrice(price, discountPercent) {
     const discountAmount = (price * discountPercent) / 100;
@@ -77,12 +79,20 @@ const OurStore = () => {
     console.log("type", inch)
     // phân trang
     const [currentPage, setCurrentPage] = useState(1);
-    const recordsPerPage = 5;
+    const recordsPerPage = 10;
     const lastIndex = currentPage * recordsPerPage;
     const firstIndex = lastIndex - recordsPerPage;
     const records = productList.slice(firstIndex, lastIndex);
     const npage = Math.ceil(productList.length / recordsPerPage);
     const numbers = [...Array(npage + 1).keys()].slice(1);
+
+
+    // addToCart
+    const dispatch = useDispatch();
+
+    const handleAddToCart = (product) => {
+        dispatch(addToCart(product));
+    };
 
     return (
         <>
@@ -196,17 +206,20 @@ const OurStore = () => {
                                             (
                                                 records.map((product) => (
                                                     <div key={product.id} className='gr-4'>
-                                                        <Link to={`../product-detail/${product.slug}`} className="product-card position-relative shadow ">
+                                                        <div className="product-card position-relative shadow ">
                                                             <div className='discount position-absolute'>
                                                                 <span>{product.discount === null ? "" : `down ${parseInt(product.discount)}%`}</span>
                                                             </div>
                                                             <div className='discount position-absolute'>
                                                                 <span>{product.type === 'new_product' ? 'New Product' : ''}</span>
                                                             </div>
-                                                            <div className="product-image">
-                                                                <img className='img-fluid' src={`http://localhost:8000/storage/product/${product.image}`} alt={product.name_product} />
-                                                                {/* <img className='img-fluid' src="images/tab1.jpg" alt="" /> */}
-                                                            </div>
+                                                            <Link to={`../product-detail/${product.slug}`} className='d-flex justify-content-center' >
+                                                                <div className="product-image">
+                                                                    <img className='img-fluid' src={`http://localhost:8000/storage/product/${product.image}`} width="100%" alt={product.name_product} />
+                                                                    {/* <img className='img-fluid' src="images/tab1.jpg" alt="" /> */}
+                                                                </div>
+                                                            </Link>
+
                                                             <div className="product-detail">
                                                                 <div className="row">
                                                                     <p className="text-dark m-0">
@@ -237,12 +250,13 @@ const OurStore = () => {
                                                                     </p>
                                                                 </div>
                                                             </div>
-                                                            <button
+                                                            <Link to="#" onClick={() => handleAddToCart(product)}
                                                                 className="add-to-cart"
                                                             >
                                                                 Add to cart
-                                                            </button>
-                                                        </Link>
+                                                            </Link>
+                                                        </div>
+
                                                     </div>
 
                                                 ))

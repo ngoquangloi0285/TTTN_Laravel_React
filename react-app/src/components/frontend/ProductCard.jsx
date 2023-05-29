@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import ReactStars from "react-rating-stars-component";
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import axios from '../../api/axios';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../../state/cartSlice';
 
 function calculateDiscountedPrice(price, discountPercent) {
     const discountAmount = (price * discountPercent) / 100;
@@ -78,6 +80,14 @@ export const ProductList = (props) => {
         fetchData(slug, newProduct, suggestion, saleProduct, setProductList, setCategoryMap, setIsLoading, setBrandMap);
     }, [slug, newProduct, suggestion, saleProduct]);
 
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const handleAddToCart = (product) => {
+        dispatch(addToCart({ item: { ...product, count: 1 } }));
+        navigate("../cart");
+    };
+
     return (
         <>
             {
@@ -111,20 +121,17 @@ export const ProductList = (props) => {
                     (
                         productList.map((product) => (
                             <div key={product.id} className="gr-4">
-                                <div className="product-card position-relative shadow">
+                                <Link to={`../product-detail/${product.slug}`} className="product-card position-relative shadow">
                                     <div className='discount position-absolute'>
                                         <span>{product.discount === null ? "" : `down ${parseInt(product.discount)}%`}</span>
                                     </div>
                                     <div className='discount position-absolute'>
                                         <span>{product.type === 'new_product' ? 'New Product' : ''}</span>
                                     </div>
-                                    <Link to={`../product-detail/${product.slug}`} className='d-flex justify-content-center'
-                                        >
-                                        <div className="product-image">
-                                            <img className='img-fluid' src={`http://localhost:8000/storage/product/${product.image}`} width="100%" alt={product.name_product} />
-                                            {/* <img className='img-fluid' src="images/tab1.jpg" alt="" /> */}
-                                        </div>
-                                    </Link >
+                                    <div className="product-image">
+                                        <img className='img-fluid' src={`http://localhost:8000/storage/product/${product.image}`} width="100%" alt={product.name_product} />
+                                        {/* <img className='img-fluid' src="images/tab1.jpg" alt="" /> */}
+                                    </div>
                                     <div className="product-detail">
                                         <div className="row">
                                             <p className="text-dark m-0">
@@ -155,12 +162,12 @@ export const ProductList = (props) => {
                                             </p>
                                         </div>
                                     </div>
-                                    <button
+                                    <Link to={`../product-detail/${product.slug}`}
                                         className="add-to-cart"
                                     >
                                         Add to cart
-                                    </button>
-                                </div>
+                                    </Link>
+                                </Link>
                             </div>
 
                         ))

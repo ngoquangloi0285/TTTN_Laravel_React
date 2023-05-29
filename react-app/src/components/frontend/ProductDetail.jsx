@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ProductList } from './ProductCard';
 import axios from '../../api/axios';
 import ReactStars from "react-rating-stars-component";
 import { Typography } from '@mui/material';
 import DOMPurify from 'dompurify';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCart, getTotals } from '../../state/cartSlice';
 
 function calculateDiscountedPrice(price, discountPercent) {
     const discountAmount = (price * discountPercent) / 100;
@@ -87,6 +89,13 @@ const ProductDetail = (props) => {
         }
     }, [isProductListLoaded]);
 
+    // addToCart
+    const dispatch = useDispatch();
+
+    const handleAddToCart = (product) => {
+        dispatch(addToCart(product));
+    };
+
     return (
         <>
             {
@@ -156,7 +165,7 @@ const ProductDetail = (props) => {
                                         activeColor="#ffd700"
                                     />
                                     <input type="number" value='1' />
-                                    <Link className='button btn-product-detail'>Add to cart</Link>
+                                    <Link to="#" onClick={() => handleAddToCart(productList)} className='button btn-product-detail'>Add to cart</Link>
                                     <h3>Product Details <i className='fa fa-indent'></i></h3>
                                     <p>
                                         <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(productList.detail) }} />

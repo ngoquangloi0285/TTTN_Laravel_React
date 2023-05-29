@@ -20,9 +20,22 @@ class NewsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        if (isset($params['slug'])) {
+        if ($request->all()) {
+            $data = $request['slug'];
+            $category = Category::where('slug', $data)->first();
+            if ($category) {
+                $news = News::where('category_id', $category->id)
+                    ->orderBy('created_at', 'desc')->latest()->get();
+                return response()->json($news);
+            }
+            if ($request['type']) {
+                $data = $request['type'];
+                $news = News::where('type', $data)
+                    ->orderBy('created_at', 'desc')->latest()->get();
+                return response()->json($news);
+            }
         }
         $news = News::limit(6)->orderBy('created_at', 'desc')->latest()->get();
         return response()->json($news);

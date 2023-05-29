@@ -8,7 +8,6 @@ const RandomProduct = (props) => {
         console.log(newRating);
     };
     const random = props.random;
-    console.log("random", random)
     const [isLoading, setIsLoading] = useState(true);
     const [productList, setProductList] = useState([]);
 
