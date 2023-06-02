@@ -105,13 +105,13 @@ const Profile = () => {
     const handlePhoneSaveClick = async () => {
         const newErrors = {};
         if (!phone) {
-            newErrors.phone = "Please enter the phone number.";
+            newErrors.phone = "Vui lòng nhập số điện thoại.";
         }
         if (isNaN(phone)) {
-            newErrors.phone = "Phone number must be a number.";
+            newErrors.phone = "Số điện thoại phải là số.";
         }
         else if (phone.length !== 10 && phone.length !== 11) {
-            newErrors.phone = "Phone number must be 10 or 11 digits.";
+            newErrors.phone = "Số điện thoại phải có 10 hoặc 11 chữ số.";
         }
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
@@ -145,7 +145,7 @@ const Profile = () => {
     const handleAddressSaveClick = async () => {
         const newErrors = {};
         if (!address) {
-            newErrors.address = "Please enter the your current address.";
+            newErrors.address = "Vui lòng nhập địa chỉ hiện tại của bạn.";
         }
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
@@ -249,8 +249,8 @@ const Profile = () => {
 
     const confirmDelete = useCallback((id) => {
         Swal.fire({
-            title: 'Are you sure?',
-            text: 'You will not be able to delete this user!',
+            title: 'Bạn có chắc chắn?',
+            text: 'Bạn sẽ xóa người dùng này!',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, delete it!',
@@ -269,19 +269,10 @@ const Profile = () => {
             <section style={{ backgroundColor: '#eee' }}>
                 <div className="container py-5">
                     <div className="row">
-                        <div className="col">
-                            <nav aria-label="breadcrumb" className="bg-light rounded-3 p-3 mb-4">
-                                <ol className="breadcrumb mb-0">
-                                    <Maps title="Profile" />
-                                </ol>
-                            </nav>
-                        </div>
-                    </div>
-                    <div className="row">
                         <div className="col-lg-4">
                             <div className="card mb-4">
                                 <div className="card-body text-center">
-                                    <h5>Avatar</h5>
+                                    <h5>Ảnh đại diện</h5>
 
                                     {!currentUser ?
                                         <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp" alt="avatar" className="rounded-circle img-fluid" style={{ width: 150 }} /> :
@@ -304,20 +295,20 @@ const Profile = () => {
                                         {renderPreview()}
                                     </div>
                                     <br />
-                                    <button type='submit' onClick={handleAvatar} className='btn text-white bg-primary'>Update avatar</button>
+                                    <button type='submit' onClick={handleAvatar} className='btn text-white bg-primary'>Cập nhật ảnh đại diện</button>
                                     <div className="row d-flex justify-content-center">
                                         {
                                             files.length > 0 &&
                                             <div className="col-6">
-                                                <button className='btn text-danger' onClick={ClearUpPhotos}>Clean up photo
+                                                <button className='btn text-danger' onClick={ClearUpPhotos}>Xóa ảnh
                                                     <AiOutlineClear className='fs-4 my-2' />
                                                 </button>
                                             </div>
                                         }
                                     </div>
                                     {/* <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp" alt="avatar" className="rounded-circle img-fluid" style={{ width: 150 }} /> */}
-                                    <h5 className="my-3"><strong>{!currentUser ? "Updating..." : currentUser.name}</strong></h5>
-                                    {/* <p className="text-muted mb-4">{user?.address === null ? "Updating..." : user.address}</p> */}
+                                    <h5 className="my-3"><strong>{!currentUser ? "Đang cập nhật..." : currentUser.name}</strong></h5>
+                                    {/* <p className="text-muted mb-4">{user?.address === null ? "Đang cập nhật......" : user.address}</p> */}
                                 </div>
                             </div>
                         </div>
@@ -327,22 +318,22 @@ const Profile = () => {
                                 <div className="card-body">
                                     <div className="row">
                                         <div className="col-sm-3">
-                                            <p className="mb-0">Full Name</p>
+                                            <p className="mb-0">Tên người dùng</p>
                                         </div>
                                         <div className="col-sm-9">
                                             <div>
-                                                <p className="text-muted mb-0">{!currentUser ? "Updating..." : currentUser.name}</p>
+                                                <p className="text-muted mb-0">{!currentUser ? "Đang cập nhật......" : currentUser.name}</p>
                                             </div>
                                         </div>
                                     </div>
                                     <hr />
                                     <div className="row">
                                         <div className="col-sm-3">
-                                            <p className="mb-0">Gender</p>
+                                            <p className="mb-0">Giới tính</p>
                                         </div>
                                         <div className="col-sm-9">
                                             <div>
-                                                <p className="text-muted mb-0">{!currentUser ? "Updating..." : currentUser.gender}</p>
+                                                <p className="text-muted mb-0">{!currentUser ? "Đang cập nhật......" : currentUser.gender}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -353,7 +344,7 @@ const Profile = () => {
                                         </div>
                                         <div className="col-sm-9">
                                             <div>
-                                                <p className="text-muted mb-0">{!currentUser ? "Updating..." : currentUser.email}</p>
+                                                <p className="text-muted mb-0">{!currentUser ? "Đang cập nhật......" : currentUser.email}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -361,7 +352,7 @@ const Profile = () => {
                                     <div className="row">
 
                                         <div className="col-sm-3">
-                                            <p className="mb-0">Phone</p>
+                                            <p className="mb-0">Số điện thoại</p>
                                         </div>
                                         <div className="col-sm-9">
                                             {isPhoneEditing ? (
@@ -379,8 +370,8 @@ const Profile = () => {
                                                 </div>
                                             ) : (
                                                 <div className='d-flex'>
-                                                    {/* <p className="text-muted mb-0">{currentUser?.address === null ? "Updating..." : currentUser.address} <span onClick={handleEditClick}><GrEdit /></span></p> */}
-                                                    <p className="text-muted mb-0 ">(+84) {!currentUser ? "Updating..." : currentUser.phone} </p>
+                                                    {/* <p className="text-muted mb-0">{currentUser?.address === null ? "Đang cập nhật......" : currentUser.address} <span onClick={handleEditClick}><GrEdit /></span></p> */}
+                                                    <p className="text-muted mb-0 ">(+84) {!currentUser ? "Đang cập nhật......" : currentUser.phone} </p>
                                                     <span className='mx-2' onClick={handleEditPhoneClick}><GrEdit /></span>
                                                 </div>
                                             )}
@@ -393,9 +384,8 @@ const Profile = () => {
                                     </div>
                                     <hr />
                                     <div className="row">
-                                        <p className="text-info mb-2"><i>*Use this address to order</i></p>
                                         <div className="col-sm-3">
-                                            <p className="mb-0">Order Address</p>
+                                            <p className="mb-0">Địa chỉ</p>
                                         </div>
                                         <div className="col-sm-9">
                                             {isAddressEditing ? (
@@ -415,7 +405,7 @@ const Profile = () => {
                                             ) : (
                                                 <div className='d-flex'>
                                                     <p className="text-muted mb-0">
-                                                        {!currentUser ? "Updating..." : currentUser.address}
+                                                        {!currentUser ? "Đang cập nhật......" : currentUser.address}
                                                     </p>
                                                     <span className='mx-2' onClick={handleEditAddressClick}><GrEdit /></span>
                                                 </div>
@@ -430,7 +420,7 @@ const Profile = () => {
                                     </div>
                                     <div className="row">
                                         <div className="col-sm-3">
-                                            <button onClick={() => confirmDelete(encodedId)} className="btn bg-danger text-white mt-5">Delete account</button>
+                                            <button onClick={() => confirmDelete(encodedId)} className="btn bg-danger text-white mt-5">Xóa tài khoản</button>
                                         </div>
                                     </div>
                                 </div>

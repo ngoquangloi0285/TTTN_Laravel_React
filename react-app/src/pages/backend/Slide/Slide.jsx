@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import LoadingOverlay from 'react-loading-overlay';
 import Meta from '../../../components/frontend/Meta';
 import { Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 export default function DataGridDemo() {
   const columns = useMemo(
@@ -101,8 +102,8 @@ export default function DataGridDemo() {
 
         renderCell: (params) => (
           <>
-            <button onClick={() => handleCreateSlide(params.id)} type="button" id='create_slide' class="btn btn-primary">Create</button>
-            <button onClick={() => handleDeleteSlide(params.id)} type="button" id='delete_slide' class="btn btn-outline-danger ms-1">Delete</button>
+            <button onClick={() => confirmCreate(params.id)} type="button" id='create_slide' class="btn btn-primary">Create</button>
+            {/* <button onClick={() => handleDeleteSlide(params.id)} type="button" id='delete_slide' class="btn btn-outline-danger ms-1">Delete</button> */}
           </>
         ),
       },
@@ -135,10 +136,7 @@ export default function DataGridDemo() {
     fetchData();
   }, [filter]);
 
-
-
-
-  const handleCreateSlide = async (id) => {
+  const handleCreateSlide = useCallback(async (id) => {
     const btn = document.getElementById('create_slide');
 
     try {
@@ -148,7 +146,7 @@ export default function DataGridDemo() {
         return;
       }
 
-      const { image, type, slug, images } = product;
+      const { image, type, slug, name_product, price, discount, images } = product;
 
       const uniqueImages = [...new Set(images.map(image => image.image))];
       uniqueImages.unshift(image);
@@ -156,6 +154,9 @@ export default function DataGridDemo() {
       const formData = new FormData();
       formData.append('product_id', id);
       formData.append('type', type);
+      formData.append('name_product', name_product);
+      formData.append('price', price);
+      formData.append('discount', discount ? discount : "");
       formData.append('slug_product', slug);
       uniqueImages.forEach(file => formData.append('images[]', file));
       console.log(formData)
@@ -180,32 +181,47 @@ export default function DataGridDemo() {
       }
       btn.innerHTML = "Create";
     }
-  };
-  const handleDeleteSlide = async (id) => {
-    const btn = document.getElementById('delete_slide');
+  }, [records]);
 
-    try {
-      if (btn) {
-        btn.innerHTML = "Deleting...";
-        const res = await axios.delete(`/api/slide/v1/remove/${id}`, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        if (res.status === 200) {
-          toast.success(res.data.message);
-        }
-        btn.innerHTML = "Delete";
-        console.log("Slide Deleted successfully");
+  const confirmCreate = useCallback((id) => {
+    Swal.fire({
+      title: 'Bạn có chắc chắn?',
+      text: 'Tạo và xóa các bảng ghi hiện có!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Có tạo và hiện!',
+      cancelButtonText: 'Không!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleCreateSlide(id);
       }
-    } catch (error) {
-      console.log("Error deleting slide:", error);
-      if (error.response.status) {
-        toast.error(error.response.data.error);
-      }
-      btn.innerHTML = "Delete";
-    }
-  }
+    });
+  }, [handleCreateSlide]);
+  // const handleDeleteSlide = async (id) => {
+  //   const btn = document.getElementById('delete_slide');
+
+  //   try {
+  //     if (btn) {
+  //       btn.innerHTML = "Deleting...";
+  //       const res = await axios.delete(`/api/slide/v1/remove/${id}`, {
+  //         headers: {
+  //           'Content-Type': 'application/json'
+  //         }
+  //       });
+  //       if (res.status === 200) {
+  //         toast.success(res.data.message);
+  //       }
+  //       btn.innerHTML = "Delete";
+  //       console.log("Slide Deleted successfully");
+  //     }
+  //   } catch (error) {
+  //     console.log("Error deleting slide:", error);
+  //     if (error.response.status) {
+  //       toast.error(error.response.data.error);
+  //     }
+  //     btn.innerHTML = "Delete";
+  //   }
+  // }
 
   if (isLoading === true) {
     return <>

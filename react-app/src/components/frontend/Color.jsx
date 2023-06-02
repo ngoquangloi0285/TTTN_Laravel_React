@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 
 const Color = (props) => {
     const color = props.color;
-
-    console.log('color', color)
     return (
         <>
             <ul className="colors">

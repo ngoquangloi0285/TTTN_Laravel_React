@@ -8,14 +8,14 @@ const SpecialProducts = (props) => {
     const special = props.special
     const [isLoading, setIsLoading] = useState(true);
     const [productList, setProductList] = useState([]);
-    const [countDown, setCountDown] = useState([]);
     const [categoryMap, setCategoryMap] = useState({});
+    const [brandMap, setBrandMap] = useState({});
 
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                const [productResponse, categoryResponse, countDownResponse] = await Promise.all([
+                const [productResponse, categoryResponse, brandResponse] = await Promise.all([
                     axios.get('/api/product/v1/products', {
                         params: {
                             product_special: special
@@ -25,19 +25,20 @@ const SpecialProducts = (props) => {
                         }
                     }),
                     axios.get('/api/category/v1/category'),
-                    axios.get('/api/countdown/v1/countdown'),
+                    axios.get('/api/brand/v1/brand'),
                 ]);
 
                 const newCategoryMap = {};
                 categoryResponse.data.forEach((category) => {
                     newCategoryMap[category.id] = category.name_category;
                 });
+                const newBrandMap = {};
+                brandResponse.data.forEach((brand) => {
+                    newBrandMap[brand.id] = brand.name;
+                });
                 setProductList(productResponse.data);
-                setCountDown(countDownResponse.data);
                 setCategoryMap(newCategoryMap);
-                // Lấy start_time và end_time từ countDownResponse.data
-                console.log('start_time', countDownResponse.data)
-
+                setBrandMap(newBrandMap);
                 setIsLoading(false);
             } catch (error) {
                 console.log(error);
@@ -86,7 +87,7 @@ const SpecialProducts = (props) => {
                                             <span>{product.discount === null ? "" : `down ${parseInt(product.discount)}%`}</span>
                                         </div>
                                         <div className='special-right position-absolute'>
-                                            <span>Special Products</span>
+                                            <span>Sản phẩm đặt biệt</span>
                                         </div>
                                         <div className='px-5'>
                                             <Link to={`../product-detail/${product.slug}`}>
@@ -96,9 +97,12 @@ const SpecialProducts = (props) => {
                                         </div>
                                         <div className="special-product-content">
                                             <h5 className='bran'>{categoryMap[product.category_id]}</h5>
-                                            <h6 className='title'>
+                                            <h6 className='title mt-2'>
                                                 {product.name_product}
                                             </h6>
+                                            <p className="text-danger brand m-0">
+                                                {brandMap[product.brand_id]}
+                                            </p>
                                             <ReactStars
                                                 count={5}
                                                 size={24}
@@ -108,25 +112,15 @@ const SpecialProducts = (props) => {
                                             />
                                             <p className="price"><span className='red-p'>${calculateDiscountedPrice(product.price, product.discount)}</span> &nbsp; <strike>{product.discount === null ? '' : `$ ${product.price}`}</strike> </p>
                                             <div className="discount-till d-flex align-items-center">
-                                                <p className='mb-0 d-flex align-items-center gap-2'>
-                                                    <b>5 </b>days
-                                                </p>
-                                                <div className="d-flex gap-10 align-items-center">
+                                                {/* <div className="d-flex gap-10 align-items-center">
                                                     <span className='badge rounded-circle circle-day bg-danger'>12</span>:
                                                     <span className='badge rounded-circle circle-day bg-danger'>00</span>:
                                                     <span className='badge rounded-circle circle-day bg-danger'>00</span>
-                                                </div>
-
-                                            </div>
-                                            <div className="prod-count my-3">
-                                                <p>Product: 5</p>
-                                                <div className="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                                    <div className="progress-bar bg-success" style={{ "width": "25%" }}></div>
-                                                </div>
+                                                </div> */}
                                             </div>
                                             <div className="">
-                                                <Link className='button'>
-                                                    Add to Cart
+                                                <Link to={`../product-detail/${product.slug}`} className='btn bg-primary text-white my-2'>
+                                                    Xem thông tin sản phẩm
                                                 </Link>
                                             </div>
                                         </div>

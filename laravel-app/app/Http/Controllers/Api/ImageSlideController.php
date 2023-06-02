@@ -31,37 +31,41 @@ class ImageSlideController extends Controller
 
     public function store(Request $request)
     {
-        $slide = ImageSlide::where([
-            ['product_id', $request['product_id']],
-        ])->first();
+        if ($request->has('images')) {
+            // Xóa tất cả các bản ghi slide hiện có
+            ImageSlide::truncate();
 
-        if ($slide) {
-            return response()->json([
-                'error' => 'Slide with this name already exists, please choose another name.',
-                'product' => $slide
-            ], 500);
-        } else {
-            if ($request->has('images')) {
-                foreach ($request->input('images') as $file) {
-                    $path = $file;
-                    $imagePath = 'slide/' . $path;
-                    Storage::disk('public')->put($imagePath, (string)$request->input('product_id'));
+            // Xóa tất cả các tệp ảnh trong thư mục slide
+            $files = Storage::disk('public')->files('slide');
+            Storage::disk('public')->delete($files);
 
-                    $slide = new ImageSlide();
-                    $slide->product_id = $request->input('product_id');
-                    $slide->title = $request->input('type');
-                    $slide->image = $path;
-                    $slide->author = $request->user()->name;
-                    $slide->slug_product = Str::slug($request->input('slug_product'), '-');
-                    $slide->status = '1';
-                    $slide->save();
-                }
+            foreach ($request->input('images') as $file) {
+                $path = $file;
+                $imagePath = 'slide/' . $path;
+                Storage::disk('public')->put($imagePath, (string)$request->input('product_id'));
 
-                return response()->json([
-                    'status' => 'Created Successfully!',
-                ], 200);
+                $slide = new ImageSlide();
+                $slide->product_id = $request->input('product_id');
+                $slide->title = $request->input('type');
+                $slide->name_product = $request->input('name_product');
+                $slide->price = $request->input('price');
+                $slide->discount = $request->input('discount');
+                $slide->image = $path;
+                $slide->author = $request->user()->name;
+                $slide->slug_product = Str::slug($request->input('slug_product'), '-');
+                $slide->status = '1';
+                $slide->save();
             }
+
+            return response()->json([
+                'status' => 'Created Successfully!',
+            ], 200);
         }
+
+        return response()->json([
+            'status' => 'No images uploaded!',
+        ], 400);
+
         return response()->json([
             'status' => 'No images uploaded!',
         ], 400);
@@ -102,22 +106,22 @@ class ImageSlideController extends Controller
         //
     }
 
-    public function remove($id)
-    {
-        $imageSlides = ImageSlide::where('product_id', $id)->get();
-        if ($imageSlides->isEmpty()) {
-            return response()->json([
-                'error' => 'Slide not found in Slide Table',
-            ], 404);
-        }
-        if ($imageSlides) {
-            foreach ($imageSlides as $imageSlide) {
-                $imageSlide->delete();
-            }
-        }
+    // public function remove($id)
+    // {
+    //     $imageSlides = ImageSlide::where('product_id', $id)->get();
+    //     if ($imageSlides->isEmpty()) {
+    //         return response()->json([
+    //             'error' => 'Slide not found in Slide Table',
+    //         ], 404);
+    //     }
+    //     if ($imageSlides) {
+    //         foreach ($imageSlides as $imageSlide) {
+    //             $imageSlide->delete();
+    //         }
+    //     }
 
-        return response()->json([
-            'message' => 'Permanently deleted successfully',
-        ]);
-    }
+    //     return response()->json([
+    //         'message' => 'Permanently deleted successfully',
+    //     ]);
+    // }
 }

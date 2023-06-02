@@ -153,9 +153,22 @@ export const ProductList = (props) => {
                                             />
                                             <p className="price">
                                                 <strong>
-                                                    ${calculateDiscountedPrice(product.price, product.discount)}
-                                                </strong> &nbsp;
-                                                <span className="original-price"><del>{product.discount === null ? '' : `$ ${product.price}`}</del></span>
+                                                    {calculateDiscountedPrice(product.price, product.discount).toLocaleString('vi-VN', {
+                                                        style: 'currency',
+                                                        currency: 'VND'
+                                                    })}
+                                                </strong>
+                                                &nbsp;
+                                                <span className="original-price">
+                                                    {product.discount === null ? '' : (
+                                                        <del>
+                                                            {product.price.toLocaleString('vi-VN', {
+                                                                style: 'currency',
+                                                                currency: 'VND'
+                                                            })}
+                                                        </del>
+                                                    )}
+                                                </span>
                                             </p>
                                             <p className={`description ${grid === 12 ? "d-block" : "d-none"} `}>
                                                 {product.summary}
@@ -165,7 +178,7 @@ export const ProductList = (props) => {
                                     <Link to={`../product-detail/${product.slug}`}
                                         className="add-to-cart"
                                     >
-                                        Add to cart
+                                        Xem thông tin sản phẩm
                                     </Link>
                                 </Link>
                             </div>

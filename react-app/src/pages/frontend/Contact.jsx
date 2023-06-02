@@ -117,8 +117,8 @@ const Contact = () => {
 
   return (
     <>
-      <Meta title={"Contact US"} />
-      <Maps title="Contact US" />
+      <Meta title={"Liên hệ với chúng tôi"} />
+      <Maps title="Liên hệ với chúng tôi" />
       <div className="contact-wrapper py-5 home-wrapper-2">
         <div className="container-xxl">
           <div className="row">
@@ -134,9 +134,9 @@ const Contact = () => {
                   </div>
                 }
                 <div className="col-6">
-                  <h3 className='contact-title mb-4'>Contact</h3>
+                  <h3 className='contact-title mb-4'>Liên hệ</h3>
                   <div className='my-2'>
-                    <input name='name' value={name} onChange={(e) => setName(e.target.value)} type="text" className='form-control' placeholder='Name' />
+                    <input name='name' value={name} onChange={(e) => setName(e.target.value)} type="text" className='form-control' placeholder='Ngô Quang Lợi' />
                     {errors.name && (
                       <div className="alert alert-danger" role="alert">
                         {errors.name}
@@ -145,7 +145,7 @@ const Contact = () => {
                   </div>
                   <div className='my-2'>
                     <input name='email' value={email} onChange={(e) => setEmail(e.target.value)} type="email" className='form-control'
-                      placeholder='Email' />
+                      placeholder='nqlit2109@gmail.com' />
                     {errors.email && (
                       <div className="alert alert-danger" role="alert">
                         {errors.email}
@@ -154,7 +154,7 @@ const Contact = () => {
                   </div>
                   <div className='my-2'>
                     <input name='mobile' value={phone} onChange={(e) => setPhone(e.target.value)} type="tel" className='form-control'
-                      placeholder='Mobile Number' />
+                      placeholder='0352412318' />
                     {errors.phone && (
                       <div className="alert alert-danger" role="alert">
                         {errors.phone}
@@ -162,7 +162,7 @@ const Contact = () => {
                     )}
                   </div>
                   <div className='my-2'>
-                    <textarea name='comments' value={comment} onChange={(e) => setComment(e.target.value)} type="text" className='w-100 form-control' placeholder='Comments'
+                    <textarea name='comments' value={comment} onChange={(e) => setComment(e.target.value)} type="text" className='w-100 form-control' placeholder='Nội dụng bạn cần liên hệ với chúng tôi'
                       cols='30'
                       rows='4'
                     />
@@ -173,16 +173,16 @@ const Contact = () => {
                     )}
                   </div>
                   <div>
-                    <button className='button' id='btn-submit' onClick={checkLogin} type='submit'>Submit</button>
+                    <button className='button' id='btn-submit' onClick={checkLogin} type='submit'>Gửi yêu cầu</button>
                   </div>
                 </div>
                 <div className="col-6">
-                  <h3 className='contact-title mb-4'>Get in touch with Us</h3>
+                  <h3 className='contact-title mb-4'>Liên hệ với chúng tôi</h3>
                   <div>
                     <ul className="ps-0">
                       <li className='mb-3 d-flex align-items-center gap-10'>
                         <AiOutlineHome className='fs-4' />
-                        <address className='m-0'>Ho Chi Minh city</address>
+                        <address className='m-0'>Thành phố Hồ Chí Minh</address>
                       </li>
                       <li className='mb-3 d-flex align-items-center gap-10'>
                         <BiPhoneCall className='fs-4' />
@@ -194,7 +194,7 @@ const Contact = () => {
                       </li>
                       <li className='mb-3 d-flex align-items-center gap-10'>
                         <AiOutlineInfoCircle className='fs-4' />
-                        <p className='mb-0'>Monday - Friday, 8 AM - 5 PM</p>
+                        <p className='mb-0'>Thứ hai - Thứ sáu, 8 sáng - 5 chiều</p>
                       </li>
                     </ul>
                   </div>

@@ -131,7 +131,7 @@ const CategoryProduct = (props) => {
                                         <button
                                             className="add-to-cart"
                                         >
-                                            Add to cart
+                                            Thêm vào giỏ hàng
                                         </button>
                                     </div>
                                 </div>
@@ -140,7 +140,7 @@ const CategoryProduct = (props) => {
                         )
                 }
                 {
-                    productList.length === 0 && <h1>No products!</h1>
+                    productList.length === 0 && <h1>Không có sản phẩm nào!</h1>
                 }
             </div>
         </>

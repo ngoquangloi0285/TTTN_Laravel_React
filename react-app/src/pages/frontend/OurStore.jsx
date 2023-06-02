@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactStars from "react-rating-stars-component";
 import Maps from '../../components/frontend/Maps'
@@ -7,9 +7,10 @@ import { ProductList } from '../../components/frontend/ProductCard';
 import Color from '../../components/frontend/Color';
 import { getProduct } from '../../globalState';
 import axios from '../../api/axios';
-import RandomProduct from '../../components/frontend/RandomProduct';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../../state/cartSlice';
+import useAuthContext from '../../context/AuthContext';
+import { toast } from 'react-toastify';
 
 function calculateDiscountedPrice(price, discountPercent) {
     const discountAmount = (price * discountPercent) / 100;
@@ -18,6 +19,8 @@ function calculateDiscountedPrice(price, discountPercent) {
 }
 
 const OurStore = () => {
+    const { currentUser } = useAuthContext();
+
     const ratingChanged = (newRating) => {
         console.log(newRating);
     };
@@ -32,54 +35,63 @@ const OurStore = () => {
     const [brandMap, setBrandMap] = useState({});
     const [filter, setFilter] = useState('');
 
+    const fetchCategory = useCallback(async () => {
+        try {
+            const categoryResponse = await axios.get('/api/category/v1/category');
+            const newCategoryMap = {};
+            categoryResponse.data.forEach((category) => {
+                newCategoryMap[category.id] = category.name_category;
+            });
+            setCategoryMap(newCategoryMap);
+        } catch (error) {
+            console.log(error);
+        }
+    }, []);
+
+    const fetchData = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const [productResponse, brandResponse] = await Promise.all([
+                axios.get('/api/product/v1/products', {
+                    params: {
+                        search: keyword,
+                        filter: filter,
+                        slug: slug,
+                    },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }),
+                axios.get('/api/brand/v1/brand'),
+            ]);
+
+            const newBrandMap = {};
+            brandResponse.data.forEach((brand) => {
+                newBrandMap[brand.id] = brand.name;
+            });
+
+            setProductList(productResponse.data);
+            setBrandList(brandResponse.data);
+            setBrandMap(newBrandMap);
+            setIsLoading(false);
+        } catch (error) {
+            console.log(error);
+            setIsLoading(false);
+        }
+    }, [filter, slug, keyword]);
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [productResponse, categoryResponse, brandResponse] = await Promise.all([
-                    axios.get('/api/product/v1/products', {
-                        params: {
-                            search: keyword,
-                            filter: filter,
-                            slug: slug,
-                        },
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    }),
-                    axios.get('/api/category/v1/category'),
-                    axios.get('/api/brand/v1/brand'),
-                ]);
+        Promise.all([fetchCategory(), fetchData()]);
+    }, [fetchCategory, fetchData]);
 
-                const newCategoryMap = {};
-                categoryResponse.data.forEach((category) => {
-                    newCategoryMap[category.id] = category.name_category;
-                });
-
-                const newBrandMap = {};
-                brandResponse.data.forEach((brand) => {
-                    newBrandMap[brand.id] = brand.name;
-                });
-                setProductList(productResponse.data);
-                setBrandList(brandResponse.data)
-                setCategoryMap(newCategoryMap);
-                setBrandMap(newBrandMap);
-                setIsLoading(false);
-            } catch (error) {
-                console.log(error);
-                setIsLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [keyword, filter, slug]);
     console.log(brandList)
     const product_List = productList;
     const types = [...new Set(product_List.map(product => product.color))];
     const inch = [...new Set(product_List.map(product => product.inch))];
-    console.log("type", inch)
+    console.log("type", types)
     // phân trang
     const [currentPage, setCurrentPage] = useState(1);
-    const recordsPerPage = 10;
+    const recordsPerPage = 5;
     const lastIndex = currentPage * recordsPerPage;
     const firstIndex = lastIndex - recordsPerPage;
     const records = productList.slice(firstIndex, lastIndex);
@@ -91,7 +103,11 @@ const OurStore = () => {
     const dispatch = useDispatch();
 
     const handleAddToCart = (product) => {
-        dispatch(addToCart(product));
+        if (currentUser) {
+            dispatch(addToCart(product));
+        } else {
+            toast.error("Vui lòng đăng nhập!")
+        }
     };
 
     return (
@@ -104,7 +120,7 @@ const OurStore = () => {
                         <div className="col-3">
                             <div className="filter-card mb-3">
                                 <h3 className="filter-title">
-                                    Shop By Brand
+                                    Tìm kiếm theo thương hiệu
                                 </h3>
                                 <div className='container'>
                                     <div className="row filter-mx">
@@ -112,7 +128,13 @@ const OurStore = () => {
                                             <ul className="ps-2">
                                                 {
                                                     isLoading ? (
-                                                        <h1>Loading...</h1>
+                                                        <p className="card-text placeholder-glow">
+                                                            <span className="placeholder col-7"></span>
+                                                            <span className="placeholder col-4"></span>
+                                                            <span className="placeholder col-4"></span>
+                                                            <span className="placeholder col-6"></span>
+                                                            <span className="placeholder col-8"></span>
+                                                        </p>
                                                     ) : (
                                                         brandList.map((brand) => (
                                                             <li><Link to={`../brand-product/${brand.slug}`} key={brand.id} >{brand.name}</Link></li>
@@ -126,7 +148,7 @@ const OurStore = () => {
                             </div>
                             <div className="filter-card mb-3">
                                 <h3 className="filter-title">
-                                    Colors
+                                    Tìm theo màu
                                 </h3>
                                 <div className="d-flex flex-wrap">
                                     <div>
@@ -134,7 +156,7 @@ const OurStore = () => {
                                     </div>
                                 </div>
                                 <h3 className="filter-title">
-                                    Inch
+                                    Tìm theo kích thước
                                 </h3>
                                 {
                                     inch.map((inch) => (
@@ -147,36 +169,26 @@ const OurStore = () => {
                                         </div>
                                     ))
                                 }
-
-                            </div>
-                            <div className="filter-card mb-3">
-                                <h3 className="filter-title">
-                                    Random Product
-                                </h3>
-                                <div>
-                                    <RandomProduct random='random' />
-                                </div>
                             </div>
                         </div>
                         <div className="col-9">
                             <div className="filter-sort-gird mb-4">
                                 <div className="d-flex justify-content-between align-items-center">
                                     <div className="d-flex align-items-center gap-10">
-                                        <p className='mb-0 title-sort d-block'>Sort By:</p>
+                                        <p className='mb-0 title-sort d-block'>Sắp xếp theo:</p>
                                         <select value={filter} onChange={(e) => setFilter(e.target.value)} className='form-control form-select' name="" id="">
-                                            <option value="" selected>Select Filter</option>
-                                            <option value="bestSelling">Best Selling</option>
-                                            <option value="lowToHigh">Price, low to high</option>
-                                            <option value="highToLow">Price, high to low</option>
-                                            <option value="oldToNew">Date, old to new</option>
-                                            <option value="newToOld">Date, new to old</option>
+                                            <option value="" selected>Chọn lọc</option>
+                                            <option value="bestSelling">Bán chạy nhất</option>
+                                            <option value="lowToHigh">Giá, thấp đến cao</option>
+                                            <option value="highToLow">Giá, cao đến thấp</option>
+                                            <option value="oldToNew">Ngày, củ đến mới</option>
+                                            <option value="newToOld">Ngày, mới đến củ</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
                             <div className="products-list pd-5">
                                 <div className="d-flex flex-wrap gap-10">
-                                    {/* <ProductList grid={grid} /> */}
                                     {
                                         isLoading ? (
                                             <div className="row">
@@ -205,13 +217,13 @@ const OurStore = () => {
                                         ) :
                                             (
                                                 records.map((product) => (
-                                                    <div key={product.id} className='gr-4'>
+                                                    <div key={product.id} className='gr-f4'>
                                                         <div className="product-card position-relative shadow ">
                                                             <div className='discount position-absolute'>
-                                                                <span>{product.discount === null ? "" : `down ${parseInt(product.discount)}%`}</span>
+                                                                <span>{product.discount === null ? "" : `Giảm ${parseInt(product.discount)}%`}</span>
                                                             </div>
                                                             <div className='discount position-absolute'>
-                                                                <span>{product.type === 'new_product' ? 'New Product' : ''}</span>
+                                                                <span>{product.type === 'new_product' ? 'Sản phẩm mới' : ''}</span>
                                                             </div>
                                                             <Link to={`../product-detail/${product.slug}`} className='d-flex justify-content-center' >
                                                                 <div className="product-image">
@@ -241,19 +253,30 @@ const OurStore = () => {
                                                                     />
                                                                     <p className="price">
                                                                         <strong>
-                                                                            ${calculateDiscountedPrice(product.price, product.discount)}
+                                                                            {calculateDiscountedPrice(product.price, product.discount).toLocaleString('vi-VN', {
+                                                                                style: 'currency',
+                                                                                currency: 'VND'
+                                                                            })}
                                                                         </strong> &nbsp;
-                                                                        <span className="original-price"><del>{product.discount === null ? '' : `$ ${product.price}`}</del></span>
-                                                                    </p>
+                                                                        <span className="original-price">
+                                                                            {product.discount === null ? '' : (
+                                                                                <del>
+                                                                                    {product.price.toLocaleString('vi-VN', {
+                                                                                        style: 'currency',
+                                                                                        currency: 'VND'
+                                                                                    })}
+                                                                                </del>
+                                                                            )}
+                                                                        </span>                                                                    </p>
                                                                     <p className={`description ${grid === 12 ? "d-block" : "d-none"} `}>
                                                                         {product.summary}
                                                                     </p>
                                                                 </div>
                                                             </div>
-                                                            <Link to="#" onClick={() => handleAddToCart(product)}
+                                                            <Link to={`../product-detail/${product.slug}`}
                                                                 className="add-to-cart"
                                                             >
-                                                                Add to cart
+                                                                Xem thông tin sản phẩm
                                                             </Link>
                                                         </div>
 
@@ -263,7 +286,7 @@ const OurStore = () => {
                                             )
                                     }
                                     {
-                                        productList.length === 0 && <h1>No products!</h1>
+                                        productList.length === 0 && <h1>Không có sản phẩm!</h1>
                                     }
                                 </div>
                             </div>

@@ -9,8 +9,8 @@ const BlogSlugPage = () => {
 
     return (
         <>
-            <Meta title="News Detail" />
-            <Maps title="News Detail" />
+            <Meta title="Tin tức chi tiết" />
+            <Maps title="Tin tức chi tiết" />
             <BlogSlug slug={slug} />
         </>
     )

@@ -12,11 +12,11 @@ root.render(
   <React.StrictMode>
     {/* Đoạn mã khác */}
     <BrowserRouter>
-      <AuthProvider>
-        <Provider store={store}>
+      <Provider store={store}>
+        <AuthProvider>
           <App />
-        </Provider>
-      </AuthProvider>
+        </AuthProvider>
+      </Provider>
     </BrowserRouter>
     {/* Đoạn mã khác */}
   </React.StrictMode>

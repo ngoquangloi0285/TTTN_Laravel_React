@@ -191,7 +191,7 @@ const NewMenu = () => {
                                 <option value="" selected>Select Position</option>
                                 {/* <option value="0">Position Begin</option> */}
                                 {menuList.map(menu => {
-                                    return menu.name === 'Home'
+                                    return menu.link === '/'
                                         ? <option key={menu.id} value={menu.id} disabled>{menu.name}</option>
                                         : <option key={menu.id} value={menu.id}>Before {menu.name}</option>
                                 })}

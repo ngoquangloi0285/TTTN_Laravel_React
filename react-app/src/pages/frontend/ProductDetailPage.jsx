@@ -6,8 +6,8 @@ import Meta from '../../components/frontend/Meta'
 const ProductDetailPage = () => {
     return (
         <>
-            <Meta title="Product Detail"/>
-            <Maps title="Product Detail"/>
+            <Meta title="Chi tiết sản phẩm"/>
+            <Maps title="Chi tiết sản phẩm"/>
             <ProductDetail />
         </>
     )

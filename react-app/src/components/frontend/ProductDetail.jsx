@@ -6,7 +6,9 @@ import ReactStars from "react-rating-stars-component";
 import { Typography } from '@mui/material';
 import DOMPurify from 'dompurify';
 import { useDispatch, useSelector } from 'react-redux';
-import { addToCart, getTotals } from '../../state/cartSlice';
+import { addToCart, decreaseCart, getTotals } from '../../state/cartSlice';
+import useAuthContext from '../../context/AuthContext';
+import { toast } from 'react-toastify';
 
 function calculateDiscountedPrice(price, discountPercent) {
     const discountAmount = (price * discountPercent) / 100;
@@ -15,6 +17,8 @@ function calculateDiscountedPrice(price, discountPercent) {
 }
 
 const ProductDetail = (props) => {
+    const { currentUser } = useAuthContext();
+
     const ratingChanged = (newRating) => {
         console.log(newRating);
     };
@@ -67,42 +71,71 @@ const ProductDetail = (props) => {
 
     useEffect(() => {
         if (isProductListLoaded) {
-                var parentImg = document.getElementById("parentImg");
-                var childrenImg = document.getElementsByClassName('children-img');
-                var intervalId;
+            var parentImg = document.getElementById("parentImg");
+            var childrenImg = document.getElementsByClassName('children-img');
+            var intervalId;
 
-                function changeImage(index) {
-                    parentImg.src = childrenImg[index].src;
-                }
+            function changeImage(index) {
+                parentImg.src = childrenImg[index].src;
+            }
 
-                function stopAutoChange() {
-                    clearInterval(intervalId);
-                }
+            function stopAutoChange() {
+                clearInterval(intervalId);
+            }
 
-                for (var i = 0; i < childrenImg.length; i++) {
-                    childrenImg[i].addEventListener('mouseover', function () {
-                        var hoveredIndex = Array.prototype.indexOf.call(childrenImg, this);
-                        changeImage(hoveredIndex);
-                        stopAutoChange();
-                    });
-                }
+            for (var i = 0; i < childrenImg.length; i++) {
+                childrenImg[i].addEventListener('mouseover', function () {
+                    var hoveredIndex = Array.prototype.indexOf.call(childrenImg, this);
+                    changeImage(hoveredIndex);
+                    stopAutoChange();
+                });
+            }
         }
     }, [isProductListLoaded]);
-
     // addToCart
     const dispatch = useDispatch();
+    const [selectedColor, setSelectedColor] = useState('');
 
-    const handleAddToCart = (product) => {
-        dispatch(addToCart(product));
+    useEffect(() => {
+        if (productList && productList.color) {
+            setSelectedColor(productList.color);
+        }
+    }, [productList]);
+
+    console.log('product color', selectedColor);
+
+
+    const cart = useSelector((state) => state.cart);
+
+    const handleAddToCart = (product, selectedColor) => {
+        if (currentUser) {
+            // Kiểm tra sản phẩm đã tồn tại trong giỏ hàng chưa
+            const existingProduct = cart.cartItems.find(item => item.id === product.id);
+
+            if (existingProduct) {
+                // Kiểm tra màu sản phẩm có khác với sản phẩm trong giỏ hàng không
+                if (existingProduct.color.toLowerCase() !== selectedColor.toLowerCase()) {
+                    toast.info("Vui lòng đặt thành 2 đơn hàng với màu khác nhau");
+                }
+                else {
+                    // Màu sản phẩm trùng khớp, tăng số lượng sản phẩm trong giỏ hàng
+                    dispatch(addToCart(existingProduct));
+                }
+            } else {
+                // Sản phẩm chưa tồn tại trong giỏ hàng, thêm vào giỏ hàng
+                dispatch(addToCart({ product, selectedColor }));
+            }
+        } else {
+            toast.error("Vui lòng đăng nhập");
+        }
     };
+
 
     return (
         <>
             {
                 isLoading ? (
                     <div className="row">
-                        {/* <h1>Loading...</h1>
-                        <ProductPlaceholder/> */}
                         <div className="card product-card" aria-hidden="true">
                             <img
                                 style={
@@ -143,20 +176,28 @@ const ProductDetail = (props) => {
                                 </div>
                                 <div className="col-6">
                                     <h1>{productList.name_product}</h1>
-                                    <p className='price'>${calculateDiscountedPrice(productList.price, productList.discount)} <span className='text-danger fs-6'><del>{productList.discount === null ? '' : `$ ${productList.price}`}</del> <sup>{productList.discount === null ? "" : `down ${parseInt(productList.discount)}%`}</sup></span></p>
+                                    <p className='price'>${calculateDiscountedPrice(productList.price, productList.discount)} <span className='text-danger fs-6'><del>{productList.discount === null ? '' : `$ ${productList.price}`}</del> <sup>{productList.discount === null ? "" : `Giảm ${parseInt(productList.discount)}%`}</sup></span></p>
                                     <p className="text-dark m-0">
-                                        Category: <strong className='text-danger'> {categoryMap[productList.category_id]}</strong>
+                                        Danh mục: <strong className='text-danger'> {categoryMap[productList.category_id]}</strong>
                                     </p>
                                     <p className="text-dark my-2">
-                                        Brand: <strong className='text-danger'> {brandMap[productList.brand_id]}</strong>
+                                        Thương hiệu: <strong className='text-danger'> {brandMap[productList.brand_id]}</strong>
                                     </p>
                                     <p className="text-dark my-2">
-                                        Color: <strong className='text-danger'> {productList.color}</strong>
+                                        Màu: <strong className='text-danger'> {productList.color}</strong>
                                     </p>
                                     <p className="text-dark my-2">
-                                        Inch: <strong className='text-danger'> {productList.inch}</strong>
+                                        Kích thước: <strong className='text-danger'> {productList.inch}</strong>
                                     </p>
-                                    <ReactStars
+                                    <label htmlFor="selectedColor">Chọn màu sản phẩm:</label>
+                                    <input
+                                        value={selectedColor}
+                                        onChange={(e) => setSelectedColor(e.target.value)}
+                                        style={{ width: '150px' }}
+                                        type="text"
+                                        id="selectedColor"
+                                        className="form-control"
+                                    />                                    <ReactStars
                                         count={5}
                                         onChange={ratingChanged}
                                         size={24}
@@ -165,8 +206,8 @@ const ProductDetail = (props) => {
                                         activeColor="#ffd700"
                                     />
                                     <input type="number" value='1' />
-                                    <Link to="#" onClick={() => handleAddToCart(productList)} className='button btn-product-detail'>Add to cart</Link>
-                                    <h3>Product Details <i className='fa fa-indent'></i></h3>
+                                    <Link to="#" onClick={() => handleAddToCart(productList, selectedColor)} className='button btn-product-detail'>Add to cart</Link>
+                                    <h3>Thông tin sản phẩm <i className='fa fa-indent'></i></h3>
                                     <p>
                                         <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(productList.detail) }} />
                                     </p>
@@ -176,7 +217,7 @@ const ProductDetail = (props) => {
                                 }} />
                                 <div className="col-12">
                                     <div className="col-12">
-                                        <h3 className="section-heading">Related products</h3>
+                                        <h3 className="section-heading">Sản phẩm liên quan</h3>
                                     </div>
                                     <div className="store-wrapper home-wrapper-2 py-5">
                                         <div className="container-xxl">

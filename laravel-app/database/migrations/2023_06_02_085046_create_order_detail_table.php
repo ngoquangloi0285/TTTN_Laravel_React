@@ -11,17 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('image_slide', function (Blueprint $table) {
+        Schema::create('order_details', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('order_id');
             $table->unsignedBigInteger('product_id');
-            $table->string('slug_product');
-            $table->string('title');
-            $table->string('name_product');
-            $table->decimal('price', 8);
-            $table->decimal('discount', 8)->nullable();
-            $table->string('image');
-            $table->string('author', 255);
-            $table->tinyInteger('status')->lenght(1)->unsigned()->nullable();
+            $table->integer('quantity');
+            $table->decimal('price', 8, 2);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -32,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('image_slide');
+        Schema::dropIfExists('order_detail');
     }
 };

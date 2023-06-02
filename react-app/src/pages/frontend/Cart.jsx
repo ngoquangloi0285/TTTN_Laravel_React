@@ -1,11 +1,14 @@
 import React, { useEffect } from 'react'
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart, clearCart, decreaseCart, getTotals, removeFromCart } from '../../state/cartSlice';
 import Meta from '../../components/frontend/Meta';
 import Maps from '../../components/frontend/Maps';
+import useAuthContext from '../../context/AuthContext';
+import { toast } from 'react-toastify';
 
 const Cart = () => {
+  const navigation = useNavigate();
   const cart = useSelector((state) => state.cart);
   const dispatch = useDispatch();
 
@@ -31,15 +34,24 @@ const Cart = () => {
     const discountedPrice = price - discountAmount;
     return discountedPrice;
   }
+  const { currentUser } = useAuthContext();
+  const handleCheckUser = () => {
+    if (!currentUser) {
+      toast.error('Bạn cần đăng nhập để đặt hàng!')
+    }
+    else {
+      navigation('../cart/checkout');
+    }
+  }
   return (
     <>
-      <Meta title="Your Cart" />
-      <Maps title="Your Cart" />
+      <Meta title="Giỏ hàng của bạn" />
+      <Maps title="Giỏ hàng của bạn" />
       <div className="cart-container">
-        <h2>Shopping Cart</h2>
+        <h2>Giỏ hàng của bạn</h2>
         {cart.cartItems.length === 0 ? (
           <div className="cart-empty">
-            <p>Your cart is currently empty</p>
+            <p>Giỏ hàng của bạn hiện đang trống</p>
             <div className="start-shopping">
               <Link to="../store">
                 <svg
@@ -55,17 +67,17 @@ const Cart = () => {
                     d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
                   />
                 </svg>
-                <span>Start Shopping</span>
+                <span>Bắt đầu mua sắm</span>
               </Link>
             </div>
           </div>
         ) : (
           <div>
             <div className="titles">
-              <h3 className="product-title">Product</h3>
-              <h3 className="price">Price</h3>
-              <h3 className="quantity">Quantity</h3>
-              <h3 className="total">Total</h3>
+              <h3 className="product-title">Sản phẩm</h3>
+              <h3 className="price">Giá</h3>
+              <h3 className="quantity">Số lượng</h3>
+              <h3 className="total">Tổng chi sản phẩm</h3>
             </div>
             <div className="cart-items">
               {cart.cartItems &&
@@ -77,14 +89,18 @@ const Cart = () => {
                       </Link>
                       <div>
                         <h3>{cartItem.name_product}</h3>
-                        <p>{cartItem.summary}</p>
+                        <p className='m-0'>{cartItem.summary}</p>
+                        <p className='m-0'>Màu sản phẩm: <strong>{cartItem.color}</strong></p>
                         <button className='cart-remove' onClick={() => handleRemoveFromCart(cartItem)}>
-                          Remove
+                          Xóa sản phẩm này
                         </button>
                       </div>
                     </div>
                     <div className="cart-product-price">
-                      ${calculateDiscountedPrice(cartItem.price, cartItem.discount)}
+                      {calculateDiscountedPrice(cartItem.price, cartItem.discount).toLocaleString('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND'
+                      })}
                     </div>
                     <div className="cart-product-quantity">
                       <button onClick={() => handleDecreaseCart(cartItem)}>
@@ -94,24 +110,30 @@ const Cart = () => {
                       <button onClick={() => handleAddToCart(cartItem)}>+</button>
                     </div>
                     <div className="cart-product-total-price">
-                      ${calculateDiscountedPrice(cartItem.price, cartItem.discount) * cartItem.cartQuantity}
+                      {(calculateDiscountedPrice(cartItem.price, cartItem.discount) * cartItem.cartQuantity).toLocaleString('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND'
+                      })}
                     </div>
                   </div>
                 ))}
             </div>
             <div className="cart-summary">
               <button className="clear-btn cart-remove" onClick={() => handleClearCart()}>
-                Clear Cart
+                Xóa giỏ hàng
               </button>
               <div className="cart-checkout">
                 <div className="subtotal">
-                  <span>Subtotal</span>
-                  <span className="amount">${cart.cartTotalAmount}</span>
+                  <span>Tổng phụ</span>
+                  <span className="amount">{cart.cartTotalAmount.toLocaleString('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                  })}</span>
                 </div>
-                <p>Taxes and shipping calculated at checkout</p>
-                <Link to="../cart/checkout" className='cart-checkout'>
-                  Check out
-                </Link>
+                <p>Thuế và vận chuyển được tính khi thanh toán</p>
+                <button onClick={handleCheckUser} className='cart-checkout'>
+                  Thủ tục thanh toán
+                </button>
                 <div className="continue-shopping">
                   <Link to="../store">
                     <svg
@@ -127,7 +149,7 @@ const Cart = () => {
                         d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
                       />
                     </svg>
-                    <span>Continue Shopping</span>
+                    <span>Tiếp mua sắm</span>
                   </Link>
                 </div>
               </div>

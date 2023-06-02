@@ -6,7 +6,7 @@ const BlogCart = (props) => {
     const slug = props.blog;
     const [isLoading, setIsLoading] = useState(true);
 
-    console.log(slug);
+    console.log('tin tức',slug);
     const [newsList, setNewList] = useState([]);
     useEffect(() => {
         const fetchData = async () => {
@@ -14,7 +14,7 @@ const BlogCart = (props) => {
             try {
                 const { data } = await axios.get('/api/news/v1/news', {
                     params: {
-                        slug: slug,
+                        blog: slug,
                     },
                     headers: {
                         'Content-Type': 'application/json'
@@ -80,7 +80,7 @@ const BlogCart = (props) => {
                                 <p className='des'>
                                     {news.description}
                                 </p>
-                                <Link to={`../blog/${news.slug}`} className='button blog-btn'>Read More</Link>
+                                <Link to={`../blog/${news.slug}`} className='button blog-btn'>Đọc thêm</Link>
                             </div>
                         </div>
                     ))

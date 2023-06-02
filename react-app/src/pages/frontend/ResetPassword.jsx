@@ -23,7 +23,7 @@ const ResetPassword = () => {
   useEffect(() => {
     setEmail(searchParams.get('email'));
     // console.log(email)
-  }, [])
+  }, [searchParams])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -53,8 +53,8 @@ const ResetPassword = () => {
 
   return (
     <>
-      <Meta title={"Reset Password"} />
-      <Maps title="Reset Password" />
+      <Meta title={"Đặt lại mật khẩu"} />
+      <Maps title="Đặt lại mật khẩu" />
       <div className="login-wrapper py-5 home-wrapper-2">
         <div className="container-xxl">
           <div className="row">
@@ -63,20 +63,20 @@ const ResetPassword = () => {
                 {status && <div class="alert alert-success bg-success text-center" role="alert">
                   {status}
                   <div className='text-center'>
-                      Go to <Link to="../login">Login</Link>
+                      Đi đến <Link to="../login">Đăng nhập</Link>
                     </div>
                 </div>}
-                <h3 className='text-center'>Reset Password</h3>
+                <h3 className='text-center'>Đặt lại mật khẩu</h3>
                 <form action="" onSubmit={handleSubmit} className='d-flex flex-column gap-15'>
                   <div>
-                    <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" minLength="8" placeholder='New password' className="form-control" />
+                    <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" minLength="8" placeholder='Mật khẩu mới' className="form-control" />
                     {errors.password &&
                       <div className="d-flex">
                         <span className="text-error">{errors.password[0]}</span>
                       </div>}
                   </div>
                   <div>
-                    <input value={password_confirmation} onChange={(e) => setPasswordConfirmation(e.target.value)} type="password" minLength="8" placeholder='Password Confirmation' className="form-control" />
+                    <input value={password_confirmation} onChange={(e) => setPasswordConfirmation(e.target.value)} type="password" minLength="8" placeholder='Xác nhận mật khẩu' className="form-control" />
                     {errors.password_confirmation &&
                       <div className="d-flex">
                         <span className="text-error">{errors.password_confirmation[0]}</span>
@@ -86,10 +86,10 @@ const ResetPassword = () => {
                   <LoadingOverlay className='text-danger'
                       spinner
                       active={isLoading}
-                      text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
+                      text={<button type='submit' className='button btn-login text-white bg-dark'>Đang đặt lại mật khẩu...</button>
                       }
                     ></LoadingOverlay>
-                    <button type='submit' className='button btn-login'>Reset Password</button>
+                    <button type='submit' className='button btn-login'>Đặt lại mật khẩu</button>
                   </div>
                 </form>
               </div>

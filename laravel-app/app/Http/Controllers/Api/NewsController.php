@@ -22,22 +22,24 @@ class NewsController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->all()) {
+        if (isset($request['slug'])) {
             $data = $request['slug'];
             $category = Category::where('slug', $data)->first();
             if ($category) {
                 $news = News::where('category_id', $category->id)
-                    ->orderBy('created_at', 'desc')->latest()->get();
+                    ->where('status', 1)->orderBy('created_at', 'desc')->latest()->get();
                 return response()->json($news);
-            }
-            if ($request['type']) {
-                $data = $request['type'];
+            } else {
                 $news = News::where('type', $data)
-                    ->orderBy('created_at', 'desc')->latest()->get();
+                    ->where('status', 1)->orderBy('created_at', 'desc')->latest()->get();
                 return response()->json($news);
             }
         }
-        $news = News::limit(6)->orderBy('created_at', 'desc')->latest()->get();
+        if (isset($request['blog'])) {
+            $news = News::where('status', 1)->limit(4)->orderBy('created_at', 'desc')->latest()->get();
+            return response()->json($news);
+        }
+        $news = News::where('status', 1)->orderBy('created_at', 'desc')->latest()->get();
         return response()->json($news);
     }
 

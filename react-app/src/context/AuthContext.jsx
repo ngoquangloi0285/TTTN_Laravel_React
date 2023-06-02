@@ -1,13 +1,18 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
+import { useDispatch } from "react-redux";
+import { clearCart } from "../state/cartSlice";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     // const [user, setUser] = useState(null);
     const [currentUser, setCurrentUser] = useState(null);
-
+    const dispatch = useDispatch();
+    const handleClearCart = () => {
+        dispatch(clearCart());
+    };
     const [errors, setErrors] = useState({});
     const [status, setStatus] = useState([]);
 
@@ -80,6 +85,7 @@ export const AuthProvider = ({ children }) => {
         try {
             await axios.post('/logout');
             setCurrentUser(null);
+            // handleClearCart();
             navigate("/login");
         } catch (error) {
             console.log(error);

@@ -70,6 +70,34 @@ const Header = () => {
     fetchData();
   }, []);
 
+  const renderCategory = (category) => {
+    return (
+      <li key={category.id} className="dropdown-submenu">
+        <Link to={`../category/${category.slug}`} className="dropdown-item dropdown-toggle text-dark" href="#">
+          {category.name_category}
+        </Link>
+        {category.children.length > 0 && (
+          <ul className="dropdown-menu">
+            {category.children.map((subcategory) => (
+              <li key={subcategory.id}>
+                <Link to={`../category/${subcategory.slug}`} className="dropdown-item text-dark" href="#">
+                  {subcategory.name_category}
+                </Link>
+                {/* Sử dụng đệ quy */}
+                {subcategory.children.length > 0 && renderCategory(subcategory)}
+              </li>
+            ))}
+          </ul>
+        )}
+      </li>
+
+    );
+  };
+
+  // Loại bỏ các category trùng lặp
+  const uniqueCategories = Array.from(new Set(categoryList.map((category) => category.id))).map((id) => {
+    return categoryList.find((category) => category.id === id);
+  });
 
   return (
     <>
@@ -81,17 +109,17 @@ const Header = () => {
           <div className="row">
             <div className="col-6">
               {
-                currentUser ? <h5 className="mb-0 text-warning">
-                  Welcome to Our web page!
+                currentUser ? <h5 className="mb-0">
+                  Chào mứng Bạn đến với E-Mart
                 </h5> :
                   <h5 className="mb-0 text-warning">
-                    Bạn chưa đặng nhập!
+                    Vui lòng đăng nhập để mua sắm cùng E-Mart
                   </h5>
               }
             </div>
             <div className="col-6">
               <p className="text-end text-white mb-0">
-                Hotline:
+                Liên hệ:
                 <a className="text-white" href="tel: 0382983095">
                   (+84) 0382983095
                 </a>
@@ -109,10 +137,10 @@ const Header = () => {
             <div className="col-2">
               <Link to="/" className="text-white">
                 <h2 className="mb-0 header-link d-flex align-items-between">
-                  <BsShop style={{
+                  {/* <BsShop style={{
                     fontSize: '3rem'
-                  }} />
-                  E-Shop</h2>
+                  }} /> */}
+                  E-Mart</h2>
               </Link>
             </div>
             <div className="col-6">
@@ -140,26 +168,25 @@ const Header = () => {
                             </span>
                           </button>
                           <ul className="dropdown-menu">
-
                             <li>
                               <Link to="../profile" className="dropdown-item">
-                                Profile <MdSwitchAccount className="icon-item" />
+                                Thông tin người dùng <MdSwitchAccount className="icon-item" />
                               </Link>
                             </li>
                             <li>
                               <Link className="dropdown-item" to="#">
-                                Order <BsCartCheck className="icon-item" />
+                                Đơn hàng <BsCartCheck className="icon-item" />
                               </Link>
                             </li>
                             <li>
                               <Link className="dropdown-item" to="change-password">
-                                Change Password <RiAccountCircleLine className="icon-item" />
+                                Thay đổi mật khẩu <RiAccountCircleLine className="icon-item" />
                               </Link>
                             </li>
                             {currentUser?.roles === "admin" ? (
                               <li>
                                 <Link className="dropdown-item" to="admin">
-                                  Dashboard <AiOutlineDashboard className="icon-item" />
+                                  Trang quản trị <AiOutlineDashboard className="icon-item" />
                                 </Link>
                               </li>
                             ) : (
@@ -174,8 +201,8 @@ const Header = () => {
                       </>) :
                         (
                           <>
-                            <Link className="text-white header-link" to="login">Login</Link> / <br />
-                            <Link className="text-white header-link" to="signup">Register</Link>
+                            <Link className="text-white header-link" to="login">Đăng nhập</Link> / <br />
+                            <Link className="text-white header-link" to="signup">Đăng kí tài khoản</Link>
                           </>
                         )}
                     </p>
@@ -186,7 +213,10 @@ const Header = () => {
                     <img src="images/cart.svg" alt="cart" />
                     <div className="d-flex flex-column gap-10">
                       <span className="badge bg-white text-dark fs-6">{uniqueItemCount}</span>
-                      <p className="mb-0 header-link">${cart.cartTotalAmount}</p>
+                      <p className="mb-0 header-link">{cart.cartTotalAmount.toLocaleString('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND'
+                      })}</p>
                     </div>
                   </Link>
                 </div>
@@ -206,25 +236,10 @@ const Header = () => {
                 <div>
                   <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle bg-transparent border-0 gap-15 d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      <span class="me-5 d-inline-block header-link">Shop Categories</span>
+                      <span class="me-5 d-inline-block header-link">Danh mục</span>
                     </button>
-                    <ul class="dropdown-menu">
-                      {categoryList.map((category) => (
-                        <li key={category.id} class="dropdown-submenu">
-                          <Link to={`../category/${category.slug}`} class="dropdown-item dropdown-toggle text-dark" href="#">{category.name_category}</Link>
-                          {category.children.length > 0 && (
-                            <ul class="dropdown-menu">
-                              {category.children.map((subcategory) => (
-                                <li key={subcategory.id}>
-                                  <Link to={`../category/${subcategory.slug}`} class="dropdown-item text-dark" href="#">
-                                    {subcategory.name_category}
-                                  </Link>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                        </li>
-                      ))}
+                    <ul className="dropdown-menu">
+                      {uniqueCategories.map((category) => renderCategory(category))}
                     </ul>
                   </div>
                 </div>
@@ -234,10 +249,10 @@ const Header = () => {
                     {
                       isLoading ?
                         <>
-                          <NavLink className="header-link" to="/">Home</NavLink>
-                          <NavLink className="header-link" to="store">Our Store</NavLink>
-                          <NavLink className="header-link" to="contact">Contact</NavLink>
-                          <NavLink className="header-link" to="blog">Blog</NavLink>
+                          <NavLink className="header-link" to="/">Trang chủ</NavLink>
+                          <NavLink className="header-link" to="store">Cửa hàng</NavLink>
+                          <NavLink className="header-link" to="contact">Liên hệ với chúng tôi</NavLink>
+                          <NavLink className="header-link" to="blog">Tin tức</NavLink>
                         </>
                         :
                         menuList.map(menu => (

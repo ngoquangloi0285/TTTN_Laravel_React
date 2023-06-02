@@ -2,15 +2,12 @@ import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import Home from './pages/frontend/Home'
 import OurStore from './pages/frontend/OurStore'
-import About from './pages/frontend/About'
 import Contact from './pages/frontend/Contact'
 import Blog from './pages/frontend/Blog'
-import CompareProduct from './pages/frontend/CompareProduct'
 import NotFound from './pages/NotFound';
 import Dashboard from './components/backend/Dashboard'
 import Login from './pages/frontend/Login'
 import Signup from './pages/frontend/SingUp'
-import Wishlist from './pages/frontend/Wishlist'
 import Forgotpassword from './pages/frontend/Forgotpassword'
 import ResetPassword from './pages/frontend/ResetPassword'
 import AuthLayout from './Layout/AuthLayout';
@@ -55,7 +52,6 @@ import CreateContact from './pages/backend/Contact/CreateContact';
 import TrashContact from './pages/backend/Contact/Trash';
 // Slide 
 import Slide from './pages/backend/Slide/Slide'
-import LoginAdmin from './components/backend/LoginAdmin';
 import Cart  from './pages/frontend/Cart';
 import { SearchProduct } from './components/frontend/Search';
 import SlugProduct from './pages/frontend/SlugProduct';
@@ -72,20 +68,19 @@ function App(props) {
         <Route path='/' element={<Shop />}>
           <Route index element={<Home />} />
 
-          <Route path='about' element={<About />} />
           <Route path='contact' element={<Contact />} />
           <Route path='blog' element={<Blog />} />
           <Route path='blog/:slug' element={<BlogSlugPage />} />
           <Route path='blog/category/:slug' element={<Blog />} />
           <Route path='blog/other-news/:slug' element={<Blog />} />
           <Route path="store" element={<OurStore />} />
-          <Route path="compare-product" element={<CompareProduct />} />
-          <Route path="wishlist" element={<Wishlist />} />
           <Route path="change-password" element={<ChangePasswordForm />} />
           <Route path="cart" element={<Cart />} />
           <Route path="cart/checkout" element={<CartCheckOut />} />
-          <Route path='category/:slug' element={<SlugProduct />} />
-          <Route path='brand-product/:slug' element={<SlugProduct />} />
+          {/* <Route path='category/:slug' element={<SlugProduct />} /> */}
+          <Route path='category/:slug' element={<OurStore />} />
+          {/* <Route path='brand-product/:slug' element={<SlugProduct />} /> */}
+          <Route path='brand-product/:slug' element={<OurStore />} />
           <Route path="search/:keyword" element={<OurStore />} />
           <Route path="product/color/:slug" element={<OurStore />} />
           <Route path="product/inch/:slug" element={<OurStore />} />
@@ -102,7 +97,6 @@ function App(props) {
 
 
         <Route path='/' element={<AuthLayout />}>
-          <Route path="admin/login" element={<LoginAdmin />} />
           <Route path="admin" element={<MasterLayout />} >
             {/* Product */}
             <Route path="product" element={<Product />} />

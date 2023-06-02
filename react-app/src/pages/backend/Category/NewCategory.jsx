@@ -180,6 +180,7 @@ const NewCategory = () => {
                 Swal.fire('Create new Category successfully!', response.data.message, 'success');
             }
             ClearUp();
+            fetchCategory();
         } catch (error) {
             setIsLoading(false);
             // Nếu xảy ra lỗi, hiển thị thông báo lỗi

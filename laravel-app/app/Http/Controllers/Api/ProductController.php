@@ -29,73 +29,70 @@ class ProductController extends Controller
         // tìm kiếm sản phẩm
         if (isset($params['search'])) {
             $searchTerm = $params['search'];
-            $products = Product::where('name_product', 'like', "%{$searchTerm}%")->get();
+            $products = Product::where('status', 1)
+                ->where('name_product', 'like', "%{$searchTerm}%")
+                ->get();
         }
         // lọc sản phẩm
         elseif ($filter === 'bestSelling') {
-            $products = Product::orderBy('sales', 'desc')->get();
+            $products = Product::orderBy('sales', 'desc')->where('status', 1)->get();
         } elseif ($filter === 'lowToHigh') {
-            $products = Product::orderBy('price', 'asc')->get();
+            $products = Product::orderBy('price', 'asc')->where('status', 1)->get();
         } elseif ($filter === 'highToLow') {
-            $products = Product::orderBy('price', 'desc')->get();
+            $products = Product::orderBy('price', 'desc')->where('status', 1)->get();
         } elseif ($filter === 'oldToNew') {
-            $products = Product::orderBy('created_at', 'asc')->get();
+            $products = Product::orderBy('created_at', 'asc')->where('status', 1)->get();
         } elseif ($filter === 'newToOld') {
-            $products = Product::orderBy('created_at', 'desc')->get();
+            $products = Product::orderBy('created_at', 'desc')->where('status', 1)->get();
         }
         // tiềm kiếm sản phẩm theo slug với category_id
         else if (isset($params['slug'])) {
-            $category = Category::where('slug', $params['slug'])->first();
-            $brand = Brand::where('slug', $params['slug'])->first();
-
-            $option = Options::where('color', $params['slug'])
-                ->orWhere('inch', $params['slug'])
-                ->get();
-            $idProductOption = $option->pluck('product_id')->toArray();
+            $category = Category::where('slug', $params['slug'])->where('status', 1)->first();
+            $brand = Brand::where('slug', $params['slug'])->where('status', 1)->first();
 
             if ($category) {
                 // Lấy ra tất cả sản phẩm có category_id trùng khớp
                 $products = Product::where('category_id', $category->id)
-                    ->get();
+                    ->where('status', 1)->get();
             } else if ($brand) {
                 // Lấy ra tất cả sản phẩm có brand_id trùng khớp
                 $products = Product::where('brand_id', $brand->id)
-                    ->get();
-            } else {
-                // Lấy ra tất cả sản phẩm tương ứng với idProductOption
-                $products = Product::whereIn('id', $idProductOption)->get();
+                    ->where('status', 1)->get();
+            } else if ($params['slug']) {
+                // Lấy ra tất cả sản phẩm có color trùng khớp với 'red'
+                $products = Product::where('color', $params['slug'])
+                    ->where('status', 1)->get();
+            } else if ($params['slug']) {
+                // Lấy ra tất cả sản phẩm có color trùng khớp với 'red'
+                $products = Product::where('inch', $params['slug'])
+                    ->where('status', 1)->get();
             }
         }
 
         // Load sản phẩm mới và sản phẩm giảm giá
-        else if (isset($params['newProduct']) && isset($params['saleProduct'])) {
-            $type = isset($params['newProduct']) ? $params['newProduct'] : $params['saleProduct'];
-
-            $products = Product::where('type', $type)
-                ->limit(8)
+        else if (isset($params['newProduct'])) {
+            $type = $params['newProduct'];
+            $products = Product::limit(9)
+                ->where('status', 1)
                 ->orderBy('created_at', 'desc')->latest()->get();
         }
         // sản phẩm gợi ý random
         else if (isset($params['suggestion'])) {
             $products = Product::inRandomOrder()
-                ->limit(12) // Số lượng sản phẩm gợi ý muốn lấy (có thể điều chỉnh tùy ý)
+                ->where('status', 1)
+                ->limit(9) // Số lượng sản phẩm gợi ý muốn lấy (có thể điều chỉnh tùy ý)
                 ->get();
         }
         // sản phẩm đặt biệt
         else if (isset($params['product_special'])) {
             $products = Product::where('type', '=', $params['product_special'])
+                ->where('status', 1)
                 ->inRandomOrder()
-                ->limit(10) // Số lượng sản phẩm gợi ý muốn lấy (có thể điều chỉnh tùy ý)
-                ->get();
-        }
-        // random product
-        else if (isset($params['random'])) {
-            $products = Product::where('type', 'product_sale')
-                ->inRandomOrder()
-                ->limit(3)
+                ->orderBy('price', 'asc') // Sắp xếp theo giá thấp
+                ->limit(9) // Số lượng sản phẩm gợi ý muốn lấy (có thể điều chỉnh tùy ý)
                 ->get();
         } else
-            $products = Product::get();
+            $products = Product::where('status', '1')->get();
 
         return response()->json($products);
     }
@@ -208,7 +205,7 @@ class ProductController extends Controller
     {
         return $product;
     }
-    
+
     public function product_detail(Request $request)
     {
         $data = $request['slug'];

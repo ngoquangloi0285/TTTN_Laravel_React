@@ -17,9 +17,6 @@ class CountDownController extends Controller
             $id = $request('id');
             $countdown= CountDown::findOrFail($id);
             return $countdown;
-        } else {
-            $countdown = CountDown::get();
-            return response()->json($countdown);
         }
     }
 

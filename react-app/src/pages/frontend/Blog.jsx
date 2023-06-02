@@ -9,14 +9,14 @@ import './blog.css'
 
 const Blog = () => {
   const { slug } = useParams();
-  console.log(slug)
+  console.log(slug);
   const [categoryList, setCategoryList] = useState([]);
   const [newsList, setNewsList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [categoryMap, setCategoryMap] = useState({});
   const [filter, setFilter] = useState('');
-  const type = "other_news";
-
+  const typeNews = 'other_news';
+  
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -25,7 +25,6 @@ const Blog = () => {
         axios.get('/api/news/v1/news', {
           params: {
             slug: slug,
-            type: type,
           },
           headers: {
             'Content-Type': 'application/json'
@@ -33,36 +32,37 @@ const Blog = () => {
         }),
       ]);
 
-      const categoryMap = {};
-      const categoryList = categoryResponse.data;
-
-      categoryList.forEach((category) => {
-        categoryMap[category.id] = category;
-        category.children = []; // Thêm thuộc tính children cho mỗi category
+      const newCategoryMap = {};
+      categoryResponse.data.forEach((category) => {
+        newCategoryMap[category.id] = category.name_category;
       });
 
-      const categoryTree = [];
-      categoryList.forEach((category) => {
+      const newCategoryList = categoryResponse.data.map((category) => ({
+        ...category,
+        children: []
+      }));
+
+      categoryResponse.data.forEach((category) => {
         if (category.parent_category) {
-          // Nếu category có parent_category, thêm nó vào danh sách con của category cha tương ứng
-          categoryMap[category.parent_category].children.push(category);
-        } else {
-          // Nếu không có parent_category, nó là category gốc, thêm vào danh sách gốc
-          categoryTree.push(category);
+          const parentCategory = newCategoryList.find((c) => c.id === category.parent_category);
+          if (parentCategory) {
+            parentCategory.children.push(category);
+          }
         }
       });
 
-      setCategoryList(categoryTree);
+      setCategoryList(newCategoryList);
       setNewsList(newsResponse.data);
       console.log(newsResponse.data);
-      setCategoryMap(categoryMap);
-
+      setCategoryMap(newCategoryMap);
       setIsLoading(false);
     } catch (error) {
       console.log(error);
       setIsLoading(false);
     }
   }, [slug]);
+
+  console.log('category tin tuc', categoryList);
 
   useEffect(() => {
     fetchData();
@@ -87,22 +87,28 @@ const Blog = () => {
             <div className="col-3">
               <div className="filter-card mb-3">
                 <h3 className="filter-title">
-                  Find By Categories
+                  Tìm tin tức theo danh mục
                 </h3>
                 <div className='container'>
                   <div className="row filter-mx">
                     <div className="col-12 blog-category">
                       <ul className="ps-0 menu">
-                        {categoryList.map((category) => (
+                        {categoryList.filter(category => category.parent_category === 0).map((category) => (
                           <li key={category.id}>
-                            <Link value={filter} onChange={(e) => setFilter(e.target.value)}
+                            <Link
+                              value={filter}
+                              onChange={(e) => setFilter(e.target.value)}
                               to={`../blog/category/${category.slug}`}
-                            >{category.name_category}</Link>
-                            {category.children.length > 0 && (
+                            >
+                              {category.name_category}
+                            </Link>
+                            {/* {category.children.length > 0 && (
                               <ul>
                                 {category.children.map((subcategory) => (
                                   <li key={subcategory.id}>
-                                    <Link value={filter} onChange={(e) => setFilter(e.target.value)}
+                                    <Link
+                                      value={filter}
+                                      onChange={(e) => setFilter(e.target.value)}
                                       to={`../blog/category/${subcategory.slug}`}
                                     >
                                       {subcategory.name_category}
@@ -110,12 +116,12 @@ const Blog = () => {
                                   </li>
                                 ))}
                               </ul>
-                            )}
+                            )} */}
                           </li>
                         ))}
                         <li>
                         </li>
-                        <li><Link to={`../blog/other-news/${type}`}>Other News</Link></li>
+                        <li><Link to={`../blog/other-news/${typeNews}`}>Tin tức khác</Link></li>
                       </ul>
                     </div>
                   </div>
@@ -159,6 +165,9 @@ const Blog = () => {
                           </div>
                         </div>
                         <div className='blog-content'>
+                          <p className="text-dark m-0">
+                            {categoryMap[news.category_id]}
+                          </p>
                           <p className='date'>{format(new Date(news.created_at), "d MMM, yyyy")}</p>
                           <h5 className='title'>
                             {news.title_news}
@@ -166,14 +175,14 @@ const Blog = () => {
                           <p className='des'>
                             {news.description}
                           </p>
-                          <Link to={`../blog/${news.slug}`} className='button blog-btn'>Read More</Link>
+                          <Link to={`../blog/${news.slug}`} className='button blog-btn'>Đọc thêm</Link>
                         </div>
                       </div>
                     ))
                   )
                 }
                 {
-                  newsList.length === 0 && <h1>No news!</h1>
+                  newsList.length === 0 && <h1>Không có tin tức!</h1>
                 }
               </div>
             </div>

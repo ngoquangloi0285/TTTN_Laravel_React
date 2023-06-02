@@ -11,7 +11,7 @@ function Navbar() {
                         <Link className="nav-link" data-widget="pushmenu" href="#" role="button"><i className="fas fa-bars" /></Link>
                     </li>
                     <li className="nav-item d-none d-sm-inline-block">
-                        <Link to="/" className="nav-link">Back Your Shop</Link>
+                        <Link to="/" className="nav-link">Trở về cửa hàng E-Mart</Link>
                     </li>
                 </ul>
             </nav>

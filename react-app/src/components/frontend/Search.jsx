@@ -28,8 +28,8 @@ const Search = () => {
             }}
             type="text"
             className="form-control py-2"
-            placeholder="Search Product Here..."
-            aria-label="Search Product Here..."
+            placeholder="Tìm kiếm sản phẩm..."
+            aria-label="Tìm kiếm sản phẩm..."
             aria-describedby="basic-addon2"
             onChange={(e) => setKeyWord(e.target.value)}
           />

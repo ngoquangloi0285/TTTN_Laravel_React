@@ -16,7 +16,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2';
 
 const NewProduct = () => {
-    const { user } = useAuthContext();
+    const { currentUser } = useAuthContext();
     const [categories, setCategories] = useState([]);
     const [brands, setBrands] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -186,7 +186,11 @@ const NewProduct = () => {
         }
     };
 
+    const [showDateTimeFields, setShowDateTimeFields] = useState(false);
 
+    const handleEndDateChange = (e) => {
+        setShowDateTimeFields(e.target.checked);
+    };
     // Xử lý khi người dùng ấn nút Submit
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -241,32 +245,34 @@ const NewProduct = () => {
                 newErrors.discount = "Giảm giá phải nhỏ hơn hoặc bằng 100.";
             }
         }
-        if (!color) {
-            newErrors.color = "Vui lòng nhập màu.";
-        }
-        if (!inch) {
-            newErrors.inch = "Vui lòng số icnh.";
-        }
+        // if (color) {
+        //     newErrors.color = "Vui lòng nhập màu.";
+        // }
         if (isNaN(inch)) {
             newErrors.inch = "Inch phải là số.";
         }
+        
 
         const nowDate = moment().tz(moment.tz.guess());
         const startDate = moment(startTime + ':00.000Z').tz(moment.tz.guess());
         const endDate = moment(endTime + ':00.000Z').tz(moment.tz.guess());
 
-        if (startDate < nowDate.startOf('day')) {
-            newErrors.startTime = 'Start time phải là ngày hiện tại hoặc sau ngày hiện tại.';
+        if (showDateTimeFields) {
+
+            if (startDate < nowDate.startOf('day')) {
+                newErrors.startTime = 'Start time phải là ngày hiện tại hoặc sau ngày hiện tại.';
+            }
+            if (endDate <= nowDate) {
+                newErrors.endTime = 'Ngày kết thúc không được nhỏ hơn ngày hiện tại.';
+            } else if (endDate.diff(startDate, 'days') > 30) {
+                newErrors.endTime = 'Ngày kết thúc không được quá 1 tháng so với ngày bắt đầu.';
+            } else if (endDate <= startDate) {
+                newErrors.endTime = 'Ngày kết thúc không được nhỏ hơn hoặc bằng ngày bắt đầu.';
+            } else if (endDate.isSame(startDate)) {
+                newErrors.endTime = 'Ngày kết thúc không được bằng với ngày bắt đầu.';
+            }
         }
-        if (endDate <= nowDate) {
-            newErrors.endTime = 'End time không được nhỏ hơn ngày hiện tại.';
-        } else if (endDate.diff(startDate, 'days') > 30) {
-            newErrors.endTime = 'End time không được quá 1 tháng so với start time.';
-        } else if (endDate <= startDate) {
-            newErrors.endTime = 'End time không được nhỏ hơn hoặc bằng Start time.';
-        } else if (endDate.isSame(startDate)) {
-            newErrors.endTime = 'End time không được bằng với start time.';
-        }
+
         if (!content) {
             newErrors.content = "Vui lòng nhập chi tiết sản phẩm.";
         }
@@ -295,11 +301,11 @@ const NewProduct = () => {
         formData.append('costProduct', costProduct);
         formData.append('priceSale', priceSale);
         formData.append('discount', discount ? discount : '');
-        formData.append('color', color);
-        formData.append('inch', inch);
+        formData.append('color', color ? color : '');
+        formData.append('inch', inch ? inch : '');
         formData.append('type', type);
-        formData.append('start_time', startTime);
-        formData.append('end_time', endTime);
+        formData.append('start_time', startTime ? startTime : '');
+        formData.append('end_time', endTime ? endTime : '');
         formData.append('detail', content);
         formData.append('status', status);
         // quét files images
@@ -362,26 +368,26 @@ const NewProduct = () => {
                         <div className="col-12">
                             <div className='d-flex align-items-center justify-content-center'>
                                 <div className="mb-2 text-center">
-                                    <label className='form-label fw-bold' htmlFor="author">Author: <span className='text-danger'>{user?.name}</span></label>
+                                    <label className='form-label fw-bold' htmlFor="author">Tác giả: <span className='text-danger'>{currentUser?.name}</span></label>
                                 </div>
                             </div>
                             <button className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
                                 <IoCreateOutline className='fs-4' />
-                                Create new product
+                                Tạo
                             </button>
                             <Link to="../product" className="btn btn-info text-white mr-2" type="button">
                                 <AiOutlineRollback className='fs-4' />
-                                Back Product
+                                Quay về
                             </Link>
 
                         </div>
-                        <div className="col-3">
-                            <div className="mb-2">
-                                <label className='form-label fw-bold' htmlFor="nameproduct">Name Product:</label>
+                        <div className="col-3 mt-2">
+                            <div className="">
+                                <label className='form-label fw-bold' htmlFor="nameproduct">Tên sản phẩm:</label>
                                 <input
                                     value={nameProduct}
                                     onChange={(e) => setNameProduct(e.target.value)}
-                                    className='form-control' id='nameProduct' type="text" placeholder='Enter Product Name' />
+                                    className='form-control' id='nameProduct' type="text" placeholder='Samsung Galaxy A24' />
                                 {errors.nameProduct && (
                                     <div className="alert alert-danger" role="alert">
                                         {errors.nameProduct}
@@ -389,14 +395,14 @@ const NewProduct = () => {
                                 )}
                             </div>
 
-                            <label className='form-label fw-bold' htmlFor="category">Category Product:</label>
+                            <label className='form-label fw-bold' htmlFor="category">Danh mục:</label>
                             {showCategoryToast && (
                                 <Toast bg="warning" delay={5000} autohide onClose={() => setShowCategoryToast(false)} style={{ width: "100%", height: "50px" }}>
-                                    <Toast.Body className='my-toast fw-bold fs-6'>Category has no data</Toast.Body>
+                                    <Toast.Body className='my-toast fw-bold fs-6'>Danh mục không có dữ liệu</Toast.Body>
                                 </Toast>
                             )}
                             <select className="form-select mb-2" id='category' aria-label="Default select example">
-                                <option value="" selected>Select Category</option>
+                                <option value="" selected>Chọn danh mục</option>
                                 {categories.map(category => (
                                     <option key={category.id} value={category.id}>{category.name_category}</option>
                                 ))}
@@ -407,15 +413,15 @@ const NewProduct = () => {
                                 </div>
                             )}
 
-                            <label className='form-label fw-bold' htmlFor="brand">Brand Product:</label>
+                            <label className='form-label fw-bold' htmlFor="brand">Thương hiệu:</label>
                             {showBrandToast && (
                                 <Toast bg="warning" delay={5000} autohide onClose={() => setShowBrandToast(false)} style={{ width: "100%", height: "50px" }}>
-                                    <Toast.Body className='my-toast fw-bold fs-6'>Brand has no data</Toast.Body>
+                                    <Toast.Body className='my-toast fw-bold fs-6'>Thương hiệu không có dữ liệu</Toast.Body>
                                 </Toast>
                             )}
 
                             <select className="form-select mb-2" id="brand" aria-label="Default select example">
-                                <option value="" selected>Select Brand</option>
+                                <option value="" selected>Chọn thương hiệu</option>
                                 {brands.map(brand => (
                                     <option key={brand.id} value={brand.id}>{brand.name}</option>
                                 ))}
@@ -426,13 +432,13 @@ const NewProduct = () => {
                                 </div>
                             )}
 
-                            <label className='form-label fw-bold' htmlFor="summary">Summary:</label>
+                            <label className='form-label fw-bold' htmlFor="summary">Tóm tắt:</label>
                             <div className="form-floating mb-2">
                                 <textarea className="form-control"
                                     value={summary}
                                     onChange={(e) => setSummary(e.target.value)}
                                     placeholder="Leave a comment here" id="summary"></textarea>
-                                <label for="summary">Summary:</label>
+                                <label for="summary">Tóm tắt:</label>
                                 {errors.summary && (
                                     <div className="alert alert-danger" role="alert">
                                         {errors.summary}
@@ -444,11 +450,11 @@ const NewProduct = () => {
                             <div className="row">
                                 <div className="col-4">
                                     <div className="mb-2">
-                                        <label className='form-label fw-bold' htmlFor="costProduct">Cost (giá góc):</label>
+                                        <label className='form-label fw-bold' htmlFor="costProduct">Giá góc:</label>
                                         <input className='form-control'
                                             value={costProduct}
                                             onChange={(e) => setCostProduct(e.target.value)}
-                                            id='costProduct' type="text" placeholder='Enter cost' />
+                                            id='costProduct' type="text" placeholder='899' />
                                         {errors.costProduct && (
                                             <div className="alert alert-danger"
                                                 style={
@@ -462,11 +468,11 @@ const NewProduct = () => {
                                 </div>
                                 <div className="col-4">
                                     <div className="mb-2">
-                                        <label className='form-label fw-bold' htmlFor="priceSale">Price (giá bán):</label>
+                                        <label className='form-label fw-bold' htmlFor="priceSale">Giá bán:</label>
                                         <input className='form-control'
                                             value={priceSale}
                                             onChange={(e) => setPriceSale(e.target.value)}
-                                            id='priceSale' type="text" placeholder='Enter price' />
+                                            id='priceSale' type="text" placeholder='899' />
                                         {errors.priceSale && (
                                             <div className="alert alert-danger"
                                                 style={
@@ -480,12 +486,12 @@ const NewProduct = () => {
                                 </div>
                                 <div className="col-4">
                                     <div className="mb-2">
-                                        <label className='form-label fw-bold' htmlFor="discount">Discount(%):</label>
+                                        <label className='form-label fw-bold' htmlFor="discount">Giảm giá(%):</label>
                                         <input className='form-control'
                                             value={discount}
                                             // onChange={(e) => setDiscount(e.target.value)}
                                             onChange={handleDiscountChange}
-                                            id='discount' maxLength={3} type="text" placeholder='Enter discount %' />
+                                            id='discount' maxLength={3} type="text" placeholder='10%' />
                                         {errors.discount && (
                                             <div className="alert alert-danger"
                                                 style={
@@ -498,14 +504,13 @@ const NewProduct = () => {
                                     </div>
                                 </div>
                             </div>
-                            {/* <label className='form-label fw-bold' htmlFor="floatingTextarea">Options:</label> */}
                             <div className="row">
-                                <div className="col-4">
-                                    <label className='form-label fw-bold' htmlFor="color">Color:</label>
+                                <div className="col-6">
+                                    <label className='form-label fw-bold' htmlFor="color">Màu sản phẩm:</label>
                                     <input className='form-control'
                                         value={color}
                                         onChange={(e) => setColor(e.target.value)}
-                                        id='color' type="text" placeholder='Enter color' />
+                                        id='color' type="text" placeholder='Red' />
                                     {errors.color && (
                                         <div className="alert alert-danger"
                                             style={
@@ -516,12 +521,12 @@ const NewProduct = () => {
                                         </div>
                                     )}
                                 </div>
-                                <div className="col-4">
-                                    <label className='form-label fw-bold' htmlFor="inch">Inch:</label>
+                                <div className="col-6">
+                                    <label className='form-label fw-bold' htmlFor="inch">Kích thước sản phẩm(inch):</label>
                                     <input className='form-control'
                                         value={inch}
                                         onChange={(e) => setInch(e.target.value)}
-                                        id='inch' type="text" placeholder='Enter inch' />
+                                        id='inch' type="text" placeholder='7' />
                                     {errors.inch && (
                                         <div className="alert alert-danger"
                                             style={
@@ -532,72 +537,70 @@ const NewProduct = () => {
                                         </div>
                                     )}
                                 </div>
-                                {/* <div className="col-4">
-                                    <label className='form-label fw-bold' htmlFor="inch">Total:</label>
-                                    <input className='form-control'
-                                        value={total}
-                                        onChange={(e) => setTotal(e.target.value)}
-                                        id='total' type="text" placeholder='Enter total' />
-                                    {errors.total && (
-                                        <div className="alert alert-danger"
-                                            style={
-                                                { fontSize: '14px' }
-                                            }
-                                            role="alert">
-                                            {errors.total}
-                                        </div>
-                                    )}
-                                </div> */}
                                 <div className="row my-2">
-                                    <div className="col-6">
+                                    <div className="col-12">
                                         <div className="mb-2">
-                                            <label className='form-label fw-bold' htmlFor="startTime">Start Time:</label>
+                                            <label className='form-label fw-bold' htmlFor="endDate">Chọn ngày kết thúc bán sản phẩm:</label>
                                             <input
-                                                className='form-control'
-                                                value={startTime}
-                                                onChange={(e) => setStartTime(e.target.value)}
-                                                id='startTime'
-                                                type="datetime-local"
+                                                onChange={handleEndDateChange}
+                                                id='endDate'
+                                                type="checkbox"
                                             />
-                                            {errors.startTime && (
-                                                <div
-                                                    className="alert alert-danger"
-                                                    style={{
-                                                        fontSize: '14px'
-                                                    }}
-                                                    role="alert"
-                                                >
-                                                    {errors.startTime}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="col-6">
-                                        <div className="mb-2">
-                                            <label className='form-label fw-bold' htmlFor="endTime">End Time:</label>
-                                            <input
-                                                className='form-control'
-                                                value={endTime}
-                                                onChange={(e) => setEndTime(e.target.value)}
-                                                id='endTime'
-                                                type="datetime-local"
-                                            />
-                                            {errors.endTime && (
-                                                <div
-                                                    className="alert alert-danger"
-                                                    style={{
-                                                        fontSize: '14px'
-                                                    }}
-                                                    role="alert"
-                                                >
-                                                    {errors.endTime}
-                                                </div>
-                                            )}
                                         </div>
                                     </div>
                                 </div>
+                                {showDateTimeFields && (
+                                    <div className="row">
+                                        <div className="col-6">
+                                            <div className="mb-2">
+                                                <label className='form-label fw-bold' htmlFor="startTime">Ngày bắt đầu:</label>
+                                                <input
+                                                    className='form-control'
+                                                    value={startTime}
+                                                    onChange={(e) => setStartTime(e.target.value)}
+                                                    id='startTime'
+                                                    type="datetime-local"
+                                                />
+                                                {errors.startTime && (
+                                                    <div
+                                                        className="alert alert-danger"
+                                                        style={{
+                                                            fontSize: '14px'
+                                                        }}
+                                                        role="alert"
+                                                    >
+                                                        {errors.startTime}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="col-6">
+                                            <div className="mb-2">
+                                                <label className='form-label fw-bold' htmlFor="endTime">Ngày kết thúc:</label>
+                                                <input
+                                                    className='form-control'
+                                                    value={endTime}
+                                                    onChange={(e) => setEndTime(e.target.value)}
+                                                    id='endTime'
+                                                    type="datetime-local"
+                                                />
+                                                {errors.endTime && (
+                                                    <div
+                                                        className="alert alert-danger"
+                                                        style={{
+                                                            fontSize: '14px'
+                                                        }}
+                                                        role="alert"
+                                                    >
+                                                        {errors.endTime}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                            <label className='form-label fw-bold' htmlFor="detail">Detail:</label>
+                            <label className='form-label fw-bold' htmlFor="detail">Chi tiết sản phẩm:</label>
                             {errors.content && (
                                 <div className="alert alert-danger"
                                     style={
@@ -614,7 +617,7 @@ const NewProduct = () => {
                             </div>
                         </div>
                         <div className="col-4">
-                            <label className='form-label fw-bold' htmlFor="detail">Upload Image:</label>
+                            <label className='form-label fw-bold' htmlFor="detail">Thêm ảnh:</label>
                             <input className='form-control' name='file[]' id='file' type="file" multiple onChange={handleUpload} />
                             {errors.files && (
                                 <div className="alert alert-danger"
@@ -632,23 +635,23 @@ const NewProduct = () => {
                             {
                                 files.length > 0 &&
                                 <div className="col-6">
-                                    <button className="btn btn-danger d-flex text-white mx-2" type="button" onClick={ClearUpPhotos}>
+                                    <button className="btn btn-danger d-flex text-white my-2" type="button" onClick={ClearUpPhotos}>
                                         <AiOutlineClear className='fs-4' />
-                                        Clean up photos
+                                        Xóa hình ảnh
                                     </button>
                                 </div>
                             }
                             <br />
-                            <label className='form-label fw-bold' htmlFor="status">Type:</label>
+                            <label className='form-label fw-bold' htmlFor="status">Loại sản phẩm được đăng:</label>
                             <select className="form-select mb-2" id="type" aria-label="Default select example"
                                 value={statusType}
                                 onChange={(e) => setStatusType(e.target.value)}
                             >
-                                <option value="new_product" selected>New Product</option>
+                                <option value="new_product" selected>Sản phẩm mới</option>
                                 {discount &&
-                                    <option value="product_sale">Sale Product</option>
+                                    <option value="product_sale">Sản phẩm giảm giá</option>
                                 }
-                                <option value="product_special">Special Product</option>
+                                <option value="product_special">Sản phẩm đặt biệt</option>
                             </select>
                             {/* {errors.type && (
                                 <div className="alert alert-danger"
@@ -659,11 +662,11 @@ const NewProduct = () => {
                                     {errors.type}
                                 </div>
                             )} */}
-                            <label className='form-label fw-bold' htmlFor="status">Status:</label>
+                            <label className='form-label fw-bold' htmlFor="status">Trạng thái:</label>
                             <select className="form-select mb-2" id="status" aria-label="Default select example">
-                                <option value="" selected>Select Status</option>
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
+                                <option value="" selected>Chọn trạng thái</option>
+                                <option value="1">Đăng</option>
+                                <option value="0">Không Đăng</option>
                             </select>
                             {errors.status && (
                                 <div className="alert alert-danger"
@@ -674,17 +677,16 @@ const NewProduct = () => {
                                     {errors.status}
                                 </div>
                             )}
-                            <br />
-                            <Link to="../product" className="btn btn-info text-white mr-2" type="button">
-                                <AiOutlineRollback className='fs-4' />
-                                Back Product
-                            </Link>
+                            <button className="btn btn-success text-white mr-2" type="submit" id='btn_create'>
+                                <IoCreateOutline className='fs-4' />
+                                Tạo
+                            </button>
                             <br />
                             <div className="row mt-5">
                                 <div className="col-6">
                                     <button className="btn btn-danger d-flex text-white mx-2" type="button" onClick={ClearUp}>
                                         <AiOutlineClear className='fs-4' />
-                                        Clear up
+                                        Làm lại
                                     </button>
                                 </div>
                             </div>
