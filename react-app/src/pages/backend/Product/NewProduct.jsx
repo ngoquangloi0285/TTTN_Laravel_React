@@ -245,13 +245,29 @@ const NewProduct = () => {
                 newErrors.discount = "Giảm giá phải nhỏ hơn hoặc bằng 100.";
             }
         }
-        // if (color) {
-        //     newErrors.color = "Vui lòng nhập màu.";
-        // }
-        if (isNaN(inch)) {
-            newErrors.inch = "Inch phải là số.";
+
+        if (!total) {
+            newErrors.total = "Vui lòng nhập số lượng sản phẩm này";
+        } else {
+            if (isNaN(total)) {
+                newErrors.total = "Số lượng sản phẩm phải là số.";
+            } else if (total <= 0) {
+                newErrors.total = "Số lượng sản phẩm phải lớn hơn 0.";
+            }
         }
-        
+
+        if (!color) {
+            newErrors.color = "Vui lòng nhập màu.";
+        }
+        if (!inch) {
+            newErrors.inch = "Vui lòng nhập kích thước.";
+        }
+        else {
+            if (isNaN(inch)) {
+                newErrors.inch = "Kích thước phải là số.";
+            }
+        }
+
 
         const nowDate = moment().tz(moment.tz.guess());
         const startDate = moment(startTime + ':00.000Z').tz(moment.tz.guess());
@@ -304,6 +320,7 @@ const NewProduct = () => {
         formData.append('color', color ? color : '');
         formData.append('inch', inch ? inch : '');
         formData.append('type', type);
+        formData.append('total', total);
         formData.append('start_time', startTime ? startTime : '');
         formData.append('end_time', endTime ? endTime : '');
         formData.append('detail', content);
@@ -599,6 +616,24 @@ const NewProduct = () => {
                                         </div>
                                     </div>
                                 )}
+                                <div className="row">
+                                    <div className="col-5">
+                                        <label className='form-label fw-bold' htmlFor="total">Số lượng sản phẩm:</label>
+                                        <input className='form-control'
+                                            value={total}
+                                            onChange={(e) => setTotal(e.target.value)}
+                                            id='total' type="text" placeholder='780' />
+                                        {errors.total && (
+                                            <div className="alert alert-danger"
+                                                style={
+                                                    { fontSize: '14px' }
+                                                }
+                                                role="alert">
+                                                {errors.total}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                             <label className='form-label fw-bold' htmlFor="detail">Chi tiết sản phẩm:</label>
                             {errors.content && (

@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('slug_product');
             $table->string('title');
             $table->string('name_product');
-            $table->decimal('price', 8);
-            $table->decimal('discount', 8)->nullable();
+            $table->decimal('price', 10);
+            $table->decimal('discount', 3)->nullable();
             $table->string('image');
             $table->string('author', 255);
             $table->tinyInteger('status')->lenght(1)->unsigned()->nullable();

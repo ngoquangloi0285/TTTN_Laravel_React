@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('order', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->decimal('total_amount', 8, 2);
+            $table->decimal('total_amount', 10);
             $table->string('orderer_name');
             $table->string('email_order');
             $table->string('phone_order');
@@ -22,11 +22,10 @@ return new class extends Migration
             $table->string('city');
             $table->string('zip_code');
             $table->string('payment_method');
+            $table->tinyInteger('status')->unsigned();
             $table->timestamps();
             $table->softDeletes();
         });
-
-        
     }
 
     /**

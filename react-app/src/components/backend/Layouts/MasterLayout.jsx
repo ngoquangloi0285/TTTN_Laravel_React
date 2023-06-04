@@ -26,7 +26,7 @@ const MasterLayout = () => {
                     <aside className="main-sidebar sidebar-dark-primary elevation-4"
                         style={
                             {
-                                background: "#212A3E",
+                                background: "#213555",
                             }
                         }
                     >

@@ -35,9 +35,9 @@ const cartSlice = createSlice({
                     ...state.cartItems[existingIndex],
                     cartQuantity: state.cartItems[existingIndex].cartQuantity + 1,
                 };
-                toast.info("Số lượng sản phẩm tăng", {
-                    position: "top-right",
-                });
+                // toast.info("Số lượng sản phẩm tăng", {
+                //     position: "top-right",
+                // });
             } else {
                 let tempProductItem = { ...action.payload.product, cartQuantity: 1, color: action.payload.selectedColor };
                 state.cartItems.push(tempProductItem);
@@ -56,9 +56,9 @@ const cartSlice = createSlice({
             if (state.cartItems[itemIndex].cartQuantity > 1) {
                 state.cartItems[itemIndex].cartQuantity -= 1;
 
-                toast.info("Số lượng sản phẩm giảm", {
-                    position: "top-right",
-                });
+                // toast.info("Số lượng sản phẩm giảm", {
+                //     position: "top-right",
+                // });
             } else if (state.cartItems[itemIndex].cartQuantity === 1) {
                 const nextCartItems = state.cartItems.filter(
                     (item) => item.id !== action.payload.id
@@ -117,7 +117,7 @@ const cartSlice = createSlice({
         clearCart(state, action) {
             state.cartItems = [];
             localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
-            toast.error("Đã xóa giỏ hàng", { position: "top-right" });
+            // toast.error("Đã xóa giỏ hàng", { position: "top-right" });
         },
     },
 

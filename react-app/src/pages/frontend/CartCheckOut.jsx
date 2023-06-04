@@ -1,13 +1,22 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import './cartCheckOut.css'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { addToCart, clearCart, decreaseCart, getTotals, removeFromCart } from '../../state/cartSlice';
+import { clearCart, getTotals } from '../../state/cartSlice';
 import { AiOutlineLeft } from 'react-icons/ai';
 import { BsArrowLeft } from 'react-icons/bs';
 import Meta from '../../components/frontend/Meta';
 import Maps from '../../components/frontend/Maps';
 import useAuthContext from '../../context/AuthContext';
+import axios from '../../api/axios';
+import Swal from 'sweetalert2';
+import { toast } from 'react-toastify';
+
+function calculateDiscountedPrice(price, discountPercent) {
+    const discountAmount = (price * discountPercent) / 100;
+    const discountedPrice = price - discountAmount;
+    return discountedPrice;
+}
 
 const CartCheckOut = () => {
     const { currentUser } = useAuthContext();
@@ -15,7 +24,8 @@ const CartCheckOut = () => {
     const cart = useSelector((state) => state.cart);
     const dispatch = useDispatch();
     const [errors, setErrors] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
 
     const [fullname, setFullname] = useState(currentUser?.name ? currentUser.name : null);
     const [email, setEmail] = useState(currentUser?.email ? currentUser.email : null);
@@ -34,9 +44,25 @@ const CartCheckOut = () => {
         setChecked(e.target.checked);
         console.log(e.target.checked)
     };
+    const total_amount = cart.cartTotalAmount;
+    // console.log('total_amount', total_amount)
 
-    const handleCheckout = (e) => {
-        e.preventDefault();
+    const handleClear = () => {
+        setFullname('');
+        setEmail('');
+        setAddress('');
+        setPhone('');
+        setCity('');
+        setCode('');
+        setChecked(false);
+        setPaymentMethod('');
+    }
+
+    const handleClearCart = useCallback(() => {
+        dispatch(clearCart());
+    }, [dispatch]);
+
+    const handleCheckout = useCallback(async () => {
         const newErrors = {};
         if (!fullname) {
             newErrors.fullname = "Vui lòng nhập họ tên người đặt hàng!";
@@ -83,10 +109,81 @@ const CartCheckOut = () => {
             setIsLoading(false);
             return;
         }
+
+        const formData = new FormData();
+        cart.cartItems.forEach((cartItem, index) => {
+            formData.append(`product[${index}][product_id]`, cartItem.id);
+            formData.append(`product[${index}][product_name]`, cartItem.name_product);
+            formData.append(`product[${index}][color]`, cartItem.color);
+            formData.append(`product[${index}][image]`, cartItem.image);
+            formData.append(`product[${index}][quantity]`, cartItem.cartQuantity);
+            formData.append(`product[${index}][price]`, calculateDiscountedPrice(cartItem.price, cartItem.discount));
+            formData.append(`product[${index}][total_amount]`, calculateDiscountedPrice(cartItem.price, cartItem.discount) * cartItem.cartQuantity);
+        });
+
+        // xử lý đặt hàng 
         if (checked === true) {
-            alert(checked);
+            formData.append('total_amount', total_amount);
+            formData.append('fullName', fullname);
+            formData.append('email', email);
+            formData.append('phone', phone);
+            formData.append('address', address);
+            formData.append('city', city);
+            formData.append('code', code);
+            formData.append('paymentMethod', paymentMethod);
+
+            console.log(formData);
+
+            try {
+                setIsLoading(true)
+                const res = await axios.post('/api/order/v1/create_order', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+                if (res.status === 200) {
+                    // toast.success(response.data.status);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đặt hàng thành công, vui lòng xác nhận Email!',
+                        text: res.data.message,
+                        confirmButtonText: 'Đến xem đơn hàng của bạn'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            navigate('../your-order')
+                        }
+                    });
+                    handleClearCart();
+                    handleClear();
+                    setIsLoading(false)
+                }
+            } catch (error) {
+                if (error.response && error.response.status === 400) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi tồn tại sản phẩm trong đơn hàng của bạn!',
+                        text: error.response.data.message,
+                    })
+                }
+                setIsLoading(false)
+            }
         }
-    }
+    }, [address, cart.cartItems, checked, city, code, email, fullname, paymentMethod, total_amount, navigate, phone, handleClearCart])
+    // xác nhận  order
+    const confirmOrder = useCallback(() => {
+        Swal.fire({
+            title: 'Bạn có chắc chắn?',
+            text: 'Bạn có chắc chắn đặt hàng!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Có, Tôi đặt hàng',
+            cancelButtonText: 'Không, Tôi không đặt'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                handleCheckout();
+            }
+        });
+    }, [handleCheckout]);
 
     useEffect(() => {
         dispatch(getTotals());
@@ -101,8 +198,8 @@ const CartCheckOut = () => {
     }
     return (
         <>
-            <Meta title="Checkout" />
-            <Maps title="Checkout" />
+            <Meta title="Thủ tục thanh toán" />
+            <Maps title="Thủ tục thanh toán" />
             <div className="store-wrapper home-wrapper-2 py-5">
                 <div className="container-xxl">
                     <div className='checkout_cart'>
@@ -110,127 +207,124 @@ const CartCheckOut = () => {
                         <div className="row">
                             <div className="col-75">
                                 <div className="container">
-                                    <form onSubmit={handleCheckout}>
-                                        <div className="row">
-                                            <div className="col-50">
-                                                <h3>Địa chỉ thanh toán</h3>
-                                                <label htmlFor="fname"><i className="fa fa-user" /> Họ tên đầy đủ<span className='fs-3 text-danger'>*</span></label>
-                                                <input value={fullname} onChange={(e) => setFullname(e.target.value)} type="text" id="fname" name="firstname" placeholder="John M. Doe" />
-                                                {errors.fullname && (
-                                                    <div className="alert alert-danger" role="alert">
-                                                        {errors.fullname}
-                                                    </div>
-                                                )}
-                                                <label htmlFor="email"><i className="fa fa-envelope" /> Email<span className='fs-3 text-danger'>*</span></label>
-                                                <input value={email} onChange={(e) => setEmail(e.target.value)} type="text" id="email" name="email" placeholder="john@example.com" />
-                                                {errors.email && (
-                                                    <div className="alert alert-danger" role="alert">
-                                                        {errors.email}
-                                                    </div>
-                                                )}
-                                                <label htmlFor="phone"><i className="fa fa-phone" /> Số điện thoại<span className='fs-3 text-danger'>*</span></label>
-                                                <input value={phone} onChange={(e) => setPhone(e.target.value)} type="text" id="phone" name="phone" placeholder="0352412318" />
-                                                {errors.phone && (
-                                                    <div className="alert alert-danger" role="alert">
-                                                        {errors.phone}
-                                                    </div>
-                                                )}
-                                                <label htmlFor="adr"><i className="fa fa-address-card-o" /> Địa chỉ<span className='fs-3 text-danger'>*</span></label>
-                                                <input value={address} onChange={(e) => setAddress(e.target.value)} type="text" id="adr" name="address" placeholder="103, đường Tăng Nhơn Phú, Phường Phước Long B" />
-                                                {errors.address && (
-                                                    <div className="alert alert-danger" role="alert">
-                                                        {errors.address}
-                                                    </div>
-                                                )}
-                                                <label htmlFor="city"><i className="fa fa-institution" /> Thành phố<span className='fs-3 text-danger'>*</span></label>
-                                                <input value={city} onChange={(e) => setCity(e.target.value)} type="text" id="city" name="city" placeholder="Thành Phố Thủ Đức" />
-                                                {errors.city && (
-                                                    <div className="alert alert-danger" role="alert">
-                                                        {errors.city}
-                                                    </div>
-                                                )}
-                                                <div className="row">
-                                                    <div className="col-50">
-                                                        <label htmlFor="zip">Mã bưu điện<span className='fs-3 text-danger'>*</span></label>
-                                                        <input value={code} onChange={(e) => setCode(e.target.value)} type="text" id="zip" name="zip" placeholder={10001} />
-                                                        {errors.code && (
-                                                            <div className="alert alert-danger" role="alert">
-                                                                {errors.code}
-                                                            </div>
-                                                        )}
-                                                    </div>
+                                    <div className="row">
+                                        <div className="col-50">
+                                            <h3>Địa chỉ thanh toán</h3>
+                                            <label htmlFor="fname"><i className="fa fa-user" /> Họ tên đầy đủ<span className='fs-3 text-danger'>*</span></label>
+                                            <input value={fullname} onChange={(e) => setFullname(e.target.value)} type="text" id="fname" name="firstname" placeholder="Tên: Jack Ma" />
+                                            {errors.fullname && (
+                                                <div className="alert alert-danger" role="alert">
+                                                    {errors.fullname}
                                                 </div>
-                                            </div>
-                                            <div className="col-50">
-                                                <div>
-                                                    <h3>Payment</h3>
-                                                    <label htmlFor="fname">Chọn loại hình thanh toán:</label>
-                                                    <label htmlFor="cash">
-                                                        <input
-                                                            type="radio"
-                                                            name="payment"
-                                                            id="cash"
-                                                            value="cash"
-                                                            checked={paymentMethod === 'cash'}
-                                                            onChange={handlePaymentMethodChange}
-                                                        />
-                                                        Thanh toán khi nhận hàng
-                                                    </label>
-                                                    <label htmlFor="credit">
-                                                        <input
-                                                            type="radio"
-                                                            name="payment"
-                                                            id="credit"
-                                                            value="credit"
-                                                            checked={paymentMethod === 'credit'}
-                                                            onChange={handlePaymentMethodChange}
-                                                        />
-                                                        Thanh toán bằng thẻ tín dụng
-                                                    </label>
-                                                    {errors.paymentMethod && (
+                                            )}
+                                            <label htmlFor="email"><i className="fa fa-envelope" /> Email<span className='fs-3 text-danger'>*</span></label>
+                                            <input value={email} onChange={(e) => setEmail(e.target.value)} type="text" id="email" name="email" placeholder="Email: john@example.com" />
+                                            {errors.email && (
+                                                <div className="alert alert-danger" role="alert">
+                                                    {errors.email}
+                                                </div>
+                                            )}
+                                            <label htmlFor="phone"><i className="fa fa-phone" /> Số điện thoại<span className='fs-3 text-danger'>*</span></label>
+                                            <input value={phone} onChange={(e) => setPhone(e.target.value)} type="text" id="phone" name="phone" placeholder="Số điện thoại: 0352412318" />
+                                            {errors.phone && (
+                                                <div className="alert alert-danger" role="alert">
+                                                    {errors.phone}
+                                                </div>
+                                            )}
+                                            <label htmlFor="adr"><i className="fa fa-address-card-o" /> Địa chỉ<span className='fs-3 text-danger'>*</span></label>
+                                            <input value={address} onChange={(e) => setAddress(e.target.value)} type="text" id="adr" name="address" placeholder="Số nhà hoặc Tên đường, Thôn, Xã, Huyện" />
+                                            {errors.address && (
+                                                <div className="alert alert-danger" role="alert">
+                                                    {errors.address}
+                                                </div>
+                                            )}
+                                            <label htmlFor="city"><i className="fa fa-institution" /> Thành phố<span className='fs-3 text-danger'>*</span></label>
+                                            <input value={city} onChange={(e) => setCity(e.target.value)} type="text" id="city" name="city" placeholder="Tỉnh hoặc Thành phố" />
+                                            {errors.city && (
+                                                <div className="alert alert-danger" role="alert">
+                                                    {errors.city}
+                                                </div>
+                                            )}
+                                            <div className="row">
+                                                <div className="col-50">
+                                                    <label htmlFor="zip">Mã bưu điện<span className='fs-3 text-danger'>*</span></label>
+                                                    <input value={code} onChange={(e) => setCode(e.target.value)} type="text" id="zip" name="zip" placeholder='Mã bưu điện: 10001' />
+                                                    {errors.code && (
                                                         <div className="alert alert-danger" role="alert">
-                                                            {errors.paymentMethod}
+                                                            {errors.code}
                                                         </div>
                                                     )}
-                                                    {paymentMethod === 'credit' && (
-                                                        <>
-                                                            <p className='m-0 text-danger'> <span className='fs-4'>*</span> Chúng tôi đang cố gắng hoàn thành chức năng, <br /> Xin lỗi vì sự bất tiện này!</p>
-                                                            <label htmlFor="fname" className='mt-3'><strong>Thẻ được chấp nhận</strong></label>
-                                                            <div className="icon-container">
-                                                                <img width='25%' src="https://www.freepnglogos.com/uploads/visa-and-mastercard-logo-26.png" alt="" />
-                                                            </div>
-                                                            <label htmlFor="cname">Tên trên thẻ</label>
-                                                            <input disabled type="text" id="cname" name="cardname" placeholder="NGO QUANG LOI" />
-                                                            <label htmlFor="ccnum">Số thẻ tín dụng</label>
-                                                            <input disabled type="text" id="ccnum" name="cardnumber" placeholder="1111-2222-3333-4444" />
-                                                            <label htmlFor="expmonth">Tháng hết hạng</label>
-                                                            <input disabled type="text" id="expmonth" name="expmonth" placeholder="9/*" />
-                                                            <div className="row">
-                                                                <div className="col-50">
-                                                                    <label htmlFor="expyear">Năm hết hạng</label>
-                                                                    <input disabled type="text" id="expyear" name="expyear" placeholder='*/2025' />
-                                                                </div>
-                                                                <div className="col-50">
-                                                                    <label htmlFor="cvv">CVV</label>
-                                                                    <input disabled type="text" id="cvv" name="cvv" placeholder='325' />
-                                                                </div>
-                                                            </div>
-                                                        </>
-                                                    )}
                                                 </div>
-                                                <label>
-                                                    <input onChange={handleChecked} type="checkbox" /> Địa chỉ giao hàng giống như trên
-                                                </label>
-                                                {errors.checked && (
-                                                    <div className="alert alert-danger" role="alert">
-                                                        {errors.checked}
-                                                    </div>
-                                                )}
-                                                <button type="submit" className='btn'>Đặt hàng</button>
                                             </div>
                                         </div>
-
-                                    </form>
+                                        <div className="col-50">
+                                            <div>
+                                                <h3>Payment</h3>
+                                                <label htmlFor="fname">Chọn loại hình thanh toán:</label>
+                                                <label htmlFor="cash">
+                                                    <input
+                                                        type="radio"
+                                                        name="payment"
+                                                        id="cash"
+                                                        value="cash"
+                                                        checked={paymentMethod === 'cash'}
+                                                        onChange={handlePaymentMethodChange}
+                                                    />
+                                                    Thanh toán khi nhận hàng
+                                                </label>
+                                                <label htmlFor="credit">
+                                                    <input
+                                                        type="radio"
+                                                        name="payment"
+                                                        id="credit"
+                                                        value="credit"
+                                                        checked={paymentMethod === 'credit'}
+                                                        onChange={handlePaymentMethodChange}
+                                                    />
+                                                    Thanh toán bằng thẻ tín dụng
+                                                </label>
+                                                {errors.paymentMethod && (
+                                                    <div className="alert alert-danger" role="alert">
+                                                        {errors.paymentMethod}
+                                                    </div>
+                                                )}
+                                                {paymentMethod === 'credit' && (
+                                                    <>
+                                                        <p className='m-0 text-danger'> <span className='fs-4'>*</span> Chúng tôi đang cố gắng hoàn thành chức năng, <br /> Xin lỗi vì sự bất tiện này!</p>
+                                                        <label htmlFor="fname" className='mt-3'><strong>Thẻ được chấp nhận</strong></label>
+                                                        <div className="icon-container">
+                                                            <img width='25%' src="https://www.freepnglogos.com/uploads/visa-and-mastercard-logo-26.png" alt="" />
+                                                        </div>
+                                                        <label htmlFor="cname">Tên trên thẻ</label>
+                                                        <input disabled type="text" id="cname" name="cardname" placeholder="NGO QUANG LOI" />
+                                                        <label htmlFor="ccnum">Số thẻ tín dụng</label>
+                                                        <input disabled type="text" id="ccnum" name="cardnumber" placeholder="1111-2222-3333-4444" />
+                                                        <label htmlFor="expmonth">Tháng hết hạng</label>
+                                                        <input disabled type="text" id="expmonth" name="expmonth" placeholder="9/*" />
+                                                        <div className="row">
+                                                            <div className="col-50">
+                                                                <label htmlFor="expyear">Năm hết hạng</label>
+                                                                <input disabled type="text" id="expyear" name="expyear" placeholder='*/2025' />
+                                                            </div>
+                                                            <div className="col-50">
+                                                                <label htmlFor="cvv">CVV</label>
+                                                                <input disabled type="text" id="cvv" name="cvv" placeholder='325' />
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                            <label>
+                                                <input onChange={handleChecked} type="checkbox" /> Địa chỉ giao hàng giống như trên
+                                            </label>
+                                            {errors.checked && (
+                                                <div className="alert alert-danger" role="alert">
+                                                    {errors.checked}
+                                                </div>
+                                            )}
+                                            <button onClick={confirmOrder} type="submit" className='btn'>{isLoading === false ? 'Đặt hàng' : 'Đang đặt hàng...'}</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div className="col-25">

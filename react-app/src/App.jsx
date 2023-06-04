@@ -59,6 +59,7 @@ import ProfilePage from './pages/frontend/ProfilePage';
 import ProductDetailPage from './pages/frontend/ProductDetailPage';
 import BlogSlugPage from './pages/frontend/BlogSlugPage';
 import CartCheckOut from './pages/frontend/CartCheckOut';
+import YourOrder from './pages/frontend/YourOrder';
 
 function App(props) {
 
@@ -86,6 +87,7 @@ function App(props) {
           <Route path="product/inch/:slug" element={<OurStore />} />
           <Route path="product-detail/:slug" element={<ProductDetailPage />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="your-order" element={<YourOrder />} />
 
           <Route element={<GuestLayout />}>
             <Route path="login" element={<Login />} />

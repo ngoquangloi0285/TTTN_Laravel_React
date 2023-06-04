@@ -1166,7 +1166,15 @@ footer .input-group-text {
 .cart-container .titles .product-title {
   padding-left: 0.5rem;
 }
-
+.product-summary {
+  font-size: .8rem;
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--color-3b4149);
+}
+.react_start p {
+  color: var(--color-777777);
+}
 .cart-container .titles .total {
   padding-right: 0.5rem;
   justify-self: right;

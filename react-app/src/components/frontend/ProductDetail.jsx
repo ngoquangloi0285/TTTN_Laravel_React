@@ -176,7 +176,13 @@ const ProductDetail = (props) => {
                                 </div>
                                 <div className="col-6">
                                     <h1>{productList.name_product}</h1>
-                                    <p className='price'>${calculateDiscountedPrice(productList.price, productList.discount)} <span className='text-danger fs-6'><del>{productList.discount === null ? '' : `$ ${productList.price}`}</del> <sup>{productList.discount === null ? "" : `Giảm ${parseInt(productList.discount)}%`}</sup></span></p>
+                                    <p className='price'>{calculateDiscountedPrice(productList.price, productList.discount).toLocaleString('vi-VN', {
+                                        style: 'currency',
+                                        currency: 'VND'
+                                    })} <span className='text-danger fs-6'><del>{productList.discount === null ? '' : `$ ${productList.price.toLocaleString('vi-VN', {
+                                        style: 'currency',
+                                        currency: 'VND'
+                                    })}`}</del> <sup>{productList.discount === null ? "" : `Giảm ${parseInt(productList.discount)}%`}</sup></span></p>
                                     <p className="text-dark m-0">
                                         Danh mục: <strong className='text-danger'> {categoryMap[productList.category_id]}</strong>
                                     </p>
@@ -197,7 +203,8 @@ const ProductDetail = (props) => {
                                         type="text"
                                         id="selectedColor"
                                         className="form-control"
-                                    />                                    <ReactStars
+                                    />
+                                    <ReactStars
                                         count={5}
                                         onChange={ratingChanged}
                                         size={24}

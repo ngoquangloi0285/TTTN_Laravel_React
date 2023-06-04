@@ -123,7 +123,7 @@ export const ProductList = (props) => {
                             <div key={product.id} className="gr-4">
                                 <Link to={`../product-detail/${product.slug}`} className="product-card position-relative shadow">
                                     <div className='discount position-absolute'>
-                                        <span>{product.discount === null ? "" : `down ${parseInt(product.discount)}%`}</span>
+                                        <span>{product.discount === null ? "" : `Giảm ${parseInt(product.discount)}%`}</span>
                                     </div>
                                     <div className='discount position-absolute'>
                                         <span>{product.type === 'new_product' ? 'New Product' : ''}</span>
@@ -143,14 +143,20 @@ export const ProductList = (props) => {
                                             <h5 className='product-title'>
                                                 {product.name_product}
                                             </h5>
-                                            <ReactStars
-                                                count={5}
-                                                onChange={ratingChanged}
-                                                size={24}
-                                                value="4"
-                                                edit={false}
-                                                activeColor="#ffd700"
-                                            />
+                                            <p className='product-summary m-0'>
+                                                {product.summary}
+                                            </p>
+                                            <div className="react_start d-flex">
+                                                <ReactStars
+                                                    count={5}
+                                                    onChange={ratingChanged}
+                                                    size={24}
+                                                    value="4"
+                                                    edit={false}
+                                                    activeColor="#ffd700"
+                                                />
+                                                <p className='m-0'>({product.total})</p>
+                                            </div>
                                             <p className="price">
                                                 <strong>
                                                     {calculateDiscountedPrice(product.price, product.discount).toLocaleString('vi-VN', {
@@ -160,7 +166,9 @@ export const ProductList = (props) => {
                                                 </strong>
                                                 &nbsp;
                                                 <span className="original-price">
-                                                    {product.discount === null ? '' : (
+                                                    {product.discount === null ? (
+                                                        ''
+                                                    ) : (
                                                         <del>
                                                             {product.price.toLocaleString('vi-VN', {
                                                                 style: 'currency',
@@ -169,10 +177,13 @@ export const ProductList = (props) => {
                                                         </del>
                                                     )}
                                                 </span>
+
+
                                             </p>
-                                            <p className={`description ${grid === 12 ? "d-block" : "d-none"} `}>
-                                                {product.summary}
-                                            </p>
+
+                                            {/* <p className={`description ${grid === 12 ? "d-block" : "d-none"} `}>
+                                                {product.total}
+                                            </p> */}
                                         </div>
                                     </div>
                                     <Link to={`../product-detail/${product.slug}`}

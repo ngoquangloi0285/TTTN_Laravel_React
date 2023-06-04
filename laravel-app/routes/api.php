@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\MenuController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\NewsImagesController;
 use App\Http\Controllers\Api\OptionController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductImagesController;
 use App\Http\Controllers\Api\UserController;
@@ -214,6 +215,11 @@ Route::prefix('menu/v1')->group(function () {
     Route::delete('/remove/{id}', [MenuController::class, 'remove'])->name('menu.remove');
     // Xóa vĩnh viễn  nhiều SP
     Route::delete('removeALL', [MenuController::class, 'removeALL'])->name('menu.removeALL');
+});
+
+Route::prefix('order/v1')->group(function () {
+    // Order
+    Route::post("create_order", [OrderController::class, 'store']);
 });
 
 Route::prefix('countdown/v1')->group(function () {

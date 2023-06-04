@@ -25,6 +25,7 @@ const Cart = () => {
   const handleRemoveFromCart = (product) => {
     dispatch(removeFromCart(product));
   };
+  
   const handleClearCart = () => {
     dispatch(clearCart());
   };

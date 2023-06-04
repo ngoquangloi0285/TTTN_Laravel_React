@@ -15,8 +15,13 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('order_id');
             $table->unsignedBigInteger('product_id');
+            $table->string('product_name');
+            $table->string('color')->nullable();
+            $table->string('image')->nullable();
             $table->integer('quantity');
-            $table->decimal('price', 8, 2);
+            $table->decimal('price', 10);
+            $table->decimal('total_amount', 10);
+            $table->tinyInteger('status')->unsigned();
             $table->timestamps();
             $table->softDeletes();
         });
