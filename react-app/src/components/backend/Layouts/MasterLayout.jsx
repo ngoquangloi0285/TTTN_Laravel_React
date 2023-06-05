@@ -177,7 +177,7 @@ const MasterLayout = () => {
                                         </Link>
                                         <ul className="nav nav-treeview">
                                             <li className="nav-item">
-                                                <Link to="slide" className="nav-link d-flex">
+                                                <Link to="order" className="nav-link d-flex">
                                                     {/* <i className="far fa-circle nav-icon" /> */}
                                                     <AiOutlineEye style={{ height: 'auto', fontSize: '26px', }} className='text-info' />
                                                     <p>Quản lý đơn hàng</p>

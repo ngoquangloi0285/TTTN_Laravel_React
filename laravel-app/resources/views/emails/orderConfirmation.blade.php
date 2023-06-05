@@ -19,7 +19,7 @@
 
                 <h3>Thông tin đơn hàng:</h3>
                 <p>Địa chỉ giao hàng: {{ $order->address_order }}</p>
-                <p>Số điện thoại: {{ $order->phone_order }}đ</p>
+                <p>Số điện thoại: {{ $order->phone_order }}</p>
                 <table class="table">
                     <thead>
                         <tr>

@@ -31,7 +31,6 @@ class ProductController extends Controller
             $searchTerm = $params['search'];
             $products = Product::where('status', 1)
                 ->where('name_product', 'like', "%{$searchTerm}%")
-
                 ->where('total', '>', 0)
                 ->get();
         }
@@ -115,8 +114,7 @@ class ProductController extends Controller
                 ->limit(9) // Số lượng sản phẩm gợi ý muốn lấy (có thể điều chỉnh tùy ý)
                 ->get();
         } else
-            $products = Product::where('status', '1')
-                ->where('status', 1)
+            $products = Product::where('status', 1)
                 ->where('total', '>', 0)
                 ->get();
         return response()->json($products);

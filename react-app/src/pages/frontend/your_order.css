@@ -1,0 +1,128 @@
+@import url("https://fonts.googleapis.com/css?family=Open+Sans&display=swap");
+.order_tracking body {
+  background-color: #eeeeee;
+  font-family: "Open Sans", serif;
+}
+.order_tracking .container {
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+.order_tracking .card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.1rem;
+}
+.order_tracking .card-header:first-child {
+  border-radius: calc(0.37rem - 1px) calc(0.37rem - 1px) 0 0;
+}
+.order_tracking .card-header {
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 0;
+  background-color: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+.order_tracking .track {
+  position: relative;
+  background-color: #ddd;
+  height: 7px;
+  display: flex;
+  margin-bottom: 60px;
+  margin-top: 50px;
+}
+.order_tracking .track .step {
+  flex-grow: 1;
+  width: 25%;
+  margin-top: -18px;
+  text-align: center;
+  position: relative;
+}
+.order_tracking .track .step.active:before {
+  background: #FF5722;
+}
+.order_tracking .track .step::before {
+  height: 7px;
+  position: absolute;
+  content: "";
+  width: 100%;
+  left: 0;
+  top: 18px;
+}
+.order_tracking .track .step.active .icon {
+  background: #ee5435;
+  color: #fff;
+}
+.order_tracking .track .icon {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  position: relative;
+  border-radius: 100%;
+  background: #ddd;
+}
+.order_tracking .track .step.active .text {
+  font-weight: 400;
+  color: #000;
+}
+.order_tracking .track .text {
+  display: block;
+  margin-top: 7px;
+}
+.order_tracking .itemside {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+.order_tracking .itemside .aside {
+  position: relative;
+  flex-shrink: 0;
+}
+.order_tracking .img-sm {
+  width: 80px;
+  height: 80px;
+  padding: 7px;
+}
+.order_tracking ul.row,
+.order_tracking ul.row-sm {
+  list-style: none;
+  padding: 0;
+}
+.order_tracking .itemside .info {
+  padding-left: 15px;
+  padding-right: 7px;
+}
+.order_tracking .itemside .title {
+  display: block;
+  margin-bottom: 5px;
+  color: #212529;
+}
+.order_tracking p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+.order_tracking .btn-warning {
+  color: #ffffff;
+  background-color: #ee5435;
+  border-color: #ee5435;
+  border-radius: 1px;
+}
+.order_tracking .btn-warning:hover {
+  color: #ffffff;
+  background-color: #ff2b00;
+  border-color: #ff2b00;
+  border-radius: 1px;
+}
+
+.your_order .gradient-custom {
+  /* fallback for old browsers */
+  background: #cd9cf2;
+  /* Chrome 10-25, Safari 5.1-6 */
+  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background: linear-gradient(to top left, rgb(205, 156, 242), rgb(246, 243, 255));
+}/*# sourceMappingURL=your_order.css.map */

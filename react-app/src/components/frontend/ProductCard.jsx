@@ -143,9 +143,9 @@ export const ProductList = (props) => {
                                             <h5 className='product-title'>
                                                 {product.name_product}
                                             </h5>
-                                            <p className='product-summary m-0'>
+                                            {/* <p className='product-summary m-0'>
                                                 {product.summary}
-                                            </p>
+                                            </p> */}
                                             <div className="react_start d-flex">
                                                 <ReactStars
                                                     count={5}
@@ -169,12 +169,13 @@ export const ProductList = (props) => {
                                                     {product.discount === null ? (
                                                         ''
                                                     ) : (
-                                                        <del>
-                                                            {product.price.toLocaleString('vi-VN', {
-                                                                style: 'currency',
-                                                                currency: 'VND'
-                                                            })}
-                                                        </del>
+                                                        <span className="original-price">
+                                                            {product.discount === null ? '' : (
+                                                                <del>
+                                                                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
+                                                                </del>
+                                                            )}
+                                                        </span>
                                                     )}
                                                 </span>
 

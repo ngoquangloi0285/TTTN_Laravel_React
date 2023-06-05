@@ -21,11 +21,12 @@ class Order extends Model
         'city',
         'zip_code',
         'payment_method',
+        'deliveryTime',
         'status'
     ];
 
     public function orderDetails()
     {
-        return $this->hasMany(OrderDetail::class,'order_id');
+        return $this->hasMany(OrderDetail::class, 'order_id');
     }
 }

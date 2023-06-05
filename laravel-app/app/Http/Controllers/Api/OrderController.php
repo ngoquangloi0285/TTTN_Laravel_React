@@ -14,10 +14,44 @@ class OrderController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $status = $request->input('filter');
+
+        $query = Order::query();
+
+        switch ($status) {
+            case 'order_waiting_confirmation':
+                $query->where('status', 0)->orderBy('created_at', 'desc')->latest(); // Đơn hàng đang đợi được xác nhận
+                break;
+            case 'order_confirmation':
+                $query->where('status', 1)->orderBy('created_at', 'desc')->latest(); // Đơn hàng đã được xác nhận và đang đợi đóng hàng
+                break;
+            case 'order_waiting_packing':
+                $query->where('status', '<', 2)->orderBy('created_at', 'desc')->latest(); // Đơn hàng đã được vận chuyển và đang đợi giao
+                break;
+            case 'order_packed':
+                $query->where('status', 2)->orderBy('created_at', 'desc')->latest(); // Đơn hàng đã được đóng hàng và đang đợi vận chuyển
+                break;
+            case 'order_waiting_shipped':
+                $query->where('status', '<', 3)->orderBy('created_at', 'desc')->latest(); // Đơn hàng đang đợi giao
+                break;
+            case 'order_shipping':
+                $query->where('status', 3)->orderBy('created_at', 'desc')->latest(); // Đơn hàng đã giao
+                break;
+            case 'order_delivered':
+                $query->where('status', 4)->orderBy('created_at', 'desc')->latest(); // Đơn hàng đã giao
+                break;
+            default:
+                // Không lọc theo trạng thái
+                break;
+        }
+
+        $orders = $query->orderBy('created_at', 'desc')->latest()->get();
+
+        return response()->json($orders);
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -25,6 +59,8 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $products = $request->input('product');
+        $user = auth()->user();
+        $user_id = $user->id;
 
         foreach ($products as $product) {
             $productId = $product['product_id'];
@@ -33,15 +69,15 @@ class OrderController extends Controller
             // Kiểm tra xem sản phẩm và màu sắc đã tồn tại trong chi tiết đơn hàng hay chưa
             $existingOrderDetail = OrderDetail::where('product_id', $productId)
                 ->where('color', $color)
+                ->where('user_id', $user_id)
                 ->first();
-            // dd($existingOrderDetail);
+
             if ($existingOrderDetail) {
-                // Sản phẩm và màu sắc đã tồn tại trong chi tiết đơn hàng
+                // Sản phẩm và màu sắc đã tồn tại trong chi tiết đơn hàng của người dùng hiện tại
                 // Thực hiện xử lý lỗi và trả về thông báo lỗi
                 return response()->json(['message' => 'Có một hoặc nhiều sản phẩm đã tồn tại trong đơn hàng của bạn!'], 400);
             }
         }
-
 
         // Lưu dữ liệu đơn hàng
         $order = new Order();
@@ -75,6 +111,7 @@ class OrderController extends Controller
 
                 // Tiếp tục lưu chi tiết đơn hàng
                 $orderDetail = new OrderDetail();
+                $orderDetail->user_id = auth()->user()->id; // Điền user_id tương ứng
                 $orderDetail->order_id = $order->id;
                 $orderDetail->product_id = $product['product_id'];
                 $orderDetail->product_name = $product['product_name'];
@@ -101,6 +138,38 @@ class OrderController extends Controller
     /**
      * Display the specified resource.
      */
+
+    public function your_order(Request $request, $id)
+    {
+        $userOrders = Order::where('user_id', $id)->get();
+        $orderData = [];
+
+        foreach ($userOrders as $order) {
+            $orderDetails = OrderDetail::where('order_id', $order->id)->get();
+            $orderData[] = [
+                'order' => $order,
+                'orderDetails' => $orderDetails,
+            ];
+        }
+
+        return response()->json([
+            'orders' => $orderData,
+        ]);
+    }
+
+    public function edit($id)
+    {
+        $order = Order::find($id);
+        if ($order) {
+            $orderDetails = OrderDetail::where('order_id', $order->id)
+                ->get();
+            $order->orderDetails = $orderDetails;
+        }
+        return response()->json($order);
+    }
+
+
+
     public function show(string $id)
     {
         //

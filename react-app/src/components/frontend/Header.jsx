@@ -5,7 +5,7 @@ import { BiLogOut } from "react-icons/bi";
 import { RiAccountCircleLine } from "react-icons/ri";
 import useAuthContext from "../../context/AuthContext";
 import { AiOutlineDashboard } from "react-icons/ai";
-import { MdSwitchAccount } from "react-icons/md";
+import { MdSpatialTracking, MdSwitchAccount } from "react-icons/md";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from "../../api/axios";
@@ -174,8 +174,13 @@ const Header = () => {
                               </Link>
                             </li>
                             <li>
-                              <Link to="../your-order" className="dropdown-item" >
-                                Đơn hàng <BsCartCheck className="icon-item" />
+                              <Link to="../your_order" className="dropdown-item" >
+                                Đơn hàng của bạn<BsCartCheck className="icon-item" />
+                              </Link>
+                            </li>
+                            <li>
+                              <Link to="../order_tracking" className="dropdown-item" >
+                                Theo dõi đơn hàng <MdSpatialTracking className="icon-item" />
                               </Link>
                             </li>
                             <li>

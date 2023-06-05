@@ -31,7 +31,7 @@ function CellRenderer(props) {
       .catch(error => {
         console.log(error);
       });
-  }, [value,fieldName,endpoint]);
+  }, [value, fieldName, endpoint]);
 
   return <span>{data}</span>;
 }
@@ -43,96 +43,82 @@ export default function DataGridDemo() {
     () => [
       {
         field: 'id',
-        headerName: 'ID',
+        headerName: 'Mã đơn hàng',
+        align: 'center',
       },
+
       {
-        field: 'product_id',
-        headerName: 'Product Code',
+        field: 'orderer_name',
+        headerName: 'Tên khách hàng',
         editable: true,
+        width: 150,
+        align: 'center',
       },
       {
-        field: 'name_product',
-        headerName: 'Name',
+        field: 'email_order',
+        headerName: 'eMail khách hàng',
         editable: true,
+        width: 200,
+        // align: 'center',
       },
       {
-        field: 'image',
-        headerName: 'Image',
-        sortable: false,
-        cellClassName: 'custom-cell',
-        renderCell: (params) => (
-          <img
-            className='img img-fluid img-thumbnail'
-            src={`http://localhost:8000/storage/product/${params.value}`}
-            alt={params.row.name_product}
-            style={{ width: '100%', height: 'auto' }} // Thêm CSS cho hình ảnh
-          />
-        ),
-      },
-      {
-        field: 'price',
-        headerName: 'Price',
-        type: 'number',
+        field: 'total_amount',
+        headerName: 'Tổng tiền đơn hàng',
         editable: true,
-        valueFormatter: (params) => `$${params.value}`,
+        width: 150,
+        align: 'center',
+        valueFormatter: (params) => {
+          const formatter = new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+          });
+          return formatter.format(params.value);
+        }
       },
       {
-        field: 'cost',
-        headerName: 'Cost',
-        type: 'number',
+        field: 'payment_method',
+        headerName: 'Phương thức thanh toán',
         editable: true,
-        valueFormatter: (params) => `$${params.value}`,
-      },
-      {
-        field: 'discount',
-        headerName: 'Discount',
-        type: 'number',
-        editable: true,
-        valueFormatter: (params) => `$${params.value}`,
-      },
-      {
-        field: 'total',
-        headerName: 'Total',
-        type: 'number',
-        editable: true,
-      },
-      // {
-      //   field: 'qrCode',
-      //   headerName: 'QR Code',
-      //   width: 200,
-      //   renderCell: (params) => (
-      //     <button onClick={() => setIsModalOpen(true)}>View QR Code</button>
-      //   ),
-      // },
-      {
-        field: 'detail', headerName: 'Detail',
-        renderCell: (params) => (
-          <Button className=''
-            variant="contained"
-            color="primary"
-            onClick={() => handleClickOpen(params.row)}
-          >
-            <AiOutlineEye style={{ height: 'auto', fontSize: '26px', }} className='text-info' />  View
-          </Button>
-        ),
-      },
-      {
-        field: 'author',
-        headerName: 'Author',
-        editable: true,
+        width: 200,
+        align: 'center',
       },
       {
         field: 'status',
-        headerName: 'Status',
+        headerName: 'Trạng thái đơn hàng',
+        width: 220,
+        align: 'center',
         renderCell: (params) => {
           const statusStyle = {
             padding: '5px',
             borderRadius: '5px',
             color: 'white',
           };
-          const isActive = params.value;
-          const statusText = isActive ? 'Active' : 'Inactive';
-          const backgroundColor = isActive ? 'green' : 'red';
+          let statusText, backgroundColor;
+          switch (params.value) {
+            case 0:
+              statusText = 'Đang đợi xác nhận...';
+              backgroundColor = 'yellow';
+              break;
+            case 1:
+              statusText = 'Đang đợi đóng gói...';
+              backgroundColor = 'green';
+              break;
+            case 2:
+              statusText = 'Đang đợi vận chuyển...';
+              backgroundColor = 'blue';
+              break;
+            case 3:
+              statusText = 'Đang giao...';
+              backgroundColor = 'orange';
+              break;
+            case 4:
+              statusText = 'Đã giao';
+              backgroundColor = 'purple';
+              break;
+            default:
+              statusText = 'Không xác định';
+              backgroundColor = 'gray';
+          }
           const statusDivStyle = {
             ...statusStyle,
             backgroundColor,
@@ -143,17 +129,18 @@ export default function DataGridDemo() {
       },
       {
         field: 'actions',
-        headerName: 'Actions',
+        headerName: 'Hành động',
         sortable: false,
+        align: 'center',
         renderCell: (params) => (
           <>
             <Link
-              className='mx-1'
-              style={{ fontSize: '20px', cursor: 'pointer' }}
+              className='mx-1 text-info'
+              style={{ fontSize: '25px', cursor: 'pointer' }}
               title='Edit'
-              to={`edit-product/${params.id}`}
+              to={`view-update/${params.id}`}
             >
-              <GrEdit />
+              <AiOutlineEye />
             </Link>
             <span
               className='text-danger mx-1'
@@ -163,34 +150,30 @@ export default function DataGridDemo() {
             >
               <BsFillTrashFill />
             </span>
+
           </>
         ),
       },
     ]
   )
 
-  // xử lý hiện modal chi tiết sản phẩm
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [open, setOpen] = useState(false);
-
-  const handleClickOpen = (product) => {
-    setSelectedProduct(product);
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
   const [isLoading, setIsLoading] = useState(false);
   const [records, setRecords] = useState([]);
   const [initialData, setInitialData] = useState([]);
   const [countTrash, setCountTrash] = useState(0);
+  const [filter, setFilter] = useState('');
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('/api/product/v1/products');
+      const response = await axios.get('/api/order/v1/orders', {
+        params: {
+          filter: filter,
+        },
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       setRecords(response.data);
       setInitialData(response.data);
       setIsLoading(false);
@@ -198,7 +181,7 @@ export default function DataGridDemo() {
       console.log(error);
       setIsLoading(false);
     }
-  };
+  }, [filter]);
 
   const fetchTrash = async () => {
     setIsLoading(true);
@@ -327,7 +310,7 @@ export default function DataGridDemo() {
   useEffect(() => {
     fetchData();
     fetchTrash();
-  }, []);
+  }, [fetchData]);
 
   if (isLoading === true) {
     return <>
@@ -341,20 +324,15 @@ export default function DataGridDemo() {
   }
   return (
     <>
-      <Meta title={"Product"} />
+      <Meta title={"Order"} />
       <div className="container-xxl">
         <div className="row">
           <input
             type="text"
             className="form-control my-3"
-            placeholder="Search Product..."
+            placeholder="Search Order..."
             onChange={handleFilter}
           />
-          <div className="col-3">
-            <Link to="create-product" className="btn btn-info mb-3 text-white d-flex align-items-center" type="button">
-              <IoCreateOutline className='fs-4' /> Add New Product
-            </Link>
-          </div>
           <div className="col-3 d-flex">
             <Link to="trash-product" className="btn btn-danger mb-3 text-white d-flex align-items-center" type="button">
               <FiTrash2 className='fs-4' /> Trash <span>( {!countTrash ? "0" : countTrash} )</span>
@@ -365,6 +343,27 @@ export default function DataGridDemo() {
                 <FiTrash2 className='fs-4' /> Delete all
               </button>
             }
+          </div>
+          <div className="row">
+            <div className="col-5 mt-2">
+              <p className='mb-0 title-sort d-block'><i><strong>Chọn đơn hàng theo trạng thái:</strong></i></p>
+              <select value={filter} onChange={(e) => setFilter(e.target.value)} className='form-control form-select' name="" id="">
+
+                <option value="" selected>Tất cả trạng thái đơn hàng</option>
+
+                <option value="order_confirmation">Đơn hàng được xác nhận</option>
+                <option value="order_waiting_confirmation">Đơn hàng đang đợi xác nhận</option>
+
+                <option value="order_packed">Đơn hàng đã đóng gói</option>
+                <option value="order_waiting_packing">Đơn hàng đang đợi đóng gói</option>
+
+                <option value="order_shipping">Đơn hàng đang vận chuyển</option>
+                <option value="order_waiting_shipped">Đơn hàng đang đợi vận chuyển</option>
+
+                <option value="order_delivered">Đơn hàng đã được giao</option>
+
+              </select>
+            </div>
           </div>
           {/* hiện data product */}
           <Box sx={{ height: 600, width: '100%' }}>
@@ -394,44 +393,7 @@ export default function DataGridDemo() {
 
           {/* hiện data product end*/}
 
-          {/* Hiển thị modal - chi tiết sản phẩm*/}
-          <Dialog open={open} onClose={handleClose} className="dialog" maxWidth="xl" maxHeight="lg">
-            <DialogTitle>Product Detail</DialogTitle>
-            <DialogContent className="dialog-content">
-              {selectedProduct && (
-                <>
-                  <Typography className="product-name" variant="h6">{selectedProduct.name_product}</Typography>
-                  <Typography className="product-info">
-                    Category: <CellRenderer value={selectedProduct.category_id} endpoint="/api/category/v1/category" fieldName="name_category" />
-                  </Typography>
-                  <Typography className="product-info">
-                    Brand: <CellRenderer value={selectedProduct.brand_id} endpoint="/api/brand/v1/brand" fieldName="name" />
-                  </Typography>
-                  <Typography className="product-info">{`Summary: ${selectedProduct.summary}`}</Typography>
-                  <Typography className="product-info">{`Cost: $${selectedProduct.cost}`}</Typography>
-                  <Typography className="product-info">{`Price: $${selectedProduct.price}`}</Typography>
-                  <Typography className="product-info">{`Discount: $${selectedProduct.discount}`}</Typography>
-                  <Typography className="product-info">{`Color: ${selectedProduct.color}`}</Typography>
-                  <Typography className="product-info">{`Inch: ${selectedProduct.inch}`}</Typography>
-                  <Typography className="product-title">Detail:</Typography>
-                  <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedProduct.detail) }} />
-                  <img className="product-image" src={`http://localhost:8000/storage/product/${selectedProduct.image}`} alt={selectedProduct.name_product} />
-                  {/* ... Hiển thị các thông tin khác của sản phẩm ... */}
-                </>
-              )}
-            </DialogContent>
-
-            <DialogActions>
-              <Button onClick={handleClose} color="primary">
-                Close
-              </Button>
-            </DialogActions>
-          </Dialog>
-          {/* Hiển thị modal - chi tiết sản phẩm end*/}
-
-
-
-          <div className="col-3">
+          <div className="col-3 my-3">
             <button type="button" id='btn-loadpage' onClick={LoadPage} className="btn btn-dark">
               Load page
             </button>

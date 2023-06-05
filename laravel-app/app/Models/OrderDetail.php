@@ -12,6 +12,7 @@ class OrderDetail extends Model
     use SoftDeletes;
     protected $table = 'order_details';
     protected $fillable = [
+        'user_id',
         'order_id',
         'product_id',
         'product_name',

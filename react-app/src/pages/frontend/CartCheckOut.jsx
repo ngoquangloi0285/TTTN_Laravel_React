@@ -150,7 +150,7 @@ const CartCheckOut = () => {
                         confirmButtonText: 'Đến xem đơn hàng của bạn'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            navigate('../your-order')
+                            navigate('../your_order')
                         }
                     });
                     handleClearCart();
@@ -322,7 +322,7 @@ const CartCheckOut = () => {
                                                     {errors.checked}
                                                 </div>
                                             )}
-                                            <button onClick={confirmOrder} type="submit" className='btn'>{isLoading === false ? 'Đặt hàng' : 'Đang đặt hàng...'}</button>
+                                            <button onClick={confirmOrder} type="submit" className='btn'>{isLoading === false ? 'Đặt hàng' : 'Đang xử lý đặt hàng...'}</button>
                                         </div>
                                     </div>
                                 </div>

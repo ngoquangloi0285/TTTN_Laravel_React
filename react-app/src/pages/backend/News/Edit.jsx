@@ -17,7 +17,7 @@ import Swal from 'sweetalert2';
 
 const EditNews = () => {
     const { id } = useParams(); // lấy ID từ URL
-    const { user } = useAuthContext();
+    const { currentUser } = useAuthContext();
     const navigate = useNavigate();
     const [categories, setCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -291,7 +291,7 @@ const EditNews = () => {
                     <div className="col-12">
                         <div className='d-flex align-items-center justify-content-center'>
                             <div className="mb-2 text-center">
-                                <label className='form-label fw-bold' htmlFor="author">Author: <span className='text-danger'>{user?.name}</span></label>
+                                <label className='form-label fw-bold' htmlFor="author">Author: <span className='text-danger'>{currentUser?.name}</span></label>
                             </div>
                         </div>
                         <button onClick={confirmUpdate} className="btn btn-success text-white mr-2" type="submit" id='btn_create'>

@@ -219,7 +219,10 @@ Route::prefix('menu/v1')->group(function () {
 
 Route::prefix('order/v1')->group(function () {
     // Order
-    Route::post("create_order", [OrderController::class, 'store']);
+    Route::get("orders", [OrderController::class, 'index'])->name('order.orders');
+    Route::get("edit/{id}", [OrderController::class, 'edit'])->name('order.edit');
+    Route::post("create_order", [OrderController::class, 'store'])->name('order.create_order');
+    Route::get("your_order/{id}", [OrderController::class, 'your_order'])->name('order.your_order');
 });
 
 Route::prefix('countdown/v1')->group(function () {

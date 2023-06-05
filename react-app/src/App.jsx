@@ -42,6 +42,10 @@ import User from './pages/backend/User/User'
 import EditUser from './pages/backend/User/Edit';
 import CreateUser from './pages/backend/User/CreateUser';
 import TrashUser from './pages/backend/User/Trash';
+// Route User
+import Order from './pages/backend/Order/Order'
+import UpdateOrder from './pages/backend/Order/Edit';
+import TrashOrder from './pages/backend/Order/Trash';
 // Route Menu
 import Menu from './pages/backend/Menu/Menu'
 import CreateMenu from './pages/backend/Menu/CreateMenu';
@@ -59,6 +63,7 @@ import ProfilePage from './pages/frontend/ProfilePage';
 import ProductDetailPage from './pages/frontend/ProductDetailPage';
 import BlogSlugPage from './pages/frontend/BlogSlugPage';
 import CartCheckOut from './pages/frontend/CartCheckOut';
+import OrderTracking from './pages/frontend/OrderTracking';
 import YourOrder from './pages/frontend/YourOrder';
 
 function App(props) {
@@ -87,7 +92,8 @@ function App(props) {
           <Route path="product/inch/:slug" element={<OurStore />} />
           <Route path="product-detail/:slug" element={<ProductDetailPage />} />
           <Route path="profile" element={<ProfilePage />} />
-          <Route path="your-order" element={<YourOrder />} />
+          <Route path="your_order" element={<YourOrder />} />
+          <Route path="order_tracking" element={<OrderTracking />} />
 
           <Route element={<GuestLayout />}>
             <Route path="login" element={<Login />} />
@@ -125,6 +131,10 @@ function App(props) {
             <Route path="user/create-user" element={<CreateUser />} />
             <Route path="user/edit-user/:id" element={<EditUser />} />
             <Route path="user/trash-user" element={<TrashUser />} />
+            {/* Order */}
+            <Route path="order" element={<Order />} />
+            <Route path="order/view-update/:id" element={<UpdateOrder />} />
+            <Route path="order/trash-order" element={<TrashOrder />} />
             {/* Contact */}
             <Route path="contact" element={<ContactAdmin />} />
             <Route path="contact/create-contact" element={<CreateContact />} />

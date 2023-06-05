@@ -261,16 +261,14 @@ const OurStore = () => {
                                                                         <span className="original-price">
                                                                             {product.discount === null ? '' : (
                                                                                 <del>
-                                                                                    {product.price.toLocaleString('vi-VN', {
-                                                                                        style: 'currency',
-                                                                                        currency: 'VND'
-                                                                                    })}
+                                                                                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
                                                                                 </del>
                                                                             )}
-                                                                        </span>                                                                    </p>
-                                                                    <p className={`description ${grid === 12 ? "d-block" : "d-none"} `}>
-                                                                        {product.summary}
+                                                                        </span>
                                                                     </p>
+                                                                    {/* <p className={`description ${grid === 12 ? "d-block" : "d-none"} `}>
+                                                                        {product.summary}
+                                                                    </p> */}
                                                                 </div>
                                                             </div>
                                                             <Link to={`../product-detail/${product.slug}`}

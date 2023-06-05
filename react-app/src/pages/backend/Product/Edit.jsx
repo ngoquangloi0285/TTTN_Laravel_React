@@ -16,7 +16,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2';
 
 const Edit = () => {
-    const { user } = useAuthContext();
+    const { currentUser } = useAuthContext();
     const { id } = useParams(); // lấy ID từ URL
     const encodedId = encodeURIComponent(id);
     const navigate = useNavigate();
@@ -377,7 +377,6 @@ const Edit = () => {
             // ClearUp();
         } catch (error) {
             setIsLoading(false);
-            setIsLoading(false);
             // Nếu xảy ra lỗi, hiển thị thông báo lỗi
             if (error.response.status === 500) {
                 Swal.fire('Error!', error.response.data.error, 'error');
@@ -428,7 +427,7 @@ const Edit = () => {
                     <div className="col-12">
                         <div className='d-flex align-items-center justify-content-center'>
                             <div className="mb-2 text-center">
-                                <label className='form-label fw-bold' htmlFor="author">Author: <span className='text-danger'>{user?.name}</span></label>
+                                <label className='form-label fw-bold' htmlFor="author">Author: <span className='text-danger'>{currentUser?.name}</span></label>
                             </div>
                         </div>
                         <button onClick={confirmUpdate} className="btn btn-success text-white mr-2" type="submit" id='btn_create'>

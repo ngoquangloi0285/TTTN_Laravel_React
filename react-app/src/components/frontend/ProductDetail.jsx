@@ -179,10 +179,13 @@ const ProductDetail = (props) => {
                                     <p className='price'>{calculateDiscountedPrice(productList.price, productList.discount).toLocaleString('vi-VN', {
                                         style: 'currency',
                                         currency: 'VND'
-                                    })} <span className='text-danger fs-6'><del>{productList.discount === null ? '' : `$ ${productList.price.toLocaleString('vi-VN', {
-                                        style: 'currency',
-                                        currency: 'VND'
-                                    })}`}</del> <sup>{productList.discount === null ? "" : `Giảm ${parseInt(productList.discount)}%`}</sup></span></p>
+                                    })}
+                                        <span className='text-danger fs-6'>{productList.discount === null ? '' : (
+                                            <del>
+                                                {' '}{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(productList.price)}
+                                            </del>
+                                        )}
+                                            <sup> {productList.discount === null ? "" : `Giảm ${parseInt(productList.discount)}%`}</sup></span></p>
                                     <p className="text-dark m-0">
                                         Danh mục: <strong className='text-danger'> {categoryMap[productList.category_id]}</strong>
                                     </p>
@@ -212,8 +215,8 @@ const ProductDetail = (props) => {
                                         edit={false}
                                         activeColor="#ffd700"
                                     />
-                                    <input type="number" value='1' />
-                                    <Link to="#" onClick={() => handleAddToCart(productList, selectedColor)} className='button btn-product-detail'>Add to cart</Link>
+                                    {/* <input type="number" value='1' /> */}
+                                    <Link to="#" onClick={() => handleAddToCart(productList, selectedColor)} className='button btn-product-detail m-0'>Add to cart</Link>
                                     <h3>Thông tin sản phẩm <i className='fa fa-indent'></i></h3>
                                     <p>
                                         <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(productList.detail) }} />
