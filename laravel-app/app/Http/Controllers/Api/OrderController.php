@@ -8,6 +8,7 @@ use App\Models\OrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OrderConfirmation;
+use App\Mail\OrderDelivered;
 
 class OrderController extends Controller
 {
@@ -22,25 +23,25 @@ class OrderController extends Controller
 
         switch ($status) {
             case 'order_waiting_confirmation':
-                $query->where('status', 0)->orderBy('created_at', 'desc')->latest(); // Đơn hàng đang đợi được xác nhận
+                $query->where('status', 0)->orderBy('created_at', 'desc')->get(); // Đơn hàng đang đợi được xác nhận
                 break;
             case 'order_confirmation':
-                $query->where('status', 1)->orderBy('created_at', 'desc')->latest(); // Đơn hàng đã được xác nhận và đang đợi đóng hàng
+                $query->where('status', 1)->orderBy('created_at', 'desc')->get(); // Đơn hàng đã được xác nhận và đang đợi đóng hàng
                 break;
             case 'order_waiting_packing':
-                $query->where('status', '<', 2)->orderBy('created_at', 'desc')->latest(); // Đơn hàng đã được vận chuyển và đang đợi giao
+                $query->where('status', '>', 0)->where('status', '<', 2)->orderBy('created_at', 'desc')->get(); // Đơn hàng đã được vận chuyển và đang đợi giao
                 break;
             case 'order_packed':
-                $query->where('status', 2)->orderBy('created_at', 'desc')->latest(); // Đơn hàng đã được đóng hàng và đang đợi vận chuyển
+                $query->where('status', 2)->orderBy('created_at', 'desc')->get(); // Đơn hàng đã được đóng hàng và đang đợi vận chuyển
                 break;
             case 'order_waiting_shipped':
-                $query->where('status', '<', 3)->orderBy('created_at', 'desc')->latest(); // Đơn hàng đang đợi giao
+                $query->where('status', '>', 1)->where('status', '<', 3)->orderBy('created_at', 'desc')->get(); // Đơn hàng đang đợi giao
                 break;
             case 'order_shipping':
-                $query->where('status', 3)->orderBy('created_at', 'desc')->latest(); // Đơn hàng đã giao
+                $query->where('status', 3)->orderBy('created_at', 'desc')->get(); // Đơn hàng đã giao
                 break;
             case 'order_delivered':
-                $query->where('status', 4)->orderBy('created_at', 'desc')->latest(); // Đơn hàng đã giao
+                $query->where('status', 4)->orderBy('created_at', 'desc')->get(); // Đơn hàng đã giao
                 break;
             default:
                 // Không lọc theo trạng thái
@@ -89,6 +90,7 @@ class OrderController extends Controller
         $order->address_order = $request->input('address');
         $order->city = $request->input('city');
         $order->zip_code = $request->input('code');
+        $order->note = $request->input('note');
         $order->payment_method = $request->input('paymentMethod');
         $order->status = 0;
 
@@ -178,9 +180,36 @@ class OrderController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        // Kiểm tra xem ID có tồn tại trong cơ sở dữ liệu hay không
+        $order = Order::find($id);
+        if (!$order) {
+            return response()->json(['error' => 'Không tìm thấy đơn hàng'], 404);
+        }
+        // Cập nhật trạng thái đơn hàng
+        $status = $request->input('status');
+        $deliveryTime = $request->input('deliveryTime');
+        $noteAdmin = $request->input('note_admin');
+
+        $order->status = $status;
+        $order->deliveryTime = $deliveryTime;
+        $order->note_admin = $noteAdmin;
+
+        $orderDetails = OrderDetail::where('order_id', $id)->get();
+        if ($order->save()) {
+            foreach ($orderDetails as $orderDetail) {
+                $orderDetail->status = $request->input('status');
+                $orderDetail->save();
+            }
+        }
+        // Kiểm tra nếu trạng thái đơn hàng là 4, thực hiện gửi email cho khách hàng
+        if ($status == 4) {
+            // Gửi email
+            $userEmail = $order->email_order;
+            Mail::to($userEmail)->send(new OrderDelivered($order));
+        }
+        return response()->json(['success' => 'Cập nhật thành công'], 200);
     }
 
     /**

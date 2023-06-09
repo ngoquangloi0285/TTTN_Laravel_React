@@ -20,6 +20,8 @@ class Order extends Model
         'address_order',
         'city',
         'zip_code',
+        'note',
+        'note_admin',
         'payment_method',
         'deliveryTime',
         'status'

@@ -91,7 +91,7 @@ export default function DataGridDemo() {
           const statusStyle = {
             padding: '5px',
             borderRadius: '5px',
-            color: 'white',
+            color: 'black',
           };
           let statusText, backgroundColor;
           switch (params.value) {
@@ -105,7 +105,7 @@ export default function DataGridDemo() {
               break;
             case 2:
               statusText = 'Đang đợi vận chuyển...';
-              backgroundColor = 'blue';
+              backgroundColor = 'pink';
               break;
             case 3:
               statusText = 'Đang giao...';

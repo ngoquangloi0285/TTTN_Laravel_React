@@ -52,7 +52,7 @@ const OrderTracking = () => {
                 </>
                 :
                 <>
-                  <div>
+                  <div className='card-body p-4'>
                     {orders.length > 0 ? (
                       orders.map((order) => (
                         <div key={order.order.id}>
@@ -67,9 +67,17 @@ const OrderTracking = () => {
                           }
                           <article className="card">
                             <div className="card-body row">
-                              <div className="col">
-                                <strong>Ước tính thời gian giao hàng:</strong> <br />
-                                {order.deliveryTime}
+                              <div className="col-12">
+                                <strong>Ước tính thời gian giao hàng: </strong>
+                                {
+                                  order.order.deliveryTime ? new Date(order.order.deliveryTime).toLocaleDateString('vi-VN') : 'Sẽ cập nhật sau khi xử lý đơn hàng...'
+                                }
+                              </div>
+                              <div className="col-12">
+                                <strong>Thông báo từ quản trị viên: </strong>
+                                {
+                                  order.order.note_admin === null ? 'Không có thông báo nào!' : order.order.note_admin
+                                }
                               </div>
                             </div>
                           </article>
@@ -96,7 +104,7 @@ const OrderTracking = () => {
                                 <i className="fa fa-truck" />
                               </span>
                               <span className="text">
-                                {order.order.status <= 2 ? "Đang giao đơn cho nhà vận chuyển..." : "Đang vận chuyển"}
+                                {order.order.status <= 2 ? "Đang đợi giao đơn cho nhà vận chuyển..." : "Đang vận chuyển"}
                               </span>
                             </div>
                             <div className={`step ${order.order.status > 3 ? "active" : ""}`}>

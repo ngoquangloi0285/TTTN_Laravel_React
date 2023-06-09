@@ -198,6 +198,7 @@ const ProductDetail = (props) => {
                                     <p className="text-dark my-2">
                                         Kích thước: <strong className='text-danger'> {productList.inch}</strong>
                                     </p>
+                                    <p className='m-0 text-dark my-2'>Còn hàng:({productList.total}) sản phẩm</p>
                                     <label htmlFor="selectedColor">Chọn màu sản phẩm:</label>
                                     <input
                                         value={selectedColor}

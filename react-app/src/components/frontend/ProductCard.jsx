@@ -4,6 +4,8 @@ import { Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import axios from '../../api/axios';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../../state/cartSlice';
+import { FaStar } from 'react-icons/fa';
+import { FaStarHalf } from 'react-icons/fa';
 
 function calculateDiscountedPrice(price, discountPercent) {
     const discountAmount = (price * discountPercent) / 100;
@@ -132,59 +134,44 @@ export const ProductList = (props) => {
                                         <img className='img-fluid' src={`http://localhost:8000/storage/product/${product.image}`} width="100%" alt={product.name_product} />
                                         {/* <img className='img-fluid' src="images/tab1.jpg" alt="" /> */}
                                     </div>
-                                    <div className="product-detail">
-                                        <div className="row">
-                                            <p className="text-dark m-0">
-                                                {categoryMap[product.category_id]}
-                                            </p>
-                                            <p className="text-danger brand m-0">
-                                                {brandMap[product.brand_id]}
-                                            </p>
-                                            <h5 className='product-title'>
-                                                {product.name_product}
-                                            </h5>
-                                            {/* <p className='product-summary m-0'>
-                                                {product.summary}
-                                            </p> */}
-                                            <div className="react_start d-flex">
-                                                <ReactStars
-                                                    count={5}
-                                                    onChange={ratingChanged}
-                                                    size={24}
-                                                    value="4"
-                                                    edit={false}
-                                                    activeColor="#ffd700"
-                                                />
-                                                <p className='m-0'>({product.total})</p>
-                                            </div>
-                                            <p className="price">
-                                                <strong>
-                                                    {calculateDiscountedPrice(product.price, product.discount).toLocaleString('vi-VN', {
-                                                        style: 'currency',
-                                                        currency: 'VND'
-                                                    })}
-                                                </strong>
-                                                &nbsp;
-                                                <span className="original-price">
-                                                    {product.discount === null ? (
-                                                        ''
-                                                    ) : (
-                                                        <span className="original-price">
-                                                            {product.discount === null ? '' : (
-                                                                <del>
-                                                                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
-                                                                </del>
-                                                            )}
-                                                        </span>
-                                                    )}
-                                                </span>
-
-
-                                            </p>
-
-                                            {/* <p className={`description ${grid === 12 ? "d-block" : "d-none"} `}>
-                                                {product.total}
-                                            </p> */}
+                                    <div className="row">
+                                        <p className="text-dark m-0">
+                                            {categoryMap[product.category_id]}
+                                        </p>
+                                        <p className="text-danger brand m-0">
+                                            {brandMap[product.brand_id]}
+                                        </p>
+                                        <p className='product-title'>
+                                            {product.name_product}
+                                        </p>
+                                        <p className="price">
+                                            <strong>
+                                                {calculateDiscountedPrice(product.price, product.discount).toLocaleString('vi-VN', {
+                                                    style: 'currency',
+                                                    currency: 'VND'
+                                                })}
+                                            </strong>
+                                            &nbsp;
+                                            <span className="original-price">
+                                                {product.discount === null ? (
+                                                    ''
+                                                ) : (
+                                                    <span className="original-price">
+                                                        {product.discount === null ? '' : (
+                                                            <del>
+                                                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
+                                                            </del>
+                                                        )}
+                                                    </span>
+                                                )}
+                                            </span>
+                                        </p>
+                                        <div className="react_start d-flex">
+                                            <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
+                                            <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
+                                            <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
+                                            <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
+                                            <FaStarHalf style={{ color: '#ffd700', fontSize: '20px' }}/>
                                         </div>
                                     </div>
                                     <Link to={`../product-detail/${product.slug}`}
@@ -194,7 +181,6 @@ export const ProductList = (props) => {
                                     </Link>
                                 </Link>
                             </div>
-
                         ))
                     )
             }

@@ -33,11 +33,19 @@ const CartCheckOut = () => {
     const [phone, setPhone] = useState(currentUser?.phone ? currentUser.phone : null);
     const [city, setCity] = useState(null);
     const [code, setCode] = useState(null);
+    const [note, setNote] = useState(null);
     const [checked, setChecked] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('');
+    const [isPaymentIncomplete, setPaymentIncomplete] = useState(false);
 
     const handlePaymentMethodChange = (e) => {
         setPaymentMethod(e.target.value);
+
+        if (e.target.value === 'credit') {
+            setPaymentIncomplete(true);
+        } else {
+            setPaymentIncomplete(false);
+        }
     };
 
     const handleChecked = (e) => {
@@ -130,6 +138,7 @@ const CartCheckOut = () => {
             formData.append('address', address);
             formData.append('city', city);
             formData.append('code', code);
+            formData.append('note', note);
             formData.append('paymentMethod', paymentMethod);
 
             console.log(formData);
@@ -168,22 +177,28 @@ const CartCheckOut = () => {
                 setIsLoading(false)
             }
         }
-    }, [address, cart.cartItems, checked, city, code, email, fullname, paymentMethod, total_amount, navigate, phone, handleClearCart])
+    }, [address, cart.cartItems, checked, city, code, email, fullname, paymentMethod, note, total_amount, navigate, phone, handleClearCart])
     // xác nhận  order
     const confirmOrder = useCallback(() => {
-        Swal.fire({
-            title: 'Bạn có chắc chắn?',
-            text: 'Bạn có chắc chắn đặt hàng!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Có, Tôi đặt hàng',
-            cancelButtonText: 'Không, Tôi không đặt'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                handleCheckout();
-            }
-        });
-    }, [handleCheckout]);
+        if (isPaymentIncomplete) {
+            // Hiển thị thông báo chức năng thanh toán online chưa hoàn thiện
+            alert('Chức năng thanh toán online chưa được hoàn thiện');
+        } else {
+
+            Swal.fire({
+                title: 'Bạn có chắc chắn?',
+                text: 'Bạn có chắc chắn đặt hàng!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Có, Tôi đặt hàng',
+                cancelButtonText: 'Không, Tôi không đặt'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    handleCheckout();
+                }
+            });
+        }
+    }, [handleCheckout, isPaymentIncomplete]);
 
     useEffect(() => {
         dispatch(getTotals());
@@ -245,17 +260,17 @@ const CartCheckOut = () => {
                                                     {errors.city}
                                                 </div>
                                             )}
-                                            <div className="row">
-                                                <div className="col-50">
-                                                    <label htmlFor="zip">Mã bưu điện<span className='fs-3 text-danger'>*</span></label>
-                                                    <input value={code} onChange={(e) => setCode(e.target.value)} type="text" id="zip" name="zip" placeholder='Mã bưu điện: 10001' />
-                                                    {errors.code && (
-                                                        <div className="alert alert-danger" role="alert">
-                                                            {errors.code}
-                                                        </div>
-                                                    )}
+
+                                            <label htmlFor="zip">Mã bưu điện<span className='fs-3 text-danger'>*</span></label>
+                                            <input value={code} onChange={(e) => setCode(e.target.value)} type="text" id="zip" name="zip" placeholder='Mã bưu điện: 10001' />
+                                            {errors.code && (
+                                                <div className="alert alert-danger" role="alert">
+                                                    {errors.code}
                                                 </div>
-                                            </div>
+                                            )}
+
+                                            <label htmlFor="note">Bạn có lời nhắn gì cho chúng tôi?</label>
+                                            <textarea class="form-control" rows='3' value={note} onChange={(e) => setNote(e.target.value)} type="text" id="note" name="note" placeholder='Ví dụ: Giao hàng cho tôi ngoài giờ hành chính' />
                                         </div>
                                         <div className="col-50">
                                             <div>
@@ -272,7 +287,9 @@ const CartCheckOut = () => {
                                                     />
                                                     Thanh toán khi nhận hàng
                                                 </label>
-                                                <label htmlFor="credit">
+                                                <label htmlFor="credit"
+                                                    className='m-0'
+                                                >
                                                     <input
                                                         type="radio"
                                                         name="payment"
@@ -290,7 +307,7 @@ const CartCheckOut = () => {
                                                 )}
                                                 {paymentMethod === 'credit' && (
                                                     <>
-                                                        <p className='m-0 text-danger'> <span className='fs-4'>*</span> Chúng tôi đang cố gắng hoàn thành chức năng, <br /> Xin lỗi vì sự bất tiện này!</p>
+                                                        <p className='m-0 text-danger'> <span className='fs-4'></span> Chúng tôi đang cố gắng hoàn thành chức năng, <br /> Xin lỗi vì sự bất tiện này!</p>
                                                         <label htmlFor="fname" className='mt-3'><strong>Thẻ được chấp nhận</strong></label>
                                                         <div className="icon-container">
                                                             <img width='25%' src="https://www.freepnglogos.com/uploads/visa-and-mastercard-logo-26.png" alt="" />
@@ -322,7 +339,9 @@ const CartCheckOut = () => {
                                                     {errors.checked}
                                                 </div>
                                             )}
-                                            <button onClick={confirmOrder} type="submit" className='btn'>{isLoading === false ? 'Đặt hàng' : 'Đang xử lý đặt hàng...'}</button>
+                                            <button onClick={confirmOrder} type="submit" className='btn' disabled={isPaymentIncomplete || isLoading}>
+                                                {isLoading === false ? 'Đặt hàng' : 'Đang xử lý đặt hàng...'}
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

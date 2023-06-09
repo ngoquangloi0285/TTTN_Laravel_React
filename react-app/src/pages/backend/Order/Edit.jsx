@@ -14,6 +14,8 @@ import Meta from '../../../components/frontend/Meta';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2';
+import '../../frontend/your_order.css'
+import { OrderQRCode } from '../QRCode/OrderQRCode';
 
 const Edit = () => {
     const { currentUser } = useAuthContext();
@@ -26,83 +28,85 @@ const Edit = () => {
     const [error, setError] = useState([]);
     const [status, setStatus] = useState(null);
 
-    const [order, setOrder] = useState([]);
+    const [deliveryTime, setDeliveryTime] = useState();
+    const [noteAdmin, setNoteAdmin] = useState('Cảm ơn đơn hàng của bạn!');
 
-    useEffect(() => {
-        Promise.all([
-            axios.get(`api/order/v1/edit/${encodedId}`),
-        ])
-            .then(([orderResponse]) => {
-                if (orderResponse.data) {
-                    setOrder(orderResponse.data);
-                    console.log(orderResponse.data);
-                }
-                setIsLoading(false);
-            })
-            .catch(error => {
-                setIsLoading(false);
-                console.log(error);
-            });
+    const [orders, setOrders] = useState([]);
+
+    const fetchOrderData = useCallback(async () => {
+        try {
+            const orderResponse = await axios.get(`api/order/v1/edit/${encodedId}`);
+            if (orderResponse.data) {
+                setOrders(orderResponse.data);
+                // console.log(orderResponse.data);
+            }
+            setIsLoading(false);
+        } catch (error) {
+            setIsLoading(false);
+            console.log(error);
+        }
     }, [encodedId]);
 
-    // Xử lý khi người dùng ấn nút Submit
-    const handleSubmit = useCallback(async () => {
-        const btn = document.getElementById('btn_create');
-        // lấy dữ liệu thì form
+    useEffect(() => {
+        fetchOrderData();
+    }, [encodedId, fetchOrderData]);
 
-        // chèn dữ liệu
+
+    const handleStatusUpdate = useCallback(async (status) => {
+        // Cập nhật trạng thái đơn hàng tại đây
+        const newErrors = {};
+        if (!deliveryTime) {
+            newErrors.deliveryTime = "Vui lòng nhập ngày dự kiến giao hàng!";
+        }
+        // Kiểm tra các giá trị khác và thêm thông báo lỗi tương ứng vào object `newErrors`
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            setTimeout(() => {
+                setErrors("");
+            }, 10000); // Hiển thị thông báo lỗi trong 10 giây
+            setIsLoading(false);
+            return;
+        }
         const formData = new FormData();
-
+        formData.append('status', status)
+        formData.append('deliveryTime', deliveryTime)
+        formData.append('note_admin', noteAdmin ? noteAdmin : null);
         try {
-            btn.innerHTML = "Updating...";
-            const response = await axios.post(`/api/product/v1/update-product/${encodedId}`, formData, {
+            const response = await axios.post(`/api/order/v1/update-order/${encodedId}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            setIsLoading(false);
-            btn.innerHTML = "Update Product";
             if (response.status === 200) {
                 setStatus(response.data.status)
                 // toast.success(response.data.status);
                 Swal.fire({
                     icon: 'success',
-                    title: 'Success',
-                    text: response.data.status,
-                    confirmButtonText: 'Back to Product'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        navigate('../product')
-                    }
-                });
+                    title: 'Cập nhật trạng thái Đơn hàng',
+                    text: response.data.success,
+                })
+                fetchOrderData();
             }
         } catch (error) {
-            setIsLoading(false);
-            // Nếu xảy ra lỗi, hiển thị thông báo lỗi
-            if (error.response.status === 500) {
-                Swal.fire('Error!', error.response.data.error, 'error');
-            } else {
-                Swal.fire('Error!', 'Failed to create new Product.', 'error');
-            }
-            btn.innerHTML = "Update Product";
+
         }
-    }, [encodedId, navigate]);
+    }, [deliveryTime, encodedId, noteAdmin, fetchOrderData]);
 
     // xác nhận  update
     const confirmUpdate = useCallback(() => {
         Swal.fire({
-            title: 'Are you sure?',
-            text: 'Are you sure you want to update Product this!',
+            title: 'Bạn có chắc chắn',
+            text: 'Bạn đang cập nhật trạng thái đơn hàng!',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, update it!',
             cancelButtonText: 'No, keep it'
         }).then((result) => {
             if (result.isConfirmed) {
-                handleSubmit();
+                handleStatusUpdate(status);
             }
         });
-    }, [handleSubmit]);
+    }, [handleStatusUpdate, status]);
 
     useEffect(() => {
         if (status || error) {
@@ -121,12 +125,13 @@ const Edit = () => {
             }
         ></LoadingOverlay>
     }
+
     return (
         <>
-            <Meta title={`Update Product with ID: ${encodedId}`} />
+            <Meta title={`Cập nhật trạng thái đơn hàng có mã: ${encodedId}`} />
             <div className="row">
-                <div className="row">
-                    <div className="col-12">
+                <div className="col-12">
+                    <div className="card-body  p-4">
                         <div className='d-flex align-items-center justify-content-center'>
                             <div className="mb-2 text-center">
                                 <label className='form-label fw-bold' htmlFor="author">Author: <span className='text-danger'>{currentUser?.name}</span></label>
@@ -142,9 +147,190 @@ const Edit = () => {
                         </Link>
                     </div>
                 </div>
-                <ToastContainer />
-            </div>
+                <div className='col-12'>
+                    <div className='card-body edit_your_order px-4 py-0'>
+                        <div className='text-center'><h1>Thông tin khách hàng</h1></div>
+                        <hr className="mb-4" style={{ backgroundColor: '#e0e0e0', opacity: 1 }} />
+                        <div className="d-flex justify-content-around">
+                            <div className='mx-2'>
+                                <label htmlFor="name">Tên khách hàng:</label>
+                                <textarea type="text" className='form-control text-danger' disabled value={orders.orderer_name} />
+                            </div>
+                            <div className='mx-2'>
+                                <label htmlFor="name">Email:</label>
+                                <textarea type="text" className='form-control text-danger' disabled value={orders.email_order} />
+                            </div>
+                            <div className='mx-2'>
+                                <label htmlFor="name">Số điện thoại:</label>
+                                <textarea type="text" className='form-control text-danger' disabled value={orders.phone_order} />
+                            </div>
+                            <div className='mx-2'>
+                                <label htmlFor="name">Địa chỉ giao hàng:</label>
+                                <textarea type="text" className='form-control text-danger' disabled value={orders.address_order} />
+                            </div>
+                            <div className='mx-2'>
+                                <label htmlFor="name">Thành Phố:</label>
+                                <textarea type="text" className='form-control text-danger' disabled value={orders.city} />
+                            </div>
+                            <div className='mx-2'>
+                                <label htmlFor="name">Mã bưu điện:</label>
+                                <textarea type="text" className='form-control text-danger' disabled value={orders.zip_code} />
+                            </div>
 
+                        </div>
+                        <div className="my-3">
+                            <div className='mx-2'>
+                                <label htmlFor="name">Lời nhắn của khách hàng:</label>
+                                <textarea type="text" className='form-control text-danger' disabled value={orders.note} />
+                            </div>
+                        </div>
+                    </div>
+                    {/* Tạo mã QR từ thông tin đơn hàng */}
+                    <div className='text-center'><h1>QR Code</h1></div>
+                    <div className='d-flex justify-content-center'>
+                        <OrderQRCode order={orders} />
+                    </div>
+                    <hr className="mt-4" style={{ backgroundColor: '#000', opacity: 1 }} />
+                </div>
+                <div className='col-12'>
+                    <div className="card-body edit_your_order p-4">
+                        <div className='text-center'><h1>Thông tin đơn hàng</h1></div>
+                        <hr className="mb-4" style={{ backgroundColor: '#e0e0e0', opacity: 1 }} />
+                        <div className="d-flex justify-content-between align-items-center mb-4">
+                            <p className="lead fw-normal mb-0" style={{ color: '#a8729a' }}>Biên lai</p>
+                            <p className="fs-5 text-muted mb-0"><strong>Phiếu nhận hàng: {orders.id}</strong></p>
+                        </div>
+                        <div className="card shadow-0 border mb-4">
+                            {orders.orderDetails.map((detail) => (
+                                <div className="card-body">
+                                    <div className="row" key={detail.id}>
+                                        <div className="col-md-2">
+                                            <img
+                                                src={`http://localhost:8000/storage/product/${detail.image}`}
+                                                className="img-fluid" alt="Phone" />
+                                        </div>
+                                        <div className="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                            <p className="text-muted mb-0">{detail.product_name}</p>
+                                        </div>
+                                        <div className="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                            <p className="text-muted mb-0">{detail.color}</p>
+                                        </div>
+                                        <div className="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                            <p className="text-muted mb-0">Số lượng: {detail.quantity}</p>
+                                        </div>
+                                        <div className="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                            <p className="text-muted mb-0">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(detail.price)}</p>
+                                        </div>
+                                        <div className="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                            <p className="text-muted mb-0">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(detail.total_amount)}</p>
+                                        </div>
+                                    </div>
+
+                                    <hr className="mb-4" style={{ backgroundColor: '#e0e0e0', opacity: 1 }} />
+                                </div>
+                            ))}
+                            {/* Tạo mã QR từ thông tin đơn hàng */}
+                            <div className='text-center'><h1>QR Code</h1></div>
+                            <div className='d-flex justify-content-center'>
+                                <OrderQRCode order={orders.orderDetails} />
+                            </div>
+                        </div>
+                        <div className="d-flex justify-content-between pt-2">
+                            <p className="fw-bold mb-0">Chi tiết đơn hàng</p>
+                            <p className="text-muted mb-0">
+                                <span className="fw-bold me-4">Tổng cộng</span>
+                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(orders.total_amount)}
+                            </p>
+                        </div>
+                        <div className="d-flex justify-content-between mb-5">
+                            <p className="text-muted my-2"><span className="fw-bold me-4">Chi phí vận chuyển</span> Miễn phí</p>
+                        </div>
+                    </div>
+                </div>
+                <div className='col-12'>
+                    <div className='card-body edit_your_order px-4 py-0'>
+                        <div className='text-center'><h1>Trạng thái đơn hàng</h1></div>
+                        <hr className="mb-4" style={{ backgroundColor: '#e0e0e0', opacity: 1 }} />
+                        <h6 className='mt-3'><i>Mã đơn hàng</i>: <strong>{orders.id}</strong></h6>
+                        <div className="row mt-3">
+                            <div className="col-4 m-0">
+                                <label htmlFor="deliveryTime"><strong>Ngày dự kiến giao đơn: </strong>
+                                    <input className='form-control' value={deliveryTime} onChange={(e) => setDeliveryTime(e.target.value)} type="date" />
+                                </label>
+                                {errors.deliveryTime && (
+                                    <div className="alert alert-danger" role="alert">
+                                        {errors.deliveryTime}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <div className="row mt-3">
+                            <div className="col-4 m-0">
+                                <label htmlFor="deliveryTime"><strong>Bạn có lời nhắn cho khách hàng không?: </strong>
+                                    <textarea value={noteAdmin} onChange={(e) => setNoteAdmin(e.target.value)} className='form-control' type="text" />
+                                </label>
+                            </div>
+                            {errors.noteAdmin && (
+                                <div className="alert alert-danger" role="alert">
+                                    {errors.noteAdmin}
+                                </div>
+                            )}
+                        </div>
+                        <div className="track">
+                            <div className={`step ${orders.status > 0 ? "active" : ""}`}>
+                                <span className="icon" onClick={() => handleStatusUpdate(1)} style={{ cursor: 'pointer' }}>
+                                    <i className="fa fa-check" />
+                                </span>
+                                <span className="text">
+                                    {orders.status === 0 ? "Đang đợi xác nhận đơn hàng..." : "Đã xác nhận đơn hàng"}
+                                </span>
+                            </div>
+                            <div className={`step ${orders.status > 1 ? "active" : ""}`} >
+                                <span className="icon" onClick={() => handleStatusUpdate(2)} style={{ cursor: 'pointer' }}>
+                                    <i className="fa fa-user" />
+                                </span>
+                                <span className="text">
+                                    {orders.status <= 1 ? "Đang đóng hàng..." : "Đã đóng hàng"}
+                                </span>
+                            </div>
+                            <div className={`step ${orders.status > 2 ? "active" : ""}`}>
+                                <span className="icon" onClick={() => handleStatusUpdate(3)} style={{ cursor: 'pointer' }}>
+                                    <i className="fa fa-truck" />
+                                </span>
+                                <span className="text">
+                                    {orders.status <= 2 ? "Đang đợi giao đơn cho nhà vận chuyển..." : "Đang vận chuyển"}
+                                </span>
+                            </div>
+                            <div className={`step ${orders.status > 3 ? "active" : ""}`}>
+                                <span className="icon" onClick={() => handleStatusUpdate(4)} style={{ cursor: 'pointer' }}>
+                                    <i className="fa fa-box" />
+                                </span>
+                                <span className="text">
+                                    {orders.status <= 3 ? "Chưa giao đến..." : "Đã giao"}
+                                </span>
+                            </div>
+                        </div>
+                        <br />
+
+                        <br />
+                        <div className="d-flex justify-content-center align-items-center">
+                            <div className='mx-2'>
+                                <button
+                                    // onClick={() => handleCancleOrder(orders.id)}
+                                    className='btn bg-danger text-white'>Hủy đơn hàng</button>
+                            </div>
+                            <div className='mx-2'>
+                                <Link to="../order" className="btn btn-info text-white mr-2" type="button">
+                                    <AiOutlineRollback className='fs-4' />
+                                    Quay về danh sách đơn hàng
+                                </Link>
+                            </div>
+                        </div>
+                        <hr className="mt-4" style={{ backgroundColor: '#000', opacity: 1 }} />
+                    </div>
+                </div>
+            </div>
+            <ToastContainer />
         </>
     );
 };

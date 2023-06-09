@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('city');
             $table->string('zip_code');
             $table->string('payment_method');
+            $table->string('note')->nullable();
+            $table->string('note_admin')->nullable();
             $table->string('deliveryTime')->nullable();
             $table->tinyInteger('status')->unsigned();
             $table->timestamps();

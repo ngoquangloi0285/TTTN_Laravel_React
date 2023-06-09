@@ -212,7 +212,7 @@ Route::prefix('menu/v1')->group(function () {
     // Khôi phục SP ALL
     Route::post('restoreALL', [MenuController::class, 'restoreALL'])->name('menu.restoreALL');
     // Xóa vĩnh viễn SP
-    Route::delete('/remove/{id}', [MenuController::class, 'remove'])->name('menu.remove');
+    Route::delete('remove/{id}', [MenuController::class, 'remove'])->name('menu.remove');
     // Xóa vĩnh viễn  nhiều SP
     Route::delete('removeALL', [MenuController::class, 'removeALL'])->name('menu.removeALL');
 });
@@ -223,6 +223,8 @@ Route::prefix('order/v1')->group(function () {
     Route::get("edit/{id}", [OrderController::class, 'edit'])->name('order.edit');
     Route::post("create_order", [OrderController::class, 'store'])->name('order.create_order');
     Route::get("your_order/{id}", [OrderController::class, 'your_order'])->name('order.your_order');
+    Route::post('update-order/{id}', [OrderController::class, 'update'])->name('order.update')->middleware('cors');
+    Route::delete('remove/{id}', [OrderController::class, 'remove'])->name('order.remove');
 });
 
 Route::prefix('countdown/v1')->group(function () {

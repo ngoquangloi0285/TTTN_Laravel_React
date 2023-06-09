@@ -32,6 +32,7 @@ class ContactController extends Controller
         }
         $contact = Contact::create([
             'contact_id' => $contact_id,
+            'user_id' => $request->user()->id,
             'name_contact' => $request['name'],
             'email_contact' => $request['email'],
             'phone_contact' => $request['phone'],

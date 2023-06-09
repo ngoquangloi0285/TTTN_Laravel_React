@@ -15,6 +15,7 @@ class Contact extends Model
     protected $dates = ['deleted_at'];
 
     protected $fillable = [
+        'user_id',
         'contact_id',
         'name_contact',
         'email_contact',
