@@ -13,16 +13,16 @@ function calculateDiscountedPrice(price, discountPercent) {
     return discountedPrice;
 }
 
-const fetchData = async (slug, newProduct, suggestion, saleProduct, setProductList, setCategoryMap, setIsLoading, setBrandMap) => {
+const fetchData = async (newProduct, suggestion, saleProduct, relatedproducts, setProductList, setCategoryMap, setIsLoading, setBrandMap) => {
     setIsLoading(true);
     try {
         const [productResponse, categoryResponse, brandResponse] = await Promise.all([
-            axios.get('/api/product/v1/products', {
+            axios.get('/api/product/v1/get_data', {
                 params: {
                     newProduct: newProduct,
                     saleProduct: saleProduct,
-                    slug: slug,
                     suggestion: suggestion,
+                    relatedproducts: relatedproducts,
                 },
                 headers: {
                     'Content-Type': 'application/json'
@@ -52,19 +52,15 @@ const fetchData = async (slug, newProduct, suggestion, saleProduct, setProductLi
 };
 
 export const ProductList = (props) => {
-    const ratingChanged = (newRating) => {
-        console.log(newRating);
-    };
+
     const relatedproducts = props.relatedproducts
-    console.log(relatedproducts)
-    const { slug } = useParams(); // lấy ID từ URL
+
+    // const { slug } = useParams(); // lấy ID từ URL
+
     const newProduct = props.newProduct
     const saleProduct = props.saleProduct
-    console.log(saleProduct)
     const suggestion = props.suggestion
-    console.log(suggestion)
-    const { grid } = props;
-    let location = useLocation();
+
     const [isLoading, setIsLoading] = useState(true);
     const [productList, setProductList] = useState([]);
     const [brandMap, setBrandMap] = useState({});
@@ -79,16 +75,8 @@ export const ProductList = (props) => {
         const { current: fetchData } = fetchDataRef;
         if (!fetchData) return;
 
-        fetchData(slug, newProduct, suggestion, saleProduct, setProductList, setCategoryMap, setIsLoading, setBrandMap);
-    }, [slug, newProduct, suggestion, saleProduct]);
-
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-
-    const handleAddToCart = (product) => {
-        dispatch(addToCart({ item: { ...product, count: 1 } }));
-        navigate("../cart");
-    };
+        fetchData(newProduct, suggestion, saleProduct, relatedproducts, setProductList, setCategoryMap, setIsLoading, setBrandMap);
+    }, [newProduct, suggestion, saleProduct, relatedproducts]);
 
     return (
         <>
@@ -104,7 +92,7 @@ export const ProductList = (props) => {
                                         height: '200px',
                                     }
                                 }
-                                src="" className="card-img-top placeholder-glow placeholder" alt="" />
+                                className="card-img-top placeholder-glow placeholder" alt="" />
                             <div className="card-body">
                                 <h5 className="card-title placeholder-glow">
                                     <span className="placeholder col-6"></span>
@@ -123,12 +111,12 @@ export const ProductList = (props) => {
                     (
                         productList.map((product) => (
                             <div key={product.id} className="gr-4">
-                                <Link to={`../product-detail/${product.slug}`} className="product-card position-relative shadow">
+                                <Link to={`../product-detail/${product.slug}`} className="product-card position-relative">
                                     <div className='discount position-absolute'>
                                         <span>{product.discount === null ? "" : `Giảm ${parseInt(product.discount)}%`}</span>
                                     </div>
                                     <div className='discount position-absolute'>
-                                        <span>{product.type === 'new_product' ? 'New Product' : ''}</span>
+                                        <span>{product.type === 'new_product' ? 'Sản phẩm mới' : ''}</span>
                                     </div>
                                     <div className="product-image">
                                         <img className='img-fluid' src={`http://localhost:8000/storage/product/${product.image}`} width="100%" alt={product.name_product} />
@@ -144,7 +132,7 @@ export const ProductList = (props) => {
                                         <p className='product-title'>
                                             {product.name_product}
                                         </p>
-                                        <p className="price">
+                                        <p className="price" id='price'>
                                             <strong>
                                                 {calculateDiscountedPrice(product.price, product.discount).toLocaleString('vi-VN', {
                                                     style: 'currency',
@@ -171,7 +159,7 @@ export const ProductList = (props) => {
                                             <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
                                             <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
                                             <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
-                                            <FaStarHalf style={{ color: '#ffd700', fontSize: '20px' }}/>
+                                            <FaStarHalf style={{ color: '#ffd700', fontSize: '20px' }} />
                                         </div>
                                     </div>
                                     <Link to={`../product-detail/${product.slug}`}
@@ -183,6 +171,9 @@ export const ProductList = (props) => {
                             </div>
                         ))
                     )
+            }
+            {
+                productList.length === 0 && <p>Không có sản phẩm liên quan!</p>
             }
         </>
     )

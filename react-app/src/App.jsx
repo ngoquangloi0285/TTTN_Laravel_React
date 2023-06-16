@@ -65,6 +65,9 @@ import BlogSlugPage from './pages/frontend/BlogSlugPage';
 import CartCheckOut from './pages/frontend/CartCheckOut';
 import OrderTracking from './pages/frontend/OrderTracking';
 import YourOrder from './pages/frontend/YourOrder';
+import OrderHistory from './pages/frontend/OrderHistory';
+import RevenueWeb from './pages/backend/Revenue/RevenueWeb';
+import ViewHistory from './pages/backend/Order/ViewHistory';
 
 function App(props) {
 
@@ -94,6 +97,7 @@ function App(props) {
           <Route path="profile" element={<ProfilePage />} />
           <Route path="your_order" element={<YourOrder />} />
           <Route path="order_tracking" element={<OrderTracking />} />
+          <Route path="order_history" element={<OrderHistory />} />
 
           <Route element={<GuestLayout />}>
             <Route path="login" element={<Login />} />
@@ -134,7 +138,8 @@ function App(props) {
             {/* Order */}
             <Route path="order" element={<Order />} />
             <Route path="order/view-update/:id" element={<UpdateOrder />} />
-            <Route path="order/trash-order" element={<TrashOrder />} />
+            <Route path="order/history-order" element={<TrashOrder />} />
+            <Route path="order/view-history/:id" element={<ViewHistory />} />
             {/* Contact */}
             <Route path="contact" element={<ContactAdmin />} />
             <Route path="contact/create-contact" element={<CreateContact />} />
@@ -145,6 +150,8 @@ function App(props) {
             <Route path="menu/trash-menu" element={<TrashMenu />} />
             {/* Slide */}
             <Route path="slide" element={<Slide />} />
+            {/* Revenue */}
+            <Route path="revenue" element={<RevenueWeb />} />
 
           </Route>
         </Route>

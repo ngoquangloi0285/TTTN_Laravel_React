@@ -4,7 +4,7 @@ import { BsCartCheck, BsSearch, BsShop } from "react-icons/bs";
 import { BiLogOut } from "react-icons/bi";
 import { RiAccountCircleLine } from "react-icons/ri";
 import useAuthContext from "../../context/AuthContext";
-import { AiOutlineDashboard } from "react-icons/ai";
+import { AiOutlineDashboard, AiOutlineHistory } from "react-icons/ai";
 import { MdSpatialTracking, MdSwitchAccount } from "react-icons/md";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -181,6 +181,11 @@ const Header = () => {
                             <li>
                               <Link to="../order_tracking" className="dropdown-item" >
                                 Theo dõi đơn hàng <MdSpatialTracking className="icon-item" />
+                              </Link>
+                            </li>
+                            <li>
+                              <Link to="../order_history" className="dropdown-item" >
+                                Lịch sử đơn hàng <AiOutlineHistory className="icon-item" />
                               </Link>
                             </li>
                             <li>

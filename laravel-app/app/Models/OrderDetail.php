@@ -16,6 +16,7 @@ class OrderDetail extends Model
         'order_id',
         'product_id',
         'product_name',
+        'slug_product',
         'color',
         'image',
         'quantity',

@@ -1,13 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import Meta from '../../components/frontend/Meta'
 import Maps from '../../components/frontend/Maps'
-import './your_order.css'
-import { Link } from 'react-router-dom'
-import useAuthContext from '../../context/AuthContext'
-import axios from '../../api/axios'
+import useAuthContext from '../../context/AuthContext';
+import axios from '../../api/axios';
+import { Link } from 'react-router-dom';
 
-const YourOrder = () => {
-
+const OrderHistory = () => {
     const { currentUser } = useAuthContext();
     const userID = currentUser?.id;
     const [isLoading, setIsLoading] = useState(true);
@@ -16,7 +14,7 @@ const YourOrder = () => {
     const fetchOrderData = useCallback(async () => {
         try {
             setIsLoading(true)
-            const response = await axios.get(`/api/order/v1/your_order/${userID}`);
+            const response = await axios.get(`/api/order/v1/history/${userID}`);
             setOrders(response.data.orders);
             setIsLoading(false)
         } catch (error) {
@@ -28,21 +26,20 @@ const YourOrder = () => {
     useEffect(() => {
         fetchOrderData();
     }, [fetchOrderData]);
-
     return (
         <>
-            <Meta title="Đơn hàng của bạn" />
-            <Maps title="Đơn hàng của bạn" />
+            <Meta title="Lịch sử đơn hàng" />
+            <Maps title="Lịch sử đơn hàng" />
             <div className="container-xxl">
                 <section className="h-100 gradient-custom your_order">
                     <div className="container py-5 h-100">
                         <div className="row d-flex justify-content-center align-items-center h-100">
                             <div className="col-lg-12 col-xl-12">
                                 <div className="card" style={{ borderRadius: 10 }}>
-                                    <h5 className="text-muted mb-0">Thông tin đơn hàng của bạn, <span style={{ color: '#a8729a' }}>{currentUser?.name}</span>!</h5>
+                                    <h5 className="text-muted mb-0">Thông tin lịch sử đơn hàng của bạn, <span style={{ color: '#000' }}>{currentUser?.name}</span>!</h5>
                                     {
                                         isLoading ? <>
-                                            <p>Đang tải đơn hàng của bạn...</p>
+                                            <p>Đang tải lịch sử đơn hàng của bạn...</p>
                                         </>
                                             :
                                             <>
@@ -50,7 +47,7 @@ const YourOrder = () => {
                                                     {orders.length > 0 ? (
                                                         orders.map((order) => (
                                                             <div key={order.order.id}>
-                                                                <p>Thông báo từ quản trị viên: {order.order.note_admin}</p>
+                                                                <p className='text-success'>Thông báo từ quản trị viên: {order.order.note_admin}</p>
                                                                 <hr className="mb-4" style={{ backgroundColor: '#e0e0e0', opacity: 1 }} />
                                                                 <div className="d-flex justify-content-between align-items-center mb-4">
                                                                     <p className="lead fw-normal mb-0" style={{ color: '#a8729a' }}>Biên lai</p>
@@ -65,6 +62,7 @@ const YourOrder = () => {
                                                                                         <img
                                                                                             src={`http://localhost:8000/storage/product/${detail.image}`}
                                                                                             className="img-fluid" alt="Phone" />
+                                                                                            <Link className='my-2'>Mua lại</Link>
                                                                                     </div>
                                                                                     <div className="col-md-2 text-center d-flex justify-content-center align-items-center">
                                                                                         <p className="text-muted mb-0">{detail.product_name}</p>
@@ -108,9 +106,9 @@ const YourOrder = () => {
                                                 </div>
                                             </>
                                     }
-                                    <div className="col-12">
+                                    {/* <div className="col-12">
                                         <Link to="../order_tracking" className="btn btn-success my-3" data-abc="true"> Theo dõi đơn hàng của bạn <i className="fa fa-chevron-right" /></Link>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         </div>
@@ -121,4 +119,4 @@ const YourOrder = () => {
     )
 }
 
-export default YourOrder
+export default OrderHistory

@@ -24,15 +24,15 @@ class BrandController extends Controller
     public function index(Request $request)
     {
         if ($request->has('id')) {
-            $id = $request['id'];
+            $id = $request->input('id');
             $brand = Brand::findOrFail($id);
-            return $brand;
-        } else {
-            $brand = Brand::all();
-            // return $brand;
             return response()->json($brand);
         }
+
+        $brands = Brand::all();
+        return response()->json($brands);
     }
+
 
     /**
      * Store a newly created resource in storage.

@@ -31,7 +31,7 @@ function CellRenderer(props) {
       .catch(error => {
         console.log(error);
       });
-  }, [value,fieldName,endpoint]);
+  }, [value, fieldName, endpoint]);
 
   return <span>{data}</span>;
 }
@@ -74,14 +74,28 @@ export default function DataGridDemo() {
         headerName: 'Price',
         type: 'number',
         editable: true,
-        valueFormatter: (params) => `$${params.value}`,
+        width: 150,
+        valueFormatter: (params) => {
+          const formatter = new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+          });
+          return formatter.format(params.value);
+        }
       },
       {
         field: 'cost',
         headerName: 'Cost',
         type: 'number',
         editable: true,
-        valueFormatter: (params) => `$${params.value}`,
+        width: 150,
+        valueFormatter: (params) => {
+          const formatter = new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+          });
+          return formatter.format(params.value);
+        }
       },
       {
         field: 'discount',

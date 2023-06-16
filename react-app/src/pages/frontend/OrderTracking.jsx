@@ -2,9 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react'
 import Meta from '../../components/frontend/Meta'
 import Maps from '../../components/frontend/Maps'
 import './your_order.css'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import axios from '../../api/axios'
 import useAuthContext from '../../context/AuthContext'
+import Swal from 'sweetalert2'
 
 const OrderTracking = () => {
 
@@ -29,10 +30,62 @@ const OrderTracking = () => {
     fetchOrderData();
   }, [fetchOrderData]);
 
+  const navigate = useNavigate();
+  const [status, setStatus] = useState(null);
 
-  const handleCancleOrder = (id) => {
-    console.log('handleCancleOrder', id)
-  }
+  const handleCancleOrder = useCallback(async (id) => {
+    try {
+        const response = await axios.delete(`/api/order/v1/destroy/${id}`);
+        if (response.status === 200) {
+            setStatus(response.data.status)
+            // toast.success(response.data.status);
+            Swal.fire({
+                icon: 'warning',
+                title: 'Một thư hủy đơn hàng sẽ được gửi đến Email của Bạn!',
+                text: response.data.success,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate('../order_history')
+                }
+            });
+        }
+        setIsLoading(false);
+    } catch (error) {
+        if (error.response && error.response.status === 404) {
+            setStatus(error.response.data.status);
+            Swal.fire({
+                icon: 'error',
+                title: 'Cập nhật không thành công',
+                text: error.response.data.error,
+            });
+        } else {
+            // Xử lý các trường hợp lỗi khác
+        }
+        setIsLoading(false);
+    }
+}, [navigate]);
+
+const confirmCancleOrder = useCallback((status) => {
+    Swal.fire({
+        title: 'Bạn có chắc chắn',
+        text: 'Bạn có chắn chắn hủy đơn hàng này!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Có, Có hủy đơn!',
+        cancelButtonText: 'Không, Không hủy đơn!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            setIsLoading(true); // Đặt trạng thái isLoading thành true
+            handleCancleOrder(status)
+                .then(() => {
+                    setIsLoading(false); // Đặt trạng thái isLoading thành false khi xử lý hoàn tất
+                })
+                .catch(() => {
+                    setIsLoading(false); // Đặt trạng thái isLoading thành false khi có lỗi xảy ra
+                });
+        }
+    });
+}, [handleCancleOrder]);
 
 
   return (
@@ -61,7 +114,7 @@ const OrderTracking = () => {
                             order.order.status < 1 &&
                             <div className="row my-2">
                               <div className="col-12">
-                                <button onClick={() => handleCancleOrder(order.order.id)} className='btn bg-danger text-white'>Hủy đơn hàng</button>
+                                <button onClick={() => confirmCancleOrder(order.order.id)} className='btn bg-danger text-white'>Hủy đơn hàng</button>
                               </div>
                             </div>
                           }

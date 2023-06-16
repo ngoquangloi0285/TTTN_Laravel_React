@@ -1,16 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import ReactStars from "react-rating-stars-component";
 import Maps from '../../components/frontend/Maps'
 import Meta from '../../components/frontend/Meta';
-import { ProductList } from '../../components/frontend/ProductCard';
 import Color from '../../components/frontend/Color';
-import { getProduct } from '../../globalState';
 import axios from '../../api/axios';
-import { useDispatch } from 'react-redux';
-import { addToCart } from '../../state/cartSlice';
-import useAuthContext from '../../context/AuthContext';
-import { toast } from 'react-toastify';
+import { FaStar, FaStarHalf } from 'react-icons/fa';
 
 function calculateDiscountedPrice(price, discountPercent) {
     const discountAmount = (price * discountPercent) / 100;
@@ -19,21 +14,19 @@ function calculateDiscountedPrice(price, discountPercent) {
 }
 
 const OurStore = () => {
-    const { currentUser } = useAuthContext();
 
     const ratingChanged = (newRating) => {
         console.log(newRating);
     };
+
     const { keyword, slug } = useParams(); // lấy ID từ URL
-    console.log(slug)
-    let location = useLocation();
-    const [grid, setGird] = useState(4);
+    const [filter, setFilter] = useState('');
+
     const [isLoading, setIsLoading] = useState(true);
     const [productList, setProductList] = useState([]);
     const [brandList, setBrandList] = useState([]);
     const [categoryMap, setCategoryMap] = useState({});
     const [brandMap, setBrandMap] = useState({});
-    const [filter, setFilter] = useState('');
 
     const fetchCategory = useCallback(async () => {
         try {
@@ -84,43 +77,30 @@ const OurStore = () => {
         Promise.all([fetchCategory(), fetchData()]);
     }, [fetchCategory, fetchData]);
 
-    console.log(brandList)
     const product_List = productList;
     const types = [...new Set(product_List.map(product => product.color))];
     const inch = [...new Set(product_List.map(product => product.inch))];
-    console.log("type", types)
+
     // phân trang
     const [currentPage, setCurrentPage] = useState(1);
-    const recordsPerPage = 5;
+    const recordsPerPage = 6;
     const lastIndex = currentPage * recordsPerPage;
     const firstIndex = lastIndex - recordsPerPage;
     const records = productList.slice(firstIndex, lastIndex);
     const npage = Math.ceil(productList.length / recordsPerPage);
     const numbers = [...Array(npage + 1).keys()].slice(1);
 
-
-    // addToCart
-    const dispatch = useDispatch();
-
-    const handleAddToCart = (product) => {
-        if (currentUser) {
-            dispatch(addToCart(product));
-        } else {
-            toast.error("Vui lòng đăng nhập!")
-        }
-    };
-
     return (
         <>
-            <Meta title={"Our Store"} />
-            <Maps title="Our Store" />
+            <Meta title={"Cửa hàng E-Mart"} />
+            <Maps title="Cửa hàng E-Mart" />
             <div className="store-wrapper home-wrapper-2 py-5">
                 <div className="container-xxl">
                     <div className="row">
                         <div className="col-3">
                             <div className="filter-card mb-3">
                                 <h3 className="filter-title">
-                                    Tìm kiếm theo thương hiệu
+                                    
                                 </h3>
                                 <div className='container'>
                                     <div className="row filter-mx">
@@ -178,7 +158,7 @@ const OurStore = () => {
                                         <p className='mb-0 title-sort d-block'>Sắp xếp theo:</p>
                                         <select value={filter} onChange={(e) => setFilter(e.target.value)} className='form-control form-select' name="" id="">
                                             <option value="" selected>Chọn lọc</option>
-                                            <option value="bestSelling">Bán chạy nhất</option>
+                                            {/* <option value="bestSelling">Bán chạy nhất</option> */}
                                             <option value="lowToHigh">Giá, thấp đến cao</option>
                                             <option value="highToLow">Giá, cao đến thấp</option>
                                             <option value="oldToNew">Ngày, củ đến mới</option>
@@ -199,7 +179,7 @@ const OurStore = () => {
                                                                 height: '200px',
                                                             }
                                                         }
-                                                        src="" className="card-img-top placeholder-glow placeholder" alt="" />
+                                                        className="card-img-top placeholder-glow placeholder" alt="" />
                                                     <div className="card-body">
                                                         <h5 className="card-title placeholder-glow">
                                                             <span className="placeholder col-6"></span>
@@ -218,7 +198,7 @@ const OurStore = () => {
                                             (
                                                 records.map((product) => (
                                                     <div key={product.id} className='gr-f4'>
-                                                        <div className="product-card position-relative shadow ">
+                                                        <div className="product-card position-relative">
                                                             <div className='discount position-absolute'>
                                                                 <span>{product.discount === null ? "" : `Giảm ${parseInt(product.discount)}%`}</span>
                                                             </div>
@@ -243,14 +223,13 @@ const OurStore = () => {
                                                                     <h5 className='product-title'>
                                                                         {product.name_product}
                                                                     </h5>
-                                                                    <ReactStars
-                                                                        count={5}
-                                                                        onChange={ratingChanged}
-                                                                        size={24}
-                                                                        value="4"
-                                                                        edit={false}
-                                                                        activeColor="#ffd700"
-                                                                    />
+                                                                    <div className="react_start d-flex">
+                                                                        <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
+                                                                        <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
+                                                                        <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
+                                                                        <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
+                                                                        <FaStarHalf style={{ color: '#ffd700', fontSize: '20px' }} />
+                                                                    </div>
                                                                     <p className="price">
                                                                         <strong>
                                                                             {calculateDiscountedPrice(product.price, product.discount).toLocaleString('vi-VN', {
@@ -284,7 +263,7 @@ const OurStore = () => {
                                             )
                                     }
                                     {
-                                        productList.length === 0 && <h1>Không có sản phẩm!</h1>
+                                        productList.length === 0 && <p>Không có sản phẩm!</p>
                                     }
                                 </div>
                             </div>

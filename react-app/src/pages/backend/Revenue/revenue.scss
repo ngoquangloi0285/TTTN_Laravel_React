@@ -1,0 +1,51 @@
+
+.revenue-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background-color: #00DFA2;
+    padding: 30px;
+    margin-top: 0;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    box-sizing: border-box;
+
+    .revenue-number {
+        text-align: left;
+    }
+
+    .revenue-number h1 {
+        font-size: 32px;
+        color: #fff;
+        margin: 0;
+    }
+
+    .revenue-select .mb-3 {
+        margin-bottom: 15px;
+    }
+
+    .revenue-select .form-label {
+        font-weight: bold;
+    }
+
+    .revenue-select .form-control {
+        width: 100%;
+        padding: 8px;
+        // border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    .btn-revenue {
+        background-color: #c70016;
+        color: #FFF;
+        font-size: 1.2rem;
+        width: 100%;
+        cursor: auto !important;
+    }
+    .revenue-element {
+        margin-left: 10px;
+        border-radius: 10px;
+        text-align: center;
+        padding: 0 10px;
+        background-color: #000 !important;
+    }
+}

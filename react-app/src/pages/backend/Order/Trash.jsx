@@ -27,132 +27,127 @@ import Swal from 'sweetalert2';
 export default function DataGridDemo() {
     const columns = useMemo(
         () => [
-            {
-                field: 'id',
-                headerName: 'ID',
+          {
+            field: 'id',
+            headerName: 'Mã đơn hàng',
+            align: 'center',
+          },
+    
+          {
+            field: 'orderer_name',
+            headerName: 'Tên khách hàng',
+            editable: true,
+            width: 150,
+            align: 'center',
+          },
+          {
+            field: 'email_order',
+            headerName: 'eMail khách hàng',
+            editable: true,
+            width: 200,
+            // align: 'center',
+          },
+          {
+            field: 'total_amount',
+            headerName: 'Tổng tiền đơn hàng',
+            editable: true,
+            width: 150,
+            align: 'center',
+            valueFormatter: (params) => {
+              const formatter = new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+              });
+              return formatter.format(params.value);
+            }
+          },
+          {
+            field: 'note',
+            headerName: 'Lời nhắn khách hàng',
+            editable: true,
+            width: 250,
+            align: 'center',
+          },
+          {
+            field: 'payment_method',
+            headerName: 'Phương thức thanh toán',
+            editable: true,
+            width: 200,
+            align: 'center',
+          },
+          {
+            field: 'note_admin',
+            headerName: 'Ghi chú',
+            editable: true,
+            width: 250,
+            align: 'center',
+          },
+          {
+            field: 'status',
+            headerName: 'Trạng thái đơn hàng',
+            width: 220,
+            align: 'center',
+            renderCell: (params) => {
+              const statusStyle = {
+                padding: '5px',
+                borderRadius: '5px',
+                color: 'black',
+              };
+              let statusText, backgroundColor;
+              switch (params.value) {
+                case 0:
+                  statusText = 'Đang đợi xác nhận...';
+                  backgroundColor = 'yellow';
+                  break;
+                case 1:
+                  statusText = 'Đang đợi đóng gói...';
+                  backgroundColor = 'green';
+                  break;
+                case 2:
+                  statusText = 'Đang đợi vận chuyển...';
+                  backgroundColor = 'pink';
+                  break;
+                case 3:
+                  statusText = 'Đang giao...';
+                  backgroundColor = 'orange';
+                  break;
+                case 4:
+                  statusText = 'Đã giao';
+                  backgroundColor = 'purple';
+                  break;
+                default:
+                  statusText = 'Không xác định';
+                  backgroundColor = 'gray';
+              }
+              const statusDivStyle = {
+                ...statusStyle,
+                backgroundColor,
+              };
+              return <div style={statusDivStyle}>{statusText}</div>;
             },
-            {
-                field: 'product_id',
-                headerName: 'Product Code',
-                editable: true,
-            },
-            {
-                field: 'name_product',
-                headerName: 'Name',
-                editable: true,
-            },
-            {
-                field: 'image',
-                headerName: 'Image',
-                sortable: false,
-                cellClassName: 'custom-cell',
-                renderCell: (params) => (
-                    <img
-                        className='img img-fluid img-thumbnail'
-                        src={`http://localhost:8000/storage/product/${params.value}`}
-                        alt={params.row.name_product}
-                        style={{ width: '100%', height: 'auto' }} // Thêm CSS cho hình ảnh
-                    />
-                ),
-            },
-            {
-                field: 'price',
-                headerName: 'Price',
-                type: 'number',
-                editable: true,
-                valueFormatter: (params) => `$${params.value}`,
-            },
-            {
-                field: 'cost',
-                headerName: 'Cost',
-                type: 'number',
-                editable: true,
-                valueFormatter: (params) => `$${params.value}`,
-            },
-            {
-                field: 'discount',
-                headerName: 'Discount',
-                type: 'number',
-                editable: true,
-                valueFormatter: (params) => `$${params.value}`,
-            },
-            {
-                field: 'detail', headerName: 'Detail',
-                renderCell: (params) => (
-                    <Button className=''
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleClickOpen(params.row)}
-                    >
-                        <AiOutlineEye style={{ height: 'auto', fontSize: '26px', }} className='text-info' />  View
-                    </Button>
-                ),
-            },
-            {
-                field: 'author',
-                headerName: 'Author',
-                editable: true,
-            },
-            {
-                field: 'status',
-                headerName: 'Status',
-                renderCell: (params) => {
-                    const statusStyle = {
-                        padding: '5px',
-                        borderRadius: '5px',
-                        color: 'white',
-                    };
-                    const isActive = params.value;
-                    const statusText = isActive ? 'Active' : 'Inactive';
-                    const backgroundColor = isActive ? 'green' : 'red';
-                    const statusDivStyle = {
-                        ...statusStyle,
-                        backgroundColor,
-                    };
-                    return <div style={statusDivStyle}>{statusText}</div>;
-                },
-                editable: true,
-            },
-            {
-                field: 'actions',
-                headerName: 'Actions',
-                sortable: false,
-                renderCell: (params) => (
-                    <>
-                        <Link
-                            className='mx-1'
-                            style={{ fontSize: '30px', cursor: 'pointer' }}
-                            title='Edit'
-                            onClick={() => confirmRestore(params.id)}
-                        >
-                            <MdRestore />
-                        </Link>
-                        <span
-                            className='text-danger mx-1'
-                            style={{ fontSize: '25px', cursor: 'pointer' }}
-                            title='Delete'
-                            onClick={() => confirmDelete(params.id)}
-                        >
-                            <BsFillTrashFill />
-                        </span>
-                    </>
-                ),
-            },
+            editable: true,
+          },
+          {
+            field: 'actions',
+            headerName: 'Hành động',
+            sortable: false,
+            align: 'center',
+            renderCell: (params) => (
+              <>
+                <Link
+                  className='mx-1 text-info'
+                  style={{ fontSize: '25px', cursor: 'pointer' }}
+                  title='Edit'
+                  to={`../order/view-history/${params.id}`}
+                >
+                  <AiOutlineEye />
+                </Link>
+              </>
+            ),
+          },
         ]
-    )
+      )
 
-    // xử lý hiện modal chi tiết sản phẩm
-    const [selectedProduct, setSelectedProduct] = useState(null);
-    const [open, setOpen] = useState(false);
-
-    const handleClickOpen = (product) => {
-        setSelectedProduct(product);
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
 
     // xử lý load product
     const [isLoading, setIsLoading] = useState(false);
@@ -163,7 +158,7 @@ export default function DataGridDemo() {
     const fetchData = useCallback(async () => {
         setIsLoading(true);
         try {
-            const response = await axios.get('/api/product/v1/trash');
+            const response = await axios.get('/api/order/v1/trash');
             setIsLoading(false);
             setRecords(response.data);
             setInitialData(response.data);
@@ -178,173 +173,6 @@ export default function DataGridDemo() {
         fetchData();
     }, [fetchData]);
 
-    // handle action
-    const cache = new LRU({ max: 100 }); // Lưu trữ tối đa 100 giá trị
-
-    const handleRestore = useCallback(async (id) => {
-        try {
-            const res = await axios.post(`/api/product/v1/restore/${id}`, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            const products = cache.get('products');
-            if (products) {
-                // Tìm và cập nhật sản phẩm đã bị xóa trong cache
-                const updatedProducts = products.filter((product) => product.id !== id);
-                cache.set('products', updatedProducts);
-            }
-            // toast.success('Product has been softly deleted.');
-            Swal.fire(
-                'Restore Product Successfully',
-                res.data.message,
-                'success'
-            )
-            console.log(`ID của sản phẩm để xóa tạm: ${id}`);
-            fetchData(); // Cập nhật lại bảng sản phẩm
-        } catch (error) {
-            console.error(error);
-            toast.error('Failed to delete product.');
-        }
-    }, [fetchData, cache]);
-    // xác nhận khôi phục
-    const confirmRestore = useCallback((id) => {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'Are you sure you want to restore this catalog and related products!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, restore it!',
-            cancelButtonText: 'No, keep it'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                handleRestore(id);
-            }
-        });
-    }, [handleRestore]);
-
-    const [arrDmr, setArrDmr] = useState([])
-    //Khôi phục nhiều sản phẩm 
-    const handleRestoreALL = useCallback(async () => {
-        try {
-            const res = await axios.post('/api/product/v1/restoreALL', { ids: arrDmr }, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            Swal.fire(
-                'Restore Product Successfully',
-                res.data.message,
-                'success'
-            );
-            setArrDmr([]);
-            fetchData();
-        } catch (error) {
-            console.error(error);
-            Swal.fire(
-                'Restore Product Failed',
-                error.data.message,
-                'error'
-            );
-        }
-    }, [arrDmr, fetchData]);
-
-    // xác nhận khôi phục
-    const confirmRestoreALL = useCallback(() => {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'Are you sure you want to restore all this catalog and related products!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, restore all!',
-            cancelButtonText: 'No, keep it'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                handleRestoreALL();
-            }
-        });
-    }, [handleRestoreALL]);
-    // xóa vĩnh viễn
-    const handleDelete = useCallback(async (id) => {
-        try {
-            await axios.delete(`/api/product/v1/remove/${id}`, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            const products = cache.get('products');
-            if (products) {
-                // Tìm và cập nhật sản phẩm đã bị xóa trong cache
-                const updatedProducts = products.filter((product) => product.id !== id);
-                cache.set('products', updatedProducts);
-            }
-            toast.success('Product has been softly deleted.');
-            // Xóa sản phẩm khỏi danh sách hiện tại trong state `records`
-            setRecords(prevRecords => {
-                return prevRecords.filter((product) => product.id !== id);
-            });
-            fetchData();
-        } catch (error) {
-            console.error(error);
-            toast.error('Failed to delete product.');
-        }
-    }, [cache, setRecords, fetchData]);
-    // xác nhận xóa vĩnh viễn
-    const confirmDelete = useCallback((id) => {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'You will not be able to Delete this catalog and related products!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'No, keep it'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                handleDelete(id);
-            }
-        });
-    }, [handleDelete]);
-    
-    const handleDeleteALL = useCallback(async () => {
-        try {
-            const res = await axios.delete('/api/product/v1/removeALL', {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: { ids: arrDmr }
-            });
-            Swal.fire(
-                'Delete all Product Successfully',
-                res.data.message,
-                'success'
-            );
-            setArrDmr([]);
-            fetchData();
-        } catch (error) {
-            console.error(error);
-            Swal.fire(
-                'Delete all Product Failed',
-                error.data.message,
-                'error'
-            );
-        }
-    }, [arrDmr, fetchData]);
-
-    // xác nhận xóa vĩnh viễn nhiều sản phẩm
-    const confirmDeleteALL = useCallback(() => {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'You will not be able to Delete all this catalog and related products!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete all!',
-            cancelButtonText: 'No, keep it'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                handleDeleteALL();
-            }
-        });
-    }, [handleDeleteALL]);
     // lọc sản phẩm theo tên
     const handleFilter = useCallback(e => {
         const { value } = e.target;
@@ -353,7 +181,7 @@ export default function DataGridDemo() {
                 return [...initialData];
             }
             return prevRecords.filter(record =>
-                record.name_product.toLowerCase().includes(value.toLowerCase())
+                record.id.toLowerCase().includes(value.toLowerCase())
             );
         });
     }, [initialData, setRecords]);
@@ -379,33 +207,22 @@ export default function DataGridDemo() {
     }
     return (
         <>
-            <Meta title={"Trash Product"} />
+            <Meta title={"Lịch sử đơn hàng"} />
             <div className="container-xxl">
                 <div className="row">
                     <input
                         type="text"
                         className="form-control my-3"
-                        placeholder="Search Product..."
+                        placeholder="Tìm kiếm đơn hàng..."
                         onChange={handleFilter}
                     />
                     <div className="col-12 d-flex">
-                        <Link className="btn btn-danger m-1 text-white d-flex align-items-center" type="button">
-                            <FiTrash2 className='fs-4' /> Trash <span>( {!countTrash ? "0" : countTrash} )</span>
+                        {/* <Link className="btn btn-info m-1 text-white d-flex align-items-center" type="button">
+                            <FiTrash2 className='fs-4' /> Lịch sử đơn hàng <span>( {!countTrash ? "0" : countTrash} )</span>
+                        </Link> */}
+                        <Link to='../order' className="btn btn-info m-1 text-white d-flex align-items-center" type="button">
+                            <AiOutlineRollback className='fs-4' /> Quay về đơn hàng
                         </Link>
-                        <Link to='../product' className="btn btn-info m-1 text-white d-flex align-items-center" type="button">
-                            <AiOutlineRollback className='fs-4' /> Back Product
-                        </Link>
-                        {
-                            arrDmr.length > 1 &&
-                            <>
-                                <button onClick={confirmDeleteALL} className="btn btn-danger m-1 text-white d-flex align-items-center" type="button">
-                                    <FiTrash2 className='fs-4' /> Remove ALL
-                                </button>
-                                <button onClick={confirmRestoreALL} className="btn btn-info m-1 text-white d-flex align-items-center" type="button">
-                                    <MdRestore className='fs-4' /> Restore ALL
-                                </button>
-                            </>
-                        }
 
                     </div>
                     {/* hiện data product */}
@@ -423,50 +240,11 @@ export default function DataGridDemo() {
                             pageSizeOptions={[5, 10, 20]}
                             checkboxSelection
                             disableRowSelectionOnClick
-                            onRowSelectionModelChange={(data) => {
-                                setArrDmr(data)
-                            }}
-                            components={{
-                                Toolbar: GridToolbar,
-                            }}
                             // Hàm này sẽ được gọi mỗi khi thực hiện tìm kiếm
                             onFilterModelChange={(model) => console.log(model)}
                         />
                     </Box>
                     {/* hiện data product end*/}
-
-                    {/* Hiển thị modal - chi tiết sản phẩm*/}
-                    <Dialog open={open} onClose={handleClose} className="dialog" maxWidth="xl" maxHeight="lg">
-                        <DialogTitle>Product Detail</DialogTitle>
-                        <DialogContent className="dialog-content">
-                            {selectedProduct && (
-                                <>
-                                    <Typography className="product-name" variant="h6">{selectedProduct.name_product}</Typography>
-                                    <Typography className="product-info">{`Category: ${selectedProduct.category_id}`}</Typography>
-                                    <Typography className="product-info">{`Brand: ${selectedProduct.brand_id}`}</Typography>
-                                    <Typography className="product-info">{`Summary: ${selectedProduct.summary}`}</Typography>
-                                    <Typography className="product-info">{`Cost: $${selectedProduct.cost}`}</Typography>
-                                    <Typography className="product-info">{`Price: $${selectedProduct.price}`}</Typography>
-                                    <Typography className="product-info">{`Discount: $${selectedProduct.discount}`}</Typography>
-                                    <Typography className="product-info">{`Color: ${selectedProduct.color}`}</Typography>
-                                    <Typography className="product-info">{`Inch: ${selectedProduct.inch}`}</Typography>
-                                    <Typography className="product-title">Detail:</Typography>
-                                    <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedProduct.detail) }} />
-                                    <img className="product-image" src={`http://localhost:8000/storage/product/${selectedProduct.image}`} alt={selectedProduct.images} />
-                                    {/* ... Hiển thị các thông tin khác của sản phẩm ... */}
-                                </>
-                            )}
-                        </DialogContent>
-
-                        <DialogActions>
-                            <Button onClick={handleClose} color="primary">
-                                Close
-                            </Button>
-                        </DialogActions>
-                    </Dialog>
-                    {/* Hiển thị modal - chi tiết sản phẩm end*/}
-
-
 
                     <div className="col-3">
                         <button type="button" id='btn-loadpage' onClick={LoadPage} className="btn btn-dark">

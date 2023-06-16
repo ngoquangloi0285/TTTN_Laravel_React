@@ -82,31 +82,100 @@ const Edit = () => {
                 // toast.success(response.data.status);
                 Swal.fire({
                     icon: 'success',
-                    title: 'Cập nhật trạng thái Đơn hàng',
-                    text: response.data.success,
-                })
+                    title: 'Cập nhật đơn hàng',
+                    text: response.data.status,
+                    confirmButtonText: 'Trở đến lịch sử đơn hàng'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        navigate('../history_order')
+                    }
+                });
                 fetchOrderData();
             }
+            setIsLoading(false);
         } catch (error) {
-
+            if (error.response && error.response.status === 404) {
+                setStatus(error.response.data.status);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cập nhật không thành công',
+                    text: error.response.data.error,
+                });
+            } else {
+                // Xử lý các trường hợp lỗi khác
+            }
+            setIsLoading(false);
         }
-    }, [deliveryTime, encodedId, noteAdmin, fetchOrderData]);
+    }, [deliveryTime, encodedId, noteAdmin, fetchOrderData, navigate]);
 
-    // xác nhận  update
-    const confirmUpdate = useCallback(() => {
+    const confirmUpdate = useCallback((status) => {
         Swal.fire({
             title: 'Bạn có chắc chắn',
             text: 'Bạn đang cập nhật trạng thái đơn hàng!',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Yes, update it!',
-            cancelButtonText: 'No, keep it'
+            confirmButtonText: 'Có, Cập nhật!',
+            cancelButtonText: 'Không, Không cập nhật!'
         }).then((result) => {
             if (result.isConfirmed) {
-                handleStatusUpdate(status);
+                handleStatusUpdate(status)
             }
         });
-    }, [handleStatusUpdate, status]);
+    }, [handleStatusUpdate]);
+
+    const handleCancleOrder = useCallback(async (id) => {
+        try {
+            const response = await axios.delete(`/api/order/v1/destroy/${encodedId}`);
+            if (response.status === 200) {
+                setStatus(response.data.status)
+                // toast.success(response.data.status);
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Hủy đơn hàng tạm thời',
+                    text: response.data.message,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        navigate('../order')
+                    }
+                });
+            }
+            setIsLoading(false);
+        } catch (error) {
+            if (error.response && error.response.status === 404) {
+                setStatus(error.response.data.status);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cập nhật không thành công',
+                    text: error.response.data.error,
+                });
+            } else {
+                // Xử lý các trường hợp lỗi khác
+            }
+            setIsLoading(false);
+        }
+    }, [encodedId, navigate]);
+
+    const confirmCancleOrder = useCallback((status) => {
+        Swal.fire({
+            title: 'Bạn có chắc chắn',
+            text: 'Bạn có chắn chắn hủy đơn hàng này!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Có, Có hủy đơn!',
+            cancelButtonText: 'Không, Không hủy đơn!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                setIsLoading(true); // Đặt trạng thái isLoading thành true
+                handleCancleOrder(status)
+                    .then(() => {
+                        setIsLoading(false); // Đặt trạng thái isLoading thành false khi xử lý hoàn tất
+                    })
+                    .catch(() => {
+                        setIsLoading(false); // Đặt trạng thái isLoading thành false khi có lỗi xảy ra
+                    });
+            }
+        });
+    }, [handleCancleOrder]);
 
     useEffect(() => {
         if (status || error) {
@@ -118,12 +187,9 @@ const Edit = () => {
     }, [status, error]);
 
     if (isLoading === true) {
-        return <LoadingOverlay className='text-danger'
-            spinner
-            active={isLoading}
-            text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
-            }
-        ></LoadingOverlay>
+        return <>
+            <div className='d-flex justify-content-center fs-5'>Đang xử lý...</div>
+        </>
     }
 
     return (
@@ -201,34 +267,40 @@ const Edit = () => {
                             <p className="fs-5 text-muted mb-0"><strong>Phiếu nhận hàng: {orders.id}</strong></p>
                         </div>
                         <div className="card shadow-0 border mb-4">
-                            {orders.orderDetails.map((detail) => (
-                                <div className="card-body">
-                                    <div className="row" key={detail.id}>
-                                        <div className="col-md-2">
-                                            <img
-                                                src={`http://localhost:8000/storage/product/${detail.image}`}
-                                                className="img-fluid" alt="Phone" />
-                                        </div>
-                                        <div className="col-md-2 text-center d-flex justify-content-center align-items-center">
-                                            <p className="text-muted mb-0">{detail.product_name}</p>
-                                        </div>
-                                        <div className="col-md-2 text-center d-flex justify-content-center align-items-center">
-                                            <p className="text-muted mb-0">{detail.color}</p>
-                                        </div>
-                                        <div className="col-md-2 text-center d-flex justify-content-center align-items-center">
-                                            <p className="text-muted mb-0">Số lượng: {detail.quantity}</p>
-                                        </div>
-                                        <div className="col-md-2 text-center d-flex justify-content-center align-items-center">
-                                            <p className="text-muted mb-0">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(detail.price)}</p>
-                                        </div>
-                                        <div className="col-md-2 text-center d-flex justify-content-center align-items-center">
-                                            <p className="text-muted mb-0">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(detail.total_amount)}</p>
+                            {orders.orderDetails &&
+                                // Thực hiện nếu có dữ liệu
+                                orders.orderDetails.map((detail) => (
+                                    <div className="card-body">
+                                        {/* Các phần tử bên trong */}
+                                        <div className="card-body">
+                                            <div className="row" key={detail.id}>
+                                                <div className="col-md-2">
+                                                    <img
+                                                        src={`http://localhost:8000/storage/product/${detail.image}`}
+                                                        className="img-fluid" alt="Phone" />
+                                                </div>
+                                                <div className="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                                    <p className="text-muted mb-0">{detail.product_name}</p>
+                                                </div>
+                                                <div className="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                                    <p className="text-muted mb-0">{detail.color}</p>
+                                                </div>
+                                                <div className="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                                    <p className="text-muted mb-0">Số lượng: {detail.quantity}</p>
+                                                </div>
+                                                <div className="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                                    <p className="text-muted mb-0">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(detail.price)}</p>
+                                                </div>
+                                                <div className="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                                    <p className="text-muted mb-0">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(detail.total_amount)}</p>
+                                                </div>
+                                            </div>
+
+                                            <hr className="mb-4" style={{ backgroundColor: '#e0e0e0', opacity: 1 }} />
                                         </div>
                                     </div>
-
-                                    <hr className="mb-4" style={{ backgroundColor: '#e0e0e0', opacity: 1 }} />
-                                </div>
-                            ))}
+                                ))
+                            }
                             {/* Tạo mã QR từ thông tin đơn hàng */}
                             <div className='text-center'><h1>QR Code</h1></div>
                             <div className='d-flex justify-content-center'>
@@ -278,7 +350,7 @@ const Edit = () => {
                         </div>
                         <div className="track">
                             <div className={`step ${orders.status > 0 ? "active" : ""}`}>
-                                <span className="icon" onClick={() => handleStatusUpdate(1)} style={{ cursor: 'pointer' }}>
+                                <span className="icon" onClick={() => confirmUpdate(1)} style={{ cursor: 'pointer' }}>
                                     <i className="fa fa-check" />
                                 </span>
                                 <span className="text">
@@ -286,15 +358,15 @@ const Edit = () => {
                                 </span>
                             </div>
                             <div className={`step ${orders.status > 1 ? "active" : ""}`} >
-                                <span className="icon" onClick={() => handleStatusUpdate(2)} style={{ cursor: 'pointer' }}>
+                                <span className="icon" onClick={() => confirmUpdate(2)} style={{ cursor: 'pointer' }}>
                                     <i className="fa fa-user" />
                                 </span>
                                 <span className="text">
-                                    {orders.status <= 1 ? "Đang đóng hàng..." : "Đã đóng hàng"}
+                                    {orders.status <= 1 ? "Đang đợi đóng hàng..." : "Đã đóng hàng"}
                                 </span>
                             </div>
                             <div className={`step ${orders.status > 2 ? "active" : ""}`}>
-                                <span className="icon" onClick={() => handleStatusUpdate(3)} style={{ cursor: 'pointer' }}>
+                                <span className="icon" onClick={() => confirmUpdate(3)} style={{ cursor: 'pointer' }}>
                                     <i className="fa fa-truck" />
                                 </span>
                                 <span className="text">
@@ -302,7 +374,7 @@ const Edit = () => {
                                 </span>
                             </div>
                             <div className={`step ${orders.status > 3 ? "active" : ""}`}>
-                                <span className="icon" onClick={() => handleStatusUpdate(4)} style={{ cursor: 'pointer' }}>
+                                <span className="icon" onClick={() => confirmUpdate(4)} style={{ cursor: 'pointer' }}>
                                     <i className="fa fa-box" />
                                 </span>
                                 <span className="text">
@@ -311,12 +383,12 @@ const Edit = () => {
                             </div>
                         </div>
                         <br />
-
+                        {isLoading && <div className='d-flex justify-content-center fs-5'>Đang xử lý...</div>}
                         <br />
                         <div className="d-flex justify-content-center align-items-center">
                             <div className='mx-2'>
                                 <button
-                                    // onClick={() => handleCancleOrder(orders.id)}
+                                    onClick={() => confirmCancleOrder(orders.id)}
                                     className='btn bg-danger text-white'>Hủy đơn hàng</button>
                             </div>
                             <div className='mx-2'>

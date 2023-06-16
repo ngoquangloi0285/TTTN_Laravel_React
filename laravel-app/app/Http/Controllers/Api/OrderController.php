@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\OrderRemovalJob;
+use App\Mail\OrderCancel;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OrderConfirmation;
 use App\Mail\OrderDelivered;
+use App\Models\User;
+use Carbon\Carbon;
 
 class OrderController extends Controller
 {
@@ -117,6 +121,7 @@ class OrderController extends Controller
                 $orderDetail->order_id = $order->id;
                 $orderDetail->product_id = $product['product_id'];
                 $orderDetail->product_name = $product['product_name'];
+                $orderDetail->slug_product = $product['slug_product'];
                 $orderDetail->color = $product['color'];
                 $orderDetail->image = $product['image'];
                 $orderDetail->quantity = $product['quantity'];
@@ -187,6 +192,7 @@ class OrderController extends Controller
         if (!$order) {
             return response()->json(['error' => 'Không tìm thấy đơn hàng'], 404);
         }
+
         // Cập nhật trạng thái đơn hàng
         $status = $request->input('status');
         $deliveryTime = $request->input('deliveryTime');
@@ -194,29 +200,205 @@ class OrderController extends Controller
 
         $order->status = $status;
         $order->deliveryTime = $deliveryTime;
-        $order->note_admin = $noteAdmin;
 
+        // Kiểm tra nếu trạng thái đơn hàng là 4, thực hiện xóa tạm
+        if ($status == 4) {
+            $now = Carbon::now('Asia/Ho_Chi_Minh');
+            $orderDetails = OrderDetail::where('order_id', $id)->get();
+
+            foreach ($orderDetails as $orderDetail) {
+                $orderDetail->deleted_at = $now;
+                $orderDetail->status = $status;
+                $orderDetail->save();
+            }
+
+            $order->deleted_at = $now;
+            $order->note_admin = 'Giao hàng thành công';
+
+            if ($order->save()) {
+                // Gửi email
+                $userEmail = $order->email_order;
+                Mail::to($userEmail)->send(new OrderDelivered($order));
+
+                return response()->json([
+                    'success' => 'Đơn hàng đã giao hàng thành công',
+                    'message' => 'Đơn hàng đã lưu lại lịch sử',
+                ], 200);
+            } else {
+                return response()->json(['error' => 'Đã xảy ra lỗi'], 500);
+            }
+        }
+
+        if (auth()->user()->roles === 'admin') {
+            $order->note_admin = 'Đơn hàng được hủy bởi Quản trị viên' . ' ; Mã hủy: ' . auth()->user()->id;
+        } else {
+            $order->note_admin = 'Đơn hàng được hủy bởi ' . auth()->user()->name;
+        }
+
+        $order->note_admin = $noteAdmin;
         $orderDetails = OrderDetail::where('order_id', $id)->get();
         if ($order->save()) {
             foreach ($orderDetails as $orderDetail) {
-                $orderDetail->status = $request->input('status');
+                $orderDetail->status = $status;
                 $orderDetail->save();
             }
         }
-        // Kiểm tra nếu trạng thái đơn hàng là 4, thực hiện gửi email cho khách hàng
-        if ($status == 4) {
-            // Gửi email
-            $userEmail = $order->email_order;
-            Mail::to($userEmail)->send(new OrderDelivered($order));
-        }
+
         return response()->json(['success' => 'Cập nhật thành công'], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+
+    public function destroy(Request $request, $id)
     {
-        //
+        $order = Order::find($id);
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+
+        if (!$order) {
+            return response()->json(['error' => 'Không tìm thấy đơn hàng'], 404);
+        }
+
+        // Xóa tạm orderDetail
+        $orderDetails = OrderDetail::where('order_id', $id)->get();
+        foreach ($orderDetails as $orderDetail) {
+            $orderDetail->deleted_at = $now;
+            $orderDetail->status = 0;
+            $orderDetail->save();
+        }
+
+        // Đánh dấu đơn hàng là đã bị xóa tạm thời
+        $order->deleted_at = $now;
+        if (auth()->user()->roles === 'admin') {
+            $order->note_admin = 'Đơn hàng được hủy bởi Quản trị viên' . ' ; Mã hủy: ' . auth()->user()->id;
+        } else {
+            $order->note_admin = 'Đơn hàng được hủy bởi ' . auth()->user()->name;
+        }
+        // $order->note_admin = 'Đơn hàng được hủy bởi, ' . $request->user()->name . ' ID user: ' . $request->user()->id;
+        $order->status = 0;
+        if ($order->save()) {
+            // Gửi email
+            $userEmail = $order->email_order;
+            Mail::to($userEmail)->send(new OrderCancel($order, $orderDetails));
+            return response()->json([
+                'success' => 'Đơn hàng đã bị hủy, vui lòng kiểm tra Email của bạn',
+                'message' => 'Đơn hàng đã bị hủy! Đã lưu lại lịch sử',
+            ], 200);
+        } else {
+            return response()->json(['error' => 'Đã xảy ra lỗi khi hủy đơn hàng'], 500);
+        }
+    }
+
+    public function history($id)
+    {
+        $userOrders = Order::onlyTrashed()
+            ->where('user_id', $id)
+            ->latest()
+            ->get();
+
+        $orderData = [];
+
+        foreach ($userOrders as $order) {
+            $deletedOrder = $order;
+            $orderDetails = $order->orderDetails()->onlyTrashed()->get();
+
+            $orderData[] = [
+                'order' => $deletedOrder,
+                'orderDetails' => $orderDetails,
+            ];
+        }
+
+        return response()->json([
+            'orders' => $orderData,
+        ]);
+    }
+
+    public function historyTrash($id)
+    {
+        $order = Order::withTrashed()->find($id);
+        $orderData = [];
+        if ($order) {
+            $orderDetails = OrderDetail::where('order_id', $order->id)
+                ->withTrashed()
+                ->get();
+
+            $orderData = [
+                'order' => $order,
+                'orderDetails' => $orderDetails,
+            ];
+        }
+
+        return response()->json($orderData);
+    }
+
+
+    public function trash()
+    {
+        $orders = Order::onlyTrashed()->get();
+        return $orders;
+    }
+
+    public function revenue(Request $request)
+    {
+        $month = $request->input('month');
+        $year = $request->input('year');
+
+        $revenue = Order::onlyTrashed()
+            ->whereYear('created_at', $year)
+            ->whereMonth('created_at', $month)
+            ->where('status', 4)
+            ->sum('total_amount');
+
+        return response()->json([
+            'revenue' => $revenue,
+        ]);
+    }
+
+    public function completedOrders(Request $request)
+    {
+        $month = $request->input('month');
+        $year = $request->input('year');
+
+        $completedOrdersCount = Order::onlyTrashed()
+            ->whereYear('created_at', $year)
+            ->whereMonth('created_at', $month)
+            ->where('status', 4)
+            ->count();
+
+        return response()->json([
+            'completed_orders' => $completedOrdersCount,
+        ]);
+    }
+
+    public function canceledOrders(Request $request)
+    {
+        $month = $request->input('month');
+        $year = $request->input('year');
+
+        $canceledOrdersCount = Order::onlyTrashed()
+            ->whereYear('created_at', $year)
+            ->whereMonth('created_at', $month)
+            ->where('status', '<', 4)
+            ->count();
+
+        return response()->json([
+            'canceled_orders' => $canceledOrdersCount,
+        ]);
+    }
+
+    public function countUser(Request $request)
+    {
+        $month = $request->input('month');
+        $year = $request->input('year');
+
+        $userCount = User::whereYear('created_at', $year)
+            ->whereMonth('created_at', $month)
+            ->count();
+
+        return response()->json([
+            'user_count' => $userCount,
+        ]);
+    }
+
+    public function remove($id)
+    {
     }
 }

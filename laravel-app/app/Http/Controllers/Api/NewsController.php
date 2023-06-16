@@ -22,26 +22,39 @@ class NewsController extends Controller
      */
     public function index(Request $request)
     {
-        if (isset($request['slug'])) {
-            $data = $request['slug'];
-            $category = Category::where('slug', $data)->first();
-            if ($category) {
-                $news = News::where('category_id', $category->id)
-                    ->where('status', 1)->orderBy('created_at', 'desc')->latest()->get();
-                return response()->json($news);
-            } else {
-                $news = News::where('type', $data)
-                    ->where('status', 1)->orderBy('created_at', 'desc')->latest()->get();
-                return response()->json($news);
-            }
-        }
-        if (isset($request['blog'])) {
-            $news = News::where('status', 1)->limit(4)->orderBy('created_at', 'desc')->latest()->get();
+        if ($request->has('slug')) {
+            $slug = $request->input('slug');
+            $news = News::where(function ($query) use ($slug) {
+                $query->whereHas('category', function ($query) use ($slug) {
+                    $query->where('slug', $slug);
+                })->orWhere('type', $slug);
+            })
+                ->where('status', 1)
+                ->orderBy('created_at', 'desc')
+                ->latest()
+                ->get();
+
             return response()->json($news);
         }
-        $news = News::where('status', 1)->orderBy('created_at', 'desc')->latest()->get();
+
+        if ($request->has('blog')) {
+            $news = News::where('status', 1)
+                ->limit(4)
+                ->orderBy('created_at', 'desc')
+                ->latest()
+                ->get();
+
+            return response()->json($news);
+        }
+
+        $news = News::where('status', 1)
+            ->orderBy('created_at', 'desc')
+            ->latest()
+            ->get();
+
         return response()->json($news);
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -80,6 +93,7 @@ class NewsController extends Controller
             if ($request->hasFile('images')) {
                 $files = $request->file('images');
                 $paths = [];
+                $count = count($files);
 
                 foreach ($files as $key => $file) {
                     $path = $news->title_news . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
@@ -88,24 +102,26 @@ class NewsController extends Controller
                         $constraint->aspectRatio();
                         $constraint->upsize();
                     });
-                    Storage::disk('public')->put('news/' . $path, (string) $image->encode());
+                    Storage::disk('public')->put('news/' . $path, (string) $image->encode(null));
                     $paths[] = $path;
 
-                    // Lưu ảnh đầu tiên vào trường images của bảng products
+                    // Lưu ảnh đầu tiên vào trường images của bảng news
                     if ($key == 0) {
                         $news->image = $path;
                         $news->save();
                     } else {
-                        // Lưu các ảnh còn lại vào bảng product_images
-                        $newsImages = new NewsImages();
-                        $newsImages->news_id = $news->id;
-                        $newsImages->image = $path;
-                        $newsImages->author = $request->user()->name;
-                        $newsImages->status = $request['status'];
-                        $newsImages->save();
+                        // Lưu các ảnh còn lại vào bảng news_images
+                        $newsImage = new NewsImages();
+                        $newsImage->news_id = $news->id;
+                        $newsImage->image = $path;
+                        $newsImage->author = $request->user()->name;
+                        $newsImage->status = $request['status'];
+                        $newsImage->save();
                     }
                 }
             }
+
+
 
             // Trả về thông tin sản phẩm đã tạo và thông báo thành công
             return response()->json([

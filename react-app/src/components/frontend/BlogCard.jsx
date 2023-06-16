@@ -49,7 +49,7 @@ const BlogCart = (props) => {
                                         height: '200px',
                                     }
                                 }
-                                src="" className="card-img-top placeholder-glow placeholder" alt="" />
+                                 className="card-img-top placeholder-glow placeholder" alt="" />
                             <div className="card-body">
                                 <h5 className="card-title placeholder-glow">
                                     <span className="placeholder col-6"></span>

@@ -20,6 +20,9 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('product/v1')->group(function () {
     // Lấy danh sách sản phẩm
     Route::get('products', [ProductController::class, 'index'])->name('product.index');
+    // API lấy dữ liệu sản phẩm:
+    Route::get('get_data', [ProductController::class, 'getProductData'])->name('product.getData');
+
     // Lấy thông tin sản phẩm theo id
     Route::get('product/{product}', [ProductController::class, 'show'])->name('product.show');
     Route::get('product', [ProductController::class, 'product_detail'])->name('product.product_detail');
@@ -161,6 +164,8 @@ Route::prefix('user/v1')->group(function () {
     Route::delete('/remove/{id}', [UserController::class, 'remove'])->name('user.remove');
     // Xóa vĩnh viễn  nhiều SP
     Route::delete('removeALL', [UserController::class, 'removeALL'])->name('user.removeALL');
+
+    Route::get('count_user', [UserController::class, 'countUser'])->name('user.countUser');
 });
 
 Route::prefix('contact/v1')->group(function () {
@@ -224,7 +229,15 @@ Route::prefix('order/v1')->group(function () {
     Route::post("create_order", [OrderController::class, 'store'])->name('order.create_order');
     Route::get("your_order/{id}", [OrderController::class, 'your_order'])->name('order.your_order');
     Route::post('update-order/{id}', [OrderController::class, 'update'])->name('order.update')->middleware('cors');
-    Route::delete('remove/{id}', [OrderController::class, 'remove'])->name('order.remove');
+    Route::delete('destroy/{id}', [OrderController::class, 'destroy'])->name('order.destroy');
+    Route::get('history/{id}', [OrderController::class, 'history'])->name('order.history');
+    Route::get('history_trash/{id}', [OrderController::class, 'historyTrash'])->name('order.historyTrash');
+    Route::get('trash', [OrderController::class, 'trash'])->name('order.trash');
+    Route::get('revenue', [OrderController::class, 'revenue'])->name('order.revenue');
+    Route::get('completed_orders', [OrderController::class, 'completedOrders'])->name('order.completedOrders');
+    Route::get('canceled_orders', [OrderController::class, 'canceledOrders'])->name('order.canceledOrders');
+    Route::get('count_user', [OrderController::class, 'countUser'])->name('user.countUser');
+
 });
 
 Route::prefix('countdown/v1')->group(function () {

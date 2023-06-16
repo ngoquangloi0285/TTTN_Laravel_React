@@ -4,7 +4,7 @@ import { BsFillTrashFill } from 'react-icons/bs';
 import { GrEdit } from 'react-icons/gr';
 import { IoCreateOutline } from 'react-icons/io5';
 import { FiTrash2 } from 'react-icons/fi';
-import { AiOutlineEye } from 'react-icons/ai';
+import { AiOutlineEye, AiOutlineHistory } from 'react-icons/ai';
 import axios from '../../../api/axios';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { Link } from 'react-router-dom';
@@ -76,10 +76,24 @@ export default function DataGridDemo() {
         }
       },
       {
+        field: 'note',
+        headerName: 'Lời nhắn khách hàng',
+        editable: true,
+        width: 250,
+        align: 'center',
+      },
+      {
         field: 'payment_method',
         headerName: 'Phương thức thanh toán',
         editable: true,
         width: 200,
+        align: 'center',
+      },
+      {
+        field: 'note_admin',
+        headerName: 'Ghi chú',
+        editable: true,
+        width: 250,
         align: 'center',
       },
       {
@@ -142,15 +156,6 @@ export default function DataGridDemo() {
             >
               <AiOutlineEye />
             </Link>
-            <span
-              className='text-danger mx-1'
-              style={{ fontSize: '20px', cursor: 'pointer' }}
-              title='Delete'
-              onClick={() => confirmDelete(params.id)}
-            >
-              <BsFillTrashFill />
-            </span>
-
           </>
         ),
       },
@@ -186,7 +191,7 @@ export default function DataGridDemo() {
   const fetchTrash = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('/api/product/v1/trash');
+      const response = await axios.get('/api/order/v1/trash');
       setCountTrash(response.data.length);
       setIsLoading(false);
     } catch (error) {
@@ -194,40 +199,6 @@ export default function DataGridDemo() {
       setIsLoading(false);
     }
   };
-
-  const handleDelete = useCallback(async (id) => {
-    try {
-      const res = await axios.delete(`/api/product/v1/product/${id}/soft-delete`, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      Swal.fire(
-        'Delete Product Successfully',
-        res.data.message,
-        'success'
-      )
-      updateData();
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to delete product.');
-    }
-  }, []);
-  /// xác nhận xóa tạm
-  const confirmDelete = useCallback((id) => {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'Are you sure you want to temporarily delete this catalog and related products!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'No, keep it'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        handleDelete(id);
-      }
-    });
-  }, [handleDelete]);
 
   const updateData = async () => {
     try {
@@ -251,7 +222,7 @@ export default function DataGridDemo() {
         return [...initialData];
       }
       return prevRecords.filter(record =>
-        record.name_product.toLowerCase().includes(value.toLowerCase())
+        record.id.toLowerCase().includes(value.toLowerCase())
       );
     });
   };
@@ -330,19 +301,14 @@ export default function DataGridDemo() {
           <input
             type="text"
             className="form-control my-3"
-            placeholder="Search Order..."
+            placeholder="Tìm kiếm đơn hàng..."
             onChange={handleFilter}
           />
           <div className="col-3 d-flex">
-            <Link to="trash-product" className="btn btn-danger mb-3 text-white d-flex align-items-center" type="button">
-              <FiTrash2 className='fs-4' /> Trash <span>( {!countTrash ? "0" : countTrash} )</span>
+            <Link to="history-order" className="btn btn-info mb-3 text-white d-flex align-items-center" type="button">
+              <AiOutlineHistory className='fs-4' /> Lịch sử đơn hàng 
+              {/* <span> ( {!countTrash ? "0" : countTrash} )</span> */}
             </Link>
-            {
-              arrDmr.length > 1 &&
-              <button onClick={confirmDeleteALL} className="btn btn-danger mb-3 mx-2 text-white d-flex align-items-center" type="button">
-                <FiTrash2 className='fs-4' /> Delete all
-              </button>
-            }
           </div>
           <div className="row">
             <div className="col-5 mt-2">

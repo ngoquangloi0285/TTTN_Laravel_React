@@ -122,6 +122,7 @@ const CartCheckOut = () => {
         cart.cartItems.forEach((cartItem, index) => {
             formData.append(`product[${index}][product_id]`, cartItem.id);
             formData.append(`product[${index}][product_name]`, cartItem.name_product);
+            formData.append(`product[${index}][slug_product]`, cartItem.slug);
             formData.append(`product[${index}][color]`, cartItem.color);
             formData.append(`product[${index}][image]`, cartItem.image);
             formData.append(`product[${index}][quantity]`, cartItem.cartQuantity);

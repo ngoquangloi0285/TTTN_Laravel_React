@@ -16,7 +16,7 @@ const Blog = () => {
   const [categoryMap, setCategoryMap] = useState({});
   const [filter, setFilter] = useState('');
   const typeNews = 'other_news';
-  
+
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -70,7 +70,7 @@ const Blog = () => {
 
   // phân trang
   const [currentPage, setCurrentPage] = useState(1);
-  const recordsPerPage = 10;
+  const recordsPerPage = 4;
   const lastIndex = currentPage * recordsPerPage;
   const firstIndex = lastIndex - recordsPerPage;
   const records = newsList.slice(firstIndex, lastIndex);
@@ -79,8 +79,8 @@ const Blog = () => {
 
   return (
     <>
-      <Meta title={"Blog"} />
-      <Maps title="Blog" />
+      <Meta title={"Tin tức"} />
+      <Maps title="Tin tức" />
       <div className="blog-wrapper home-wrapper-2 py-5">
         <div className="container-xxl">
           <div className="row">
@@ -141,7 +141,7 @@ const Blog = () => {
                               height: '200px',
                             }
                           }
-                          src="" className="card-img-top placeholder-glow placeholder" alt="" />
+                           className="card-img-top placeholder-glow placeholder" alt="" />
                         <div className="card-body">
                           <h5 className="card-title placeholder-glow">
                             <span className="placeholder col-6"></span>
@@ -158,23 +158,33 @@ const Blog = () => {
                     </div>
                   ) : (
                     records.map((news) => (
-                      <div className="gr-4 shadow mb-4">
+                      <div className="gr-6 shadow mb-4">
                         <div className='blog-card'>
                           <div className="card-img">
-                            <img className='img-fluid w-100' src={`http://localhost:8000/storage/news/${news.image}`} alt={news.title_news} />
+                            <img className='img-fluid w-100'
+                              // src={`http://localhost:8000/storage/product/Smart Tivi OLED LG 4K 65 inch 65C2PSA_1686388168_0.jpg`}
+                              src={`http://localhost:8000/storage/news/${news.image}`}
+                              alt={news.title_news} />
                           </div>
                         </div>
                         <div className='blog-content'>
                           <p className="text-dark m-0">
                             {categoryMap[news.category_id]}
                           </p>
+                          {
+                            news.type === 'other_news' ?
+                            <p className="text-dark m-0">
+                              Tin tức khác
+                            </p>
+                            : ''
+                          }
                           <p className='date'>{format(new Date(news.created_at), "d MMM, yyyy")}</p>
                           <h5 className='title'>
                             {news.title_news}
                           </h5>
-                          <p className='des'>
+                          {/* <p className='des'>
                             {news.description}
-                          </p>
+                          </p> */}
                           <Link to={`../blog/${news.slug}`} className='button blog-btn'>Đọc thêm</Link>
                         </div>
                       </div>

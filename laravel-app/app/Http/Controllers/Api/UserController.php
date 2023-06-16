@@ -366,6 +366,11 @@ class UserController extends Controller
         return response()->json(['message' => 'User is not deleted.'], 400);
     }
 
+    
+
+
+
+
     public function removeALL(Request $request)
     {
         $data = $request['ids'];

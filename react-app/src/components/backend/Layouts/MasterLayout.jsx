@@ -65,20 +65,11 @@ const MasterLayout = () => {
                             {/* Sidebar Menu */}
                             <nav className="mt-2">
                                 <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                                    <li className="nav-item">
-                                        <Link to="#" className="nav-link">
+                                <li className="nav-item">
+                                        <Link to="revenue" className="nav-link">
                                             <i className="nav-icon fas fa-tachometer-alt" />
-                                            <p>Thống kê<i className="right fas fa-angle-left" /></p>
+                                            <p>Thống kê</p>
                                         </Link>
-                                        <ul className="nav nav-treeview">
-                                            <li className="nav-item">
-                                                <Link to="product" className="nav-link d-flex">
-                                                    {/* <i className="far fa-circle nav-icon" /> */}
-                                                    <AiOutlineEye style={{ height: 'auto', fontSize: '26px', }} className='text-info' />
-                                                    <p>Quản lý thống kế</p>
-                                                </Link>
-                                            </li>
-                                        </ul>
                                     </li>
                                     <li className="nav-item">
                                         <Link to="#" className="nav-link">

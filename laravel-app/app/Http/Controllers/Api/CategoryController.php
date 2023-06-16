@@ -25,14 +25,14 @@ class CategoryController extends Controller
     {
         if ($request->has('id')) {
             // Lấy thông tin của một danh mục với id được truyền vào
-            $id = $request['id'];
-            $category = Category::find($id);
-            return $category;
-        } else {
-            // Lấy danh sách tất cả các danh mục
-            $categories = Category::all();
-            return $categories;
+            $id = $request->input('id');
+            $category = Category::findOrFail($id);
+            return response()->json($category);
         }
+
+        // Lấy danh sách tất cả các danh mục
+        $categories = Category::all();
+        return response()->json($categories);
     }
 
     /**

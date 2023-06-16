@@ -9,6 +9,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addToCart, decreaseCart, getTotals } from '../../state/cartSlice';
 import useAuthContext from '../../context/AuthContext';
 import { toast } from 'react-toastify';
+import { FaStar, FaStarHalf } from 'react-icons/fa';
+import RatingForm from '../../pages/frontend/RatingForm';
+import CommentRating from '../../pages/frontend/CommentRating';
 
 function calculateDiscountedPrice(price, discountPercent) {
     const discountAmount = (price * discountPercent) / 100;
@@ -143,7 +146,7 @@ const ProductDetail = (props) => {
                                         height: '200px',
                                     }
                                 }
-                                src="" className="card-img-top placeholder-glow placeholder" alt="" />
+                                className="card-img-top placeholder-glow placeholder" alt="" />
                             <div className="card-body">
                                 <h5 className="card-title placeholder-glow">
                                     <span className="placeholder col-6"></span>
@@ -208,36 +211,51 @@ const ProductDetail = (props) => {
                                         id="selectedColor"
                                         className="form-control"
                                     />
-                                    <ReactStars
-                                        count={5}
-                                        onChange={ratingChanged}
-                                        size={24}
-                                        value="4"
-                                        edit={false}
-                                        activeColor="#ffd700"
-                                    />
+                                    <div className="react_start d-flex my-3">
+                                        <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
+                                        <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
+                                        <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
+                                        <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
+                                        <FaStarHalf style={{ color: '#ffd700', fontSize: '20px' }} />
+                                    </div>
                                     {/* <input type="number" value='1' /> */}
                                     <Link to="#" onClick={() => handleAddToCart(productList, selectedColor)} className='button btn-product-detail m-0'>Add to cart</Link>
                                     <h3>Thông tin sản phẩm <i className='fa fa-indent'></i></h3>
-                                    <p>
-                                        <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(productList.detail) }} />
-                                    </p>
+                                    <p gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(productList.detail) }} ></p>
                                 </div>
-                                <hr style={{
-                                    border: '1px solid #FF523b'
-                                }} />
+                                <hr className="my-3" style={{ backgroundColor: '#e0e0e0', opacity: 1 }} />
+                                <div className="row">
+                                    <div className="col-12">
+                                        <h3 className="section-heading">Đánh giá sản phẩm</h3>
+                                    </div>
+                                    <div className="row">
+                                        <CommentRating />
+                                        <CommentRating />
+                                        <CommentRating />
+                                    </div>
+                                    {/* <div className="col-6">
+                                        <div className="col-12">
+
+
+                                            <RatingForm />
+                                            <hr className="my-4" style={{ backgroundColor: '#e0e0e0', opacity: 1 }} />
+                                        </div>
+                                    </div> */}
+                                </div>
+                                <hr className="my-4" style={{ backgroundColor: '#e0e0e0', opacity: 1 }} />
                                 <div className="col-12">
                                     <div className="col-12">
                                         <h3 className="section-heading">Sản phẩm liên quan</h3>
                                     </div>
-                                    <div className="store-wrapper home-wrapper-2 py-5">
+                                    <div className="store-wrapper home-wrapper-2">
                                         <div className="container-xxl">
                                             <div className="row">
-                                                <ProductList relatedproducts="related_products" />
+                                                <ProductList relatedproducts={productList.id} />
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div >

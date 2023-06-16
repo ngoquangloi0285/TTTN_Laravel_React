@@ -20,7 +20,6 @@ class ImageSlideController extends Controller
     {
         $filter = $request->query('filter');
         $products = Product::where('type', $filter)->with('images')
-            // ->limit(1)
             ->get();
         return response()->json($products);
     }
@@ -73,15 +72,16 @@ class ImageSlideController extends Controller
 
     public function show_slide()
     {
-        $product_sale = "product_sale";
-        $product_special = "product_special";
-        $data = ImageSlide::where(function ($query) use ($product_sale, $product_special) {
-            $query->where('title', $product_sale)
-                ->orWhere('title', $product_special);
-        })->orderBy('created_at', 'desc')->latest()->get();
+        $titles = ['product_sale', 'product_special'];
+
+        $data = ImageSlide::whereIn('title', $titles)
+            ->orderBy('created_at', 'desc')
+            ->latest()
+            ->get();
 
         return response()->json($data);
     }
+
     /**
      * Display the specified resource.
      */

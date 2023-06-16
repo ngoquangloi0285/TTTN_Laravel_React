@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Marquee from "react-fast-marquee";
 import BlogCard from "../../components/frontend/BlogCard";
@@ -14,7 +14,7 @@ import { ImageList } from "@mui/material";
 import { AiOutlineDoubleLeft, AiOutlineDoubleRight } from "react-icons/ai";
 
 
-const Home = (props) => {
+const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [brandList, setBrandList] = useState([]);
   const [slideList, setSlideList] = useState([]);
@@ -59,15 +59,16 @@ const Home = (props) => {
     );
   };
 
-  const goToNextSlide = () => {
+  const goToNextSlide = useCallback(() => {
     setActiveSlide((prevSlide) =>
       prevSlide === slideList.length - 1 ? 0 : prevSlide + 1
     );
-  };
+  }, [slideList.length]);
+
   useEffect(() => {
     const timer = setTimeout(goToNextSlide, 7000);
     return () => clearTimeout(timer);
-  }, [activeSlide]);
+  }, [activeSlide, goToNextSlide]);
 
   const slideOne = slideList[0]
   console.log('hi', slideOne);
@@ -92,15 +93,19 @@ const Home = (props) => {
                         key={slide.id}
                         src={`http://localhost:8000/storage/product/${slide.image}`}
                         alt={`Slide ${index + 1}`}
-                        className={`d-${index === activeSlide ? 'block' : 'none'}`}
+                        className={`d-${index === activeSlide ? 'block' : 'none'} transition-slide`}
                       />
                     ))
                   )}
                 </div>
                 <div className="main-banner-content position-absolute">
+                  <h3 style={{ color: '#eb1834' }}>
+                    {slideOne?.price &&
+                      new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(slideOne?.price)
+                    }
+                  </h3>
                   <h4>Trả góp 0%.</h4>
                   <h5 className="text-primary">{slideOne?.name_product}</h5>
-                  <p>{slideOne?.price}VNĐ</p>
                   <Link to={`../product-detail/${slideOne?.slug_product}`} className="button">Mua ngay bây giờ</Link>
                 </div>
                 <button id="btn-slide2" onClick={goToNextSlide}>
@@ -108,22 +113,61 @@ const Home = (props) => {
                 </button>
               </div>
             </div>
-            {/* <div className="col-4">
-              <div className="d-flex flex-wrap justify-content-between align-items-center gap-10">
-                <img
-                  className="img-fluid rounded-3"
-                  src="images/catbanner-02.jpg"
-                  alt="main-banner"
-                />
-                <div className="small-banner-content position-absolute">
-                  <h4>New arrival.</h4>
-                  <h5>iPad S13+ Pro.</h5>
-                  <p>
-                    From $999.00 <br /> $41.62/mo.
-                  </p>
+            <div className="row">
+              <div className="container-xxl py-3">
+                <div className="random-product d-flex">
+                  <div className="col-4">
+                    <div className="d-flex flex-wrap justify-content-between align-items-center gap-10">
+                      <img
+                        className="img-fluid rounded-3"
+                        src="images/catbanner-02.jpg"
+                        alt="main-banner"
+                      />
+                      <div className="small-banner-content position-absolute">
+                        <h4>New arrival.</h4>
+                        <h5>iPad S13+ Pro.</h5>
+                        <p>
+                          From $999.00 <br /> $41.62/mo.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-4">
+                    <div className="d-flex flex-wrap justify-content-between align-items-center gap-10">
+                      <img
+                        className="img-fluid rounded-3"
+                        src="images/catbanner-02.jpg"
+                        alt="main-banner"
+                      />
+                      <div className="small-banner-content position-absolute">
+                        <h4>New arrival.</h4>
+                        <h5>iPad S13+ Pro.</h5>
+                        <p>
+                          From $999.00 <br /> $41.62/mo.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-4">
+                    <div className="d-flex flex-wrap justify-content-between align-items-center gap-10">
+                      <img
+                        className="img-fluid rounded-3"
+                        src="images/catbanner-02.jpg"
+                        alt="main-banner"
+                      />
+                      <div className="small-banner-content position-absolute">
+                        <h4>New arrival.</h4>
+                        <h5>iPad S13+ Pro.</h5>
+                        <p>
+                          From $999.00 <br /> $41.62/mo.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
               </div>
-            </div> */}
+            </div>
           </div>
         </div>
       </section>
@@ -179,7 +223,10 @@ const Home = (props) => {
               <h3 className="text-danger section-heading">Sản phẩm mới của chúng tôi</h3>
             </div>
             <div className="row">
-              <ProductList newProduct='new_product' saleProduct='product_sale' />
+              <ProductList
+                newProduct='new_product'
+                saleProduct='product_sale'
+              />
             </div>
             <div className="d-flex justify-content-center">
               <Link className="view_more" to='store'>Xem thêm...</Link>
@@ -236,7 +283,7 @@ const Home = (props) => {
                               height: '200px',
                             }
                           }
-                          src="" className="card-img-top placeholder-glow placeholder" alt="" />
+                          className="card-img-top placeholder-glow placeholder" alt="" />
                       </div>
                     </div>
                   ) : (

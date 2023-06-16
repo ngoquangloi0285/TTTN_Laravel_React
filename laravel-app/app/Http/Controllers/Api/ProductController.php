@@ -18,107 +18,153 @@ use PhpOption\Option;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public function getProductData(Request $request)
+    {
+        $params = $request->all();
+
+        $query = Product::where('status', 1)
+            ->where('total', '>', 0);
+
+        // Load sản phẩm mới và sản phẩm giảm giá
+        if (isset($params['newProduct']) || isset($params['saleProduct'])) {
+            $typeNew = $params['newProduct'];
+            $typeSale = $params['saleProduct'];
+            $products = $query->whereIn('type', [$typeNew, $typeSale])
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
+        }
+        // Sản phẩm đặc biệt
+        else if (isset($params['specialProduct'])) {
+            $type = $params['specialProduct'];
+            $products = $query->where('type', $type)
+                ->inRandomOrder()
+                ->orderBy('price', 'asc')
+                ->limit(6)
+                ->get();
+        }
+        // Sản phẩm gợi ý ngẫu nhiên
+        else if (isset($params['suggestion'])) {
+            $products = $query->inRandomOrder()
+                ->limit(5)
+                ->get();
+        }
+        // Sản phẩm liên quan
+        else if (isset($params['relatedproducts'])) {
+            $productId = $request->input('relatedproducts');
+
+            // Gọi hàm getRelatedProducts để lấy danh sách sản phẩm liên quan
+            $products = $this->getRelatedProducts($productId);
+        }
+        return response()->json($products);
+    }
+
+    public function getRelatedProducts($productId)
+    {
+        // Lấy thông tin của sản phẩm hiện tại
+        $currentProduct = Product::find($productId);
+
+        // Kiểm tra xem sản phẩm hiện tại có tồn tại không
+        if ($currentProduct) {
+            $categoryId = $currentProduct->category_id;
+            $brandId = $currentProduct->brand_id;
+            $productType = $currentProduct->type;
+
+            // Tìm kiếm các sản phẩm liên quan dựa trên cùng loại, cùng danh mục và cùng thương hiệu
+            $relatedProducts = Product::where('category_id', $categoryId)
+                // ->where('brand_id', $brandId)
+                ->where('type', $productType)
+                ->where('id', '!=', $productId) // Loại trừ sản phẩm hiện tại
+                ->where('status', 1)
+                ->where('total', '>', 0)
+                ->get();
+            return $relatedProducts;
+        } else {
+            // Xử lý khi không tìm thấy sản phẩm hiện tại
+            return [];
+        }
+    }
+
+    // ...
+    public function searchProducts($slug)
+    {
+        $products = Product::where('status', 1)
+            ->when($slug, function ($query) use ($slug) {
+                return $query->where('name_product', 'like', "%{$slug}%");
+            })
+            ->where('total', '>', 0)
+            ->get();
+
+        return $products;
+    }
+
+    // hàm lọc
+    public function filterProducts($filter)
+    {
+        return Product::where('status', 1)
+            ->when($filter === 'bestSelling', function ($query) {
+                return $query->orderBy('sales', 'desc');
+            })
+            ->when($filter === 'lowToHigh', function ($query) {
+                return $query->orderBy('price', 'asc');
+            })
+            ->when($filter === 'highToLow', function ($query) {
+                return $query->orderBy('price', 'desc');
+            })
+            ->when($filter === 'oldToNew', function ($query) {
+                return $query->orderBy('created_at', 'asc');
+            })
+            ->when($filter === 'newToOld', function ($query) {
+                return $query->orderBy('created_at', 'desc');
+            })
+            ->where('total', '>', 0)
+            ->get();
+    }
+
+    public function searchBySlug($slug)
+    {
+        return Product::where('status', 1)
+            ->where('total', '>', 0)
+            ->when($slug, function ($query, $slug) {
+                return $query->where(function ($query) use ($slug) {
+                    $query->whereHas('category', function ($query) use ($slug) {
+                        $query->where('slug', $slug);
+                    })
+                        ->orWhereHas('brand', function ($query) use ($slug) {
+                            $query->where('slug', $slug);
+                        })
+                        ->orWhere(function ($query) use ($slug) {
+                            $query->where('color', $slug)
+                                ->orWhere('inch', $slug);
+                        });
+                });
+            })
+            ->get();
+    }
+
     public function index(Request $request)
     {
         $params = $request->all();
-        $filter = $request->query('filter');
+        $search = isset($params['search']) ? $params['search'] : null;
+        $filter = isset($params['filter']) ? $params['filter'] : null;
+        $slug = isset($params['slug']) ? $params['slug'] : null;
+        $products = [];
 
-        // tìm kiếm sản phẩm
-        if (isset($params['search'])) {
-            $searchTerm = $params['search'];
-            $products = Product::where('status', 1)
-                ->where('name_product', 'like', "%{$searchTerm}%")
-                ->where('total', '>', 0)
-                ->get();
-        }
-        // lọc sản phẩm
-        elseif ($filter === 'bestSelling') {
-            $products = Product::orderBy('sales', 'desc')->where('status', 1)
-                ->where('total', '>', 0)
-                ->get();
-        } elseif ($filter === 'lowToHigh') {
-            $products = Product::orderBy('price', 'asc')->where('status', 1)
-                ->where('total', '>', 0)
-                ->get();
-        } elseif ($filter === 'highToLow') {
-            $products = Product::orderBy('price', 'desc')->where('status', 1)
-                ->where('total', '>', 0)
-                ->get();
-        } elseif ($filter === 'oldToNew') {
-            $products = Product::orderBy('created_at', 'asc')->where('status', 1)
-                ->where('total', '>', 0)
-                ->get();
-        } elseif ($filter === 'newToOld') {
-            $products = Product::orderBy('created_at', 'desc')->where('status', 1)
-                ->where('total', '>', 0)
-                ->get();
-        }
-        // tiềm kiếm sản phẩm theo slug với category_id
-        else if (isset($params['slug'])) {
-            $category = Category::where('slug', $params['slug'])->where('status', 1)->first();
-            $brand = Brand::where('slug', $params['slug'])->where('status', 1)->first();
-
-            if ($category) {
-                // Lấy ra tất cả sản phẩm có category_id trùng khớp
-                $products = Product::where('category_id', $category->id)
-                    ->where('status', 1)
-                    ->where('total', '>', 0)
-                    ->get();
-            } else if ($brand) {
-                // Lấy ra tất cả sản phẩm có brand_id trùng khớp
-                $products = Product::where('brand_id', $brand->id)
-                    ->where('status', 1)
-                    ->where('total', '>', 0)
-                    ->get();
-            } else if ($params['slug']) {
-                // Lấy ra tất cả sản phẩm có color trùng khớp với 'red'
-                $products = Product::where('color', $params['slug'])
-                    ->where('status', 1)
-                    ->where('total', '>', 0)
-                    ->get();
-            } else if ($params['slug']) {
-                // Lấy ra tất cả sản phẩm có color trùng khớp với 'red'
-                $products = Product::where('inch', $params['slug'])
-                    ->where('status', 1)
-                    ->where('total', '>', 0)
-                    ->get();
-            }
-        }
-
-        // Load sản phẩm mới và sản phẩm giảm giá
-        else if (isset($params['newProduct'])) {
-            $type = $params['newProduct'];
-            $products = Product::limit(9)
-                ->where('status', 1)
-                ->where('total', '>', 0)
-                ->orderBy('created_at', 'desc')->latest()->get();
-        }
-        // sản phẩm gợi ý random
-        else if (isset($params['suggestion'])) {
-            $products = Product::inRandomOrder()
-                ->where('status', 1)
-                ->where('total', '>', 0)
-                ->limit(9)
-                ->get();
-        }
-        // sản phẩm đặt biệt
-        else if (isset($params['product_special'])) {
-            $products = Product::where('type', '=', $params['product_special'])
-                ->where('status', 1)
-                ->where('total', '>', 0)
-                ->inRandomOrder()
-                ->orderBy('price', 'asc') // Sắp xếp theo giá thấp
-                ->limit(9) // Số lượng sản phẩm gợi ý muốn lấy (có thể điều chỉnh tùy ý)
-                ->get();
-        } else
+        if ($search) {
+            $products = $this->searchProducts($search);
+        } elseif ($slug) {
+            $products = $this->searchBySlug($slug);
+        } elseif ($filter) {
+            $products = $this->filterProducts($filter);
+        } else {
             $products = Product::where('status', 1)
                 ->where('total', '>', 0)
                 ->get();
+        }
+
         return response()->json($products);
     }
+
 
 
     /**
