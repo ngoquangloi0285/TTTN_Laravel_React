@@ -229,18 +229,8 @@ const ProductDetail = (props) => {
                                         <h3 className="section-heading">Đánh giá sản phẩm</h3>
                                     </div>
                                     <div className="row">
-                                        <CommentRating />
-                                        <CommentRating />
-                                        <CommentRating />
+                                        <CommentRating product_id = {productList.id}/>
                                     </div>
-                                    {/* <div className="col-6">
-                                        <div className="col-12">
-
-
-                                            <RatingForm />
-                                            <hr className="my-4" style={{ backgroundColor: '#e0e0e0', opacity: 1 }} />
-                                        </div>
-                                    </div> */}
                                 </div>
                                 <hr className="my-4" style={{ backgroundColor: '#e0e0e0', opacity: 1 }} />
                                 <div className="col-12">

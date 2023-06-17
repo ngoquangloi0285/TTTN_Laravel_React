@@ -87,7 +87,7 @@ const Edit = () => {
                     confirmButtonText: 'Trở đến lịch sử đơn hàng'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        navigate('../history_order')
+                        navigate('../order/history-order')
                     }
                 });
                 fetchOrderData();

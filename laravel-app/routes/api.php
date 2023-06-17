@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\OptionController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductImagesController;
+use App\Http\Controllers\Api\RatingController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,7 +23,7 @@ Route::prefix('product/v1')->group(function () {
     Route::get('products', [ProductController::class, 'index'])->name('product.index');
     // API lấy dữ liệu sản phẩm:
     Route::get('get_data', [ProductController::class, 'getProductData'])->name('product.getData');
-
+    Route::get("show_slide", [ProductController::class, 'show_slide']);
     // Lấy thông tin sản phẩm theo id
     Route::get('product/{product}', [ProductController::class, 'show'])->name('product.show');
     Route::get('product', [ProductController::class, 'product_detail'])->name('product.product_detail');
@@ -237,6 +238,13 @@ Route::prefix('order/v1')->group(function () {
     Route::get('completed_orders', [OrderController::class, 'completedOrders'])->name('order.completedOrders');
     Route::get('canceled_orders', [OrderController::class, 'canceledOrders'])->name('order.canceledOrders');
     Route::get('count_user', [OrderController::class, 'countUser'])->name('user.countUser');
+});
+
+Route::prefix('review/v1')->group(function () {
+    // rating
+    Route::get("reviews", [RatingController::class, 'index']);
+    Route::post("review_create", [RatingController::class, 'create_review']);
+    Route::get('ratings', [RatingController::class, 'getRatings']);
 
 });
 
@@ -257,7 +265,7 @@ Route::prefix('news_images/v1')->group(function () {
 Route::prefix('slide/v1')->group(function () {
     // images
     Route::get("slide", [ImageSlideController::class, 'index']);
-    Route::get("show_slide", [ImageSlideController::class, 'show_slide']);
+    // Route::get("show_slide", [ImageSlideController::class, 'show_slide']);
     Route::post("create_slide", [ImageSlideController::class, 'store']);
     // Xóa vĩnh viễn SP
     Route::delete('/remove/{id}', [ImageSlideController::class, 'remove'])->name('slide.remove');

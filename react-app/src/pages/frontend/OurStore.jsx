@@ -100,7 +100,7 @@ const OurStore = () => {
                         <div className="col-3">
                             <div className="filter-card mb-3">
                                 <h3 className="filter-title">
-                                    
+
                                 </h3>
                                 <div className='container'>
                                     <div className="row filter-mx">
@@ -223,6 +223,9 @@ const OurStore = () => {
                                                                     <h5 className='product-title'>
                                                                         {product.name_product}
                                                                     </h5>
+                                                                    <p className="text-danger brand m-0">
+                                                                        Màu: <span className='text-dark'>{product.color}</span>
+                                                                    </p>
                                                                     <div className="react_start d-flex">
                                                                         <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
                                                                         <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />

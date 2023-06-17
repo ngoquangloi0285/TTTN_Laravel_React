@@ -8,6 +8,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\CountDown;
+use App\Models\ImageSlide;
 use App\Models\Options;
 use App\Models\ProductImages;
 use Carbon\Carbon;
@@ -18,6 +19,18 @@ use PhpOption\Option;
 
 class ProductController extends Controller
 {
+    public function show_slide()
+    {
+        $titles = ['product_sale', 'product_special'];
+
+        $data = ImageSlide::whereIn('title', $titles)
+            ->orderBy('created_at', 'desc')
+            ->latest()
+            ->get();
+
+        return response()->json($data);
+    }
+
     public function getProductData(Request $request)
     {
         $params = $request->all();
@@ -25,34 +38,65 @@ class ProductController extends Controller
         $query = Product::where('status', 1)
             ->where('total', '>', 0);
 
+        if (isset($params['random_product'])) {
+            $products = $query->where('type', '=', 'new_product')->inRandomOrder()
+                ->where('status', 1)
+                ->where('total', '>', 0)
+                ->limit(3)
+                ->latest()
+                ->get();
+        }
         // Load sản phẩm mới và sản phẩm giảm giá
         if (isset($params['newProduct']) || isset($params['saleProduct'])) {
             $typeNew = $params['newProduct'];
             $typeSale = $params['saleProduct'];
             $products = $query->whereIn('type', [$typeNew, $typeSale])
+                ->where('status', 1)
+                ->where('total', '>', 0)
                 ->orderBy('created_at', 'desc')
+                ->inRandomOrder()
                 ->limit(10)
+                ->latest()
                 ->get();
         }
         // Sản phẩm đặc biệt
         else if (isset($params['specialProduct'])) {
             $type = $params['specialProduct'];
             $products = $query->where('type', $type)
-                ->inRandomOrder()
+                ->where('status', 1)
+                ->where('total', '>', 0)
                 ->orderBy('price', 'asc')
-                ->limit(6)
+                ->inRandomOrder()
+                ->latest()
+                ->limit(4)
                 ->get();
+
+            $countdowns = Countdown::with('product')
+                ->whereIn('product_id', $products->pluck('id'))
+                ->get();
+
+            foreach ($products as $product) {
+                $countdown = $countdowns->firstWhere('product_id', $product->id);
+                if ($countdown) {
+                    // Gán dữ liệu từ Countdown vào Product
+                    $product->start_time = $countdown->start_time;
+                    $product->end_time = $countdown->end_time;
+                }
+            }
         }
+
         // Sản phẩm gợi ý ngẫu nhiên
         else if (isset($params['suggestion'])) {
             $products = $query->inRandomOrder()
+                ->where('status', 1)
+                ->where('total', '>', 0)
                 ->limit(5)
+                ->latest()
                 ->get();
         }
         // Sản phẩm liên quan
         else if (isset($params['relatedproducts'])) {
             $productId = $request->input('relatedproducts');
-
             // Gọi hàm getRelatedProducts để lấy danh sách sản phẩm liên quan
             $products = $this->getRelatedProducts($productId);
         }
@@ -139,6 +183,7 @@ class ProductController extends Controller
                         });
                 });
             })
+            ->latest()
             ->get();
     }
 
@@ -159,12 +204,12 @@ class ProductController extends Controller
         } else {
             $products = Product::where('status', 1)
                 ->where('total', '>', 0)
+                ->inRandomOrder()
+                ->latest()
                 ->get();
         }
-
         return response()->json($products);
     }
-
 
 
     /**

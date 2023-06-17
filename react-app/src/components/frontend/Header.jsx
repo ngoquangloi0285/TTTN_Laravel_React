@@ -15,6 +15,7 @@ import { getTotals } from "../../state/cartSlice";
 
 const Header = () => {
   const { currentUser, logout } = useAuthContext();
+  
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
 
@@ -23,6 +24,7 @@ const Header = () => {
   }, [cart, dispatch]);
 
   const uniqueItemCount = useSelector(state => state.cart.uniqueItemCount);
+
   const [menuList, setMenuList] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);

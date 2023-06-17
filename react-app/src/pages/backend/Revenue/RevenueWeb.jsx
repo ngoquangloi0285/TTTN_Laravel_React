@@ -51,6 +51,7 @@ const RevenueWeb = () => {
   }, [month, year]);
 
   useEffect(() => {
+    setIsLoading(true);
     fetchData();
   }, [fetchData]);
 
@@ -123,7 +124,6 @@ const RevenueWeb = () => {
 
   useEffect(() => {
     setIsLoading(true);
-
     if (revenueNumberRef.current) {
       const countUp = new CountUp(revenueNumberRef.current, revenue, {
         duration: 2,

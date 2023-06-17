@@ -3,6 +3,8 @@ import ReactStars from 'react-rating-stars-component'
 import { Link } from 'react-router-dom'
 import axios from '../../api/axios'
 import { FaStar, FaStarHalf } from 'react-icons/fa'
+import moment from 'moment';
+
 // import './special.css'
 const SpecialProducts = (props) => {
 
@@ -37,7 +39,18 @@ const SpecialProducts = (props) => {
                 brandResponse.data.forEach((brand) => {
                     newBrandMap[brand.id] = brand.name;
                 });
-                setProductList(productResponse.data);
+                // Tính số ngày giữa start_time và end_time
+                const updatedProductList = productResponse.data.map(product => {
+                    const start = moment(product.start_time);
+                    const end = moment(product.end_time);
+                    const duration = moment.duration(end.diff(start));
+                    const days = duration.asDays();
+                    return {
+                        ...product,
+                        durationInDays: days
+                    };
+                });
+                setProductList(updatedProductList);
                 setCategoryMap(newCategoryMap);
                 setBrandMap(newBrandMap);
                 setIsLoading(false);
@@ -101,9 +114,20 @@ const SpecialProducts = (props) => {
                                             <p className="text-danger brand m-0">
                                                 {brandMap[product.brand_id]}
                                             </p>
-                                            <h6 className='title mt-2'>
+                                            <p className='title mt-2'>
                                                 {product.name_product}
-                                            </h6>
+                                            </p>
+                                            {product.start_time && product.end_time && (
+                                                <>
+                                                    {moment(product.end_time).diff(moment(), 'days') > 0 ? (
+                                                        <p className="m-0">
+                                                            Thời gian còn lại: <span>{moment(product.end_time).diff(moment(), 'days')} ngày</span>
+                                                        </p>
+                                                    ) : (
+                                                        <h5 className="m-0 text-danger">Nhanh tay nhận ưu đãi!</h5>
+                                                    )}
+                                                </>
+                                            )}
                                             <p className="price">
                                                 <strong>
                                                     {calculateDiscountedPrice(product.price, product.discount).toLocaleString('vi-VN', {
@@ -132,8 +156,6 @@ const SpecialProducts = (props) => {
                                                 <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
                                                 <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
                                                 <FaStarHalf style={{ color: '#ffd700', fontSize: '20px' }} />
-                                            </div>
-                                            <div className="discount-till d-flex align-items-center">
                                             </div>
                                             <Link to={`../product-detail/${product.slug}`} className='btn btn-special'>
                                                 Xem thông tin sản phẩm

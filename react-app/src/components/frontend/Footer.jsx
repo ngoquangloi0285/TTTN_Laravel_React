@@ -4,9 +4,9 @@ import { BsFacebook,BsLinkedin,BsYoutube,BsInstagram,BsGithub } from "react-icon
 const Footer = () => {
   return (
     <>
-      <footer className="py-4">
+      {/* <footer className="py-4">
         <div className="container-xxl">
-          <div className="row align-items-center">
+          <div className="row  align-items-center">
             <div className="col-5">
               <div className="footer-top-data d-flex gap-30 align-items-center">
                 <img src="images/newsletter.png" alt="newsletter" />
@@ -32,7 +32,7 @@ const Footer = () => {
             </div>
           </div>
         </div>
-      </footer>
+      </footer> */}
 
       {/* <footer className="py-4">
         <div className="container-xxl">

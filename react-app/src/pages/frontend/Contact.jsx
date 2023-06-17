@@ -54,6 +54,7 @@ const Contact = () => {
       setIsLoading(false);
       return;
     }
+    
     // chèn dữ liệu
     const formData = new FormData();
     formData.append('name', name);

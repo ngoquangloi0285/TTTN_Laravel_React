@@ -275,7 +275,7 @@ const CartCheckOut = () => {
                                         </div>
                                         <div className="col-50">
                                             <div>
-                                                <h3>Payment</h3>
+                                                <h3>Phương thức thanh toán</h3>
                                                 <label htmlFor="fname">Chọn loại hình thanh toán:</label>
                                                 <label htmlFor="cash">
                                                     <input
@@ -349,7 +349,7 @@ const CartCheckOut = () => {
                             </div>
                             <div className="col-25">
                                 <div className="container">
-                                    <h4>Your cart <span className="price" style={{ color: 'black' }}><i className="fa fa-shopping-cart" /> <b>{cartTotalQuantity}</b></span></h4>
+                                    <h4>Giỏ hàng của bạn <span className="price" style={{ color: 'black' }}><i className="fa fa-shopping-cart" /> <b>{cartTotalQuantity}</b></span></h4>
                                     {cart.cartItems.length === 0 ? (
                                         <div className="cart-empty">
                                             <p>Giỏ hàng của bạn không có sản phẩm</p>

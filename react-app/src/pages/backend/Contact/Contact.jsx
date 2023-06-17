@@ -54,11 +54,13 @@ export default function DataGridDemo() {
         field: 'name_contact',
         headerName: 'Title Contact',
         editable: true,
+        width: 150,
       },
       {
         field: 'email_contact',
         headerName: 'Email',
         editable: true,
+        width: 200,
       },
       {
         field: 'phone_contact',
@@ -81,6 +83,7 @@ export default function DataGridDemo() {
         field: 'author',
         headerName: 'Author',
         editable: true,
+        width: 150,
       },
       {
         field: 'status',

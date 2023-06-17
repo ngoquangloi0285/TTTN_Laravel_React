@@ -12,6 +12,7 @@ import { setCountProduct } from "../../globalState";
 import ReactStars from "react-rating-stars-component";
 import { ImageList } from "@mui/material";
 import { AiOutlineDoubleLeft, AiOutlineDoubleRight } from "react-icons/ai";
+import RandomProduct from "./RandomProduct";
 
 
 const Home = () => {
@@ -19,10 +20,7 @@ const Home = () => {
   const [brandList, setBrandList] = useState([]);
   const [slideList, setSlideList] = useState([]);
 
-  useEffect(() => {
-    fetchData();
-    showSlide();
-  }, []);
+
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -42,7 +40,7 @@ const Home = () => {
     setIsLoading(true);
     try {
       const [slideResponse] = await Promise.all([
-        axios.get("/api/slide/v1/show_slide"),
+        axios.get("/api/product/v1/show_slide"),
       ]);
       setSlideList(slideResponse.data);
       setIsLoading(false);
@@ -51,6 +49,12 @@ const Home = () => {
       setIsLoading(false);
     }
   };
+  
+  useEffect(() => {
+    fetchData();
+    showSlide();
+  }, []);
+
   const [activeSlide, setActiveSlide] = useState(0);
 
   const goToPrevSlide = () => {
@@ -71,7 +75,6 @@ const Home = () => {
   }, [activeSlide, goToNextSlide]);
 
   const slideOne = slideList[0]
-  console.log('hi', slideOne);
 
   return (
     <>
@@ -115,57 +118,9 @@ const Home = () => {
             </div>
             <div className="row">
               <div className="container-xxl py-3">
-                <div className="random-product d-flex">
-                  <div className="col-4">
-                    <div className="d-flex flex-wrap justify-content-between align-items-center gap-10">
-                      <img
-                        className="img-fluid rounded-3"
-                        src="images/catbanner-02.jpg"
-                        alt="main-banner"
-                      />
-                      <div className="small-banner-content position-absolute">
-                        <h4>New arrival.</h4>
-                        <h5>iPad S13+ Pro.</h5>
-                        <p>
-                          From $999.00 <br /> $41.62/mo.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-4">
-                    <div className="d-flex flex-wrap justify-content-between align-items-center gap-10">
-                      <img
-                        className="img-fluid rounded-3"
-                        src="images/catbanner-02.jpg"
-                        alt="main-banner"
-                      />
-                      <div className="small-banner-content position-absolute">
-                        <h4>New arrival.</h4>
-                        <h5>iPad S13+ Pro.</h5>
-                        <p>
-                          From $999.00 <br /> $41.62/mo.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-4">
-                    <div className="d-flex flex-wrap justify-content-between align-items-center gap-10">
-                      <img
-                        className="img-fluid rounded-3"
-                        src="images/catbanner-02.jpg"
-                        alt="main-banner"
-                      />
-                      <div className="small-banner-content position-absolute">
-                        <h4>New arrival.</h4>
-                        <h5>iPad S13+ Pro.</h5>
-                        <p>
-                          From $999.00 <br /> $41.62/mo.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                <div className="random-product d-flex gap-3">
+                  <RandomProduct random_product='random_product' />
                 </div>
-
               </div>
             </div>
           </div>

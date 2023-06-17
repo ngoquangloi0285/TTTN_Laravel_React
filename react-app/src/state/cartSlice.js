@@ -8,6 +8,7 @@ const initialState = {
     cartTotalQuantity: 0,
     cartTotalAmount: 0,
 };
+
 const countUniqueItems = (cartItems) => {
     const uniqueIds = new Set();
     cartItems.forEach((item) => {
@@ -15,6 +16,7 @@ const countUniqueItems = (cartItems) => {
     });
     return uniqueIds.size;
 };
+
 function calculateDiscountedPrice(price, discountPercent) {
     const discountAmount = (price * discountPercent) / 100;
     const discountedPrice = price - discountAmount;

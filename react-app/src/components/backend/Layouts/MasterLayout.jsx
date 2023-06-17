@@ -179,7 +179,7 @@ const MasterLayout = () => {
                                     <li className="nav-item">
                                         <Link to="#" className="nav-link">
                                             <i className="nav-icon fas fa-tachometer-alt" />
-                                            <p>Quản lý thanh điều hướng(Menu)<i className="right fas fa-angle-left" /></p>
+                                            <p>Quản lý Menu<i className="right fas fa-angle-left" /></p>
                                         </Link>
                                         <ul className="nav nav-treeview">
                                             <li className="nav-item">
@@ -194,14 +194,14 @@ const MasterLayout = () => {
                                     <li className="nav-item">
                                         <Link to="#" className="nav-link">
                                             <i className="nav-icon fas fa-tachometer-alt" />
-                                            <p>Quản lý trình chiếu sản phẩm(Slide)<i className="right fas fa-angle-left" /></p>
+                                            <p>Quản lý Slide<i className="right fas fa-angle-left" /></p>
                                         </Link>
                                         <ul className="nav nav-treeview">
                                             <li className="nav-item">
                                                 <Link to="slide" className="nav-link d-flex">
                                                     {/* <i className="far fa-circle nav-icon" /> */}
                                                     <AiOutlineEye style={{ height: 'auto', fontSize: '26px', }} className='text-info' />
-                                                    <p>Quản lý trình chiếu sản phẩm</p>
+                                                    <p>Quản lý Slide</p>
                                                 </Link>
                                             </li>
                                         </ul>

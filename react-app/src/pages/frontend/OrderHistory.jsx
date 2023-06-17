@@ -4,6 +4,7 @@ import Maps from '../../components/frontend/Maps'
 import useAuthContext from '../../context/AuthContext';
 import axios from '../../api/axios';
 import { Link } from 'react-router-dom';
+import RatingForm from './RatingForm';
 
 const OrderHistory = () => {
     const { currentUser } = useAuthContext();
@@ -62,7 +63,9 @@ const OrderHistory = () => {
                                                                                         <img
                                                                                             src={`http://localhost:8000/storage/product/${detail.image}`}
                                                                                             className="img-fluid" alt="Phone" />
-                                                                                            <Link className='my-2'>Mua lại</Link>
+                                                                                        <div className='text-center'>
+                                                                                            <Link style={{ color: '#eb1834', }} to={`../product-detail/${detail.slug_product}`} className='my-2'>Mua lại</Link>
+                                                                                        </div>
                                                                                     </div>
                                                                                     <div className="col-md-2 text-center d-flex justify-content-center align-items-center">
                                                                                         <p className="text-muted mb-0">{detail.product_name}</p>
@@ -78,6 +81,15 @@ const OrderHistory = () => {
                                                                                     </div>
                                                                                     <div className="col-md-2 text-center d-flex justify-content-center align-items-center">
                                                                                         <p className="text-muted mb-0">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(detail.total_amount)}</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="row">
+                                                                                    <div className="col-12">
+                                                                                        {
+                                                                                            detail.status === 4 ? <>
+                                                                                                <RatingForm idProduct={detail.product_id}/>
+                                                                                            </> : ""
+                                                                                        }
                                                                                     </div>
                                                                                 </div>
                                                                                 <hr className="mb-4" style={{ backgroundColor: '#e0e0e0', opacity: 1 }} />

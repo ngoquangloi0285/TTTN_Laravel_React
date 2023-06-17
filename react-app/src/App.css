@@ -519,6 +519,7 @@ header {
 
 /* Product Card End*/
 /* Special Products */
+
 .special-product-card {
   padding: 20px 10px;
   border-radius: 10px;
@@ -534,6 +535,7 @@ header {
 .special-product-card .title {
   text-overflow: ellipsis;
   white-space: nowrap;
+  overflow: hidden;
 }
 
 .special-product-card .discount-till p {
@@ -554,22 +556,69 @@ header {
   width: 40%;
 }
 
+.special-product-content .title {
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
 .special-product-content .btn-special {
   position: absolute;
   bottom: 0;
+  right: 10%;
   width: 200px;
-  background-color: #eb1834 !important;
+  background-color: #eb1834;
   padding: 15px 10px;
   margin-bottom: 3%;
-  color: #fff !important;
+  color: #fff;
 }
 
 .special-product-content .btn-special:hover {
-  background-color: #c70016 !important;
+  background-color: #c70016;
 }
 
-/* Special Products End*/
 
+/* Special Products End*/
+/* 
+  Random
+*/
+.random-card {
+  border-radius: 10px;
+  position: relative;
+  width: 100%;
+  /* Tỷ lệ khung hình 16:9 */
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, transparent 60%, rgba(233, 145, 190, 0.8));
+}
+
+.random-card img {
+  height: 250px;
+  border-radius: 10px;
+}
+
+.random-card h4 {
+  font-size: 2rem;
+  color: #e40808 !important;
+}
+
+.random-card h5 {
+  color: #3b1ff7;
+  font-size: 1.3rem;
+  text-overflow: ellipsis;
+}
+
+.random-card p {
+  font-size: 2rem;
+  margin-top: 10px;
+  text-overflow: ellipsis;
+}
+
+
+
+
+/* end random */
 /* famous start */
 .famous-card {
   border-radius: 10px;
@@ -1588,6 +1637,10 @@ footer .input-group-text {
   align-items: center;
   justify-content: center;
   background: radial-gradient(circle, transparent 60%, rgba(233, 145, 145, 0.8));
+}
+
+.slide-container img {
+  border-radius: 10px;
 }
 
 .slide-container #btn-slide1 {
