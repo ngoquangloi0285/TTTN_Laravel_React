@@ -16,18 +16,21 @@ import RandomProduct from "./RandomProduct";
 
 
 const Home = () => {
+
   const [isLoading, setIsLoading] = useState(true);
   const [brandList, setBrandList] = useState([]);
   const [slideList, setSlideList] = useState([]);
+  const [activeSlide, setActiveSlide] = useState(0);
 
-
+  useEffect(() => {
+    fetchData();
+    showSlide();
+  }, []);
 
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [brandResponse] = await Promise.all([
-        axios.get("/api/brand/v1/brand"),
-      ]);
+      const brandResponse = await axios.get("/api/brand/v1/brand");
       setBrandList(brandResponse.data);
       setIsLoading(false);
     } catch (error) {
@@ -39,9 +42,7 @@ const Home = () => {
   const showSlide = async () => {
     setIsLoading(true);
     try {
-      const [slideResponse] = await Promise.all([
-        axios.get("/api/product/v1/show_slide"),
-      ]);
+      const slideResponse = await axios.get("/api/product/v1/show_slide");
       setSlideList(slideResponse.data);
       setIsLoading(false);
     } catch (error) {
@@ -49,22 +50,15 @@ const Home = () => {
       setIsLoading(false);
     }
   };
-  
-  useEffect(() => {
-    fetchData();
-    showSlide();
-  }, []);
-
-  const [activeSlide, setActiveSlide] = useState(0);
 
   const goToPrevSlide = () => {
-    setActiveSlide((prevSlide) =>
+    setActiveSlide(prevSlide =>
       prevSlide === 0 ? slideList.length - 1 : prevSlide - 1
     );
   };
 
   const goToNextSlide = useCallback(() => {
-    setActiveSlide((prevSlide) =>
+    setActiveSlide(prevSlide =>
       prevSlide === slideList.length - 1 ? 0 : prevSlide + 1
     );
   }, [slideList.length]);
@@ -74,7 +68,7 @@ const Home = () => {
     return () => clearTimeout(timer);
   }, [activeSlide, goToNextSlide]);
 
-  const slideOne = slideList[0]
+  const slideOne = slideList[0];
 
   return (
     <>
@@ -115,8 +109,7 @@ const Home = () => {
                   <AiOutlineDoubleRight />
                 </button>
               </div>
-            </div>
-            <div className="row">
+            </div>            <div className="row">
               <div className="container-xxl py-3">
                 <div className="random-product d-flex gap-3">
                   <RandomProduct random_product='random_product' />

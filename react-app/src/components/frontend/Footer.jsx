@@ -91,7 +91,7 @@ const Footer = () => {
           <div className="row">
             <div className="col-12">
               <p className="text-center mb-0 text-white">
-                &copy; {new Date().getFullYear()} Development by Ngo Quang Loi
+                &copy; {new Date().getFullYear()} Được phát triển bởi Ngô Quang Lợi
               </p>
             </div>
           </div>

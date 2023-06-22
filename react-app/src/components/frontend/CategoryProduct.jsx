@@ -139,9 +139,9 @@ const CategoryProduct = (props) => {
                             ))
                         )
                 }
-                {
+                {/* {
                     productList.length === 0 && <h1>Không có sản phẩm nào!</h1>
-                }
+                } */}
             </div>
         </>
     )

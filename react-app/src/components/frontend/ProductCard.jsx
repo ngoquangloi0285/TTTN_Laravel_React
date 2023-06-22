@@ -172,9 +172,9 @@ export const ProductList = (props) => {
                         ))
                     )
             }
-            {
+            {/* {
                 productList.length === 0 && <p>Không có sản phẩm liên quan!</p>
-            }
+            } */}
         </>
     )
 }

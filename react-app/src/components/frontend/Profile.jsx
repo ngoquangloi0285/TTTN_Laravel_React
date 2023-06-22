@@ -326,8 +326,8 @@ const Profile = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    <hr />
-                                    <div className="row">
+                                    {/* <hr /> */}
+                                    {/* <div className="row">
                                         <div className="col-sm-3">
                                             <p className="mb-0">Giới tính</p>
                                         </div>
@@ -336,7 +336,7 @@ const Profile = () => {
                                                 <p className="text-muted mb-0">{!currentUser ? "Đang cập nhật......" : currentUser.gender}</p>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> */}
                                     <hr />
                                     <div className="row">
                                         <div className="col-sm-3">

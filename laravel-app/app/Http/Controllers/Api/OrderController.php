@@ -27,25 +27,39 @@ class OrderController extends Controller
 
         switch ($status) {
             case 'order_waiting_confirmation':
-                $query->where('status', 0)->orderBy('created_at', 'desc')->get(); // Đơn hàng đang đợi được xác nhận
+                $query->where('status', 0)->orderBy('created_at', 'desc')
+                    ->latest()
+                    ->get(); // Đơn hàng đang đợi được xác nhận
                 break;
             case 'order_confirmation':
-                $query->where('status', 1)->orderBy('created_at', 'desc')->get(); // Đơn hàng đã được xác nhận và đang đợi đóng hàng
+                $query->where('status', 1)->orderBy('created_at', 'desc')
+                    ->latest()
+                    ->get(); // Đơn hàng đã được xác nhận và đang đợi đóng hàng
                 break;
             case 'order_waiting_packing':
-                $query->where('status', '>', 0)->where('status', '<', 2)->orderBy('created_at', 'desc')->get(); // Đơn hàng đã được vận chuyển và đang đợi giao
+                $query->where('status', '>', 0)->where('status', '<', 2)
+                    ->latest()
+                    ->orderBy('created_at', 'desc')->get(); // Đơn hàng đã được vận chuyển và đang đợi giao
                 break;
             case 'order_packed':
-                $query->where('status', 2)->orderBy('created_at', 'desc')->get(); // Đơn hàng đã được đóng hàng và đang đợi vận chuyển
+                $query->where('status', 2)->orderBy('created_at', 'desc')
+                    ->latest()
+                    ->get(); // Đơn hàng đã được đóng hàng và đang đợi vận chuyển
                 break;
             case 'order_waiting_shipped':
-                $query->where('status', '>', 1)->where('status', '<', 3)->orderBy('created_at', 'desc')->get(); // Đơn hàng đang đợi giao
+                $query->where('status', '>', 1)->where('status', '<', 3)
+                    ->latest()
+                    ->orderBy('created_at', 'desc')->get(); // Đơn hàng đang đợi giao
                 break;
             case 'order_shipping':
-                $query->where('status', 3)->orderBy('created_at', 'desc')->get(); // Đơn hàng đã giao
+                $query->where('status', 3)->orderBy('created_at', 'desc')
+                    ->latest()
+                    ->get(); // Đơn hàng đã giao
                 break;
             case 'order_delivered':
-                $query->where('status', 4)->orderBy('created_at', 'desc')->get(); // Đơn hàng đã giao
+                $query->where('status', 4)->orderBy('created_at', 'desc')
+                    ->latest()
+                    ->get(); // Đơn hàng đã giao
                 break;
             default:
                 // Không lọc theo trạng thái
@@ -152,7 +166,8 @@ class OrderController extends Controller
         $orderData = [];
 
         foreach ($userOrders as $order) {
-            $orderDetails = OrderDetail::where('order_id', $order->id)->get();
+            $orderDetails = OrderDetail::where('order_id', $order->id)->latest()
+                ->get();
             $orderData[] = [
                 'order' => $order,
                 'orderDetails' => $orderDetails,
@@ -330,11 +345,44 @@ class OrderController extends Controller
     }
 
 
-    public function trash()
+    public function trash(Request $request)
     {
-        $orders = Order::onlyTrashed()->get();
-        return $orders;
+        $status = $request->input('filter');
+
+        $query = Order::onlyTrashed()->latest();
+
+        switch ($status) {
+            case 'order_waiting_confirmation':
+                $query->where('status', 0);
+                break;
+            case 'order_confirmation':
+                $query->where('status', 1);
+                break;
+            case 'order_waiting_packing':
+                $query->where('status', '>', 0)->where('status', '<', 2);
+                break;
+            case 'order_packed':
+                $query->where('status', 2);
+                break;
+            case 'order_waiting_shipped':
+                $query->where('status', '>', 1)->where('status', '<', 3);
+                break;
+            case 'order_shipping':
+                $query->where('status', 3);
+                break;
+            case 'order_delivered':
+                $query->where('status', 4);
+                break;
+            default:
+                // Không lọc theo trạng thái
+                break;
+        }
+
+        $orders = $query->get();
+
+        return response()->json($orders);
     }
+
 
     public function revenue(Request $request)
     {

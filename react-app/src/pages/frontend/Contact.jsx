@@ -27,22 +27,22 @@ const Contact = () => {
     const newErrors = {};
 
     if (!name) {
-      newErrors.name = "Please enter your name.";
+      newErrors.name = "Vui lòng nhập tên của bạn.";
     }
     if (!email) {
-      newErrors.email = "Please enter your email";
+      newErrors.email = "Vui lòng nhập Email của bạn.";
     }
+
     if (!phone) {
-      newErrors.phone = "Please enter your phone";
+      newErrors.phone = "Vui lòng nhập số điện thoại của bạn.";
+    } else if (isNaN(phone)) {
+      newErrors.phone = "Số điện thoại phải là số.";
+    } else if (phone.length !== 10 && phone.length !== 11) {
+      newErrors.phone = "Số điện thoại phải có 10 hoặc 11 chữ số.";
     }
-    if (isNaN(phone)) {
-      newErrors.phone = "Phone number must be a number.";
-    }
-    else if (phone.length !== 10 && phone.length !== 11) {
-      newErrors.phone = "Phone number must be 10 or 11 digits.";
-    }
+
     if (!comment) {
-      newErrors.comment = "Please leave your message.";
+      newErrors.comment = "Vui lòng để lại tin nhắn của bạn.";
     }
 
     // Kiểm tra các giá trị khác và thêm thông báo lỗi tương ứng vào object `newErrors`
@@ -54,7 +54,7 @@ const Contact = () => {
       setIsLoading(false);
       return;
     }
-    
+
     // chèn dữ liệu
     const formData = new FormData();
     formData.append('name', name);
@@ -65,7 +65,7 @@ const Contact = () => {
 
     console.log(formData)
     try {
-      btn.innerHTML = "Sending...";
+      btn.innerHTML = "Đang gửi...";
       const response = await axios.post('/api/contact/v1/create-contact', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -77,13 +77,12 @@ const Contact = () => {
         setStatus(response.data.status)
         // toast.success(response.data.status);
         // Nếu thành công, hiển thị thông báo thành công
-        Swal.fire('Your answer has been recorded!', response.data.message, 'success');
+        Swal.fire('Câu trả lời của bạn đã được ghi lại!', response.data.message, 'success');
       }
       setName("");
       setEmail("");
       setPhone("");
       setComment("");
-      setStatus("We will contact you as soon as possible!")
     } catch (error) {
       setIsLoading(false);
       // Nếu xảy ra lỗi, hiển thị thông báo lỗi
@@ -92,7 +91,7 @@ const Contact = () => {
       } else {
         Swal.fire('Error!', 'Failed to create new Category.', 'error');
       }
-      btn.innerHTML = "Submit";
+      btn.innerHTML = "Gửi yêu cầu";
     }
   }
   const navigate = useNavigate();
@@ -102,9 +101,9 @@ const Contact = () => {
     if (!currentUser) {
       Swal.fire({
         icon: 'error',
-        title: 'You are not logged in!',
-        text: "Please login to send your message!",
-        confirmButtonText: 'Back to Login'
+        title: 'Bạn không đăng nhập!',
+        text: "Vui lòng đăng nhập để gửi tin nhắn của bạn!",
+        confirmButtonText: 'Quay lại đăng nhập!'
       }).then((result) => {
         if (result.isConfirmed) {
           navigate('../login')
@@ -128,12 +127,12 @@ const Contact = () => {
             </div>
             <div className="col-12 mt-5">
               <div className="content-wrapper d-flex justify-content-center shadow">
-                {
+                {/* {
                   status &&
                   <div className="alert alert-success" role="alert">
                     {status}
                   </div>
-                }
+                } */}
                 <div className="col-6">
                   <h3 className='contact-title mb-4'>Liên hệ</h3>
                   <div className='my-2'>

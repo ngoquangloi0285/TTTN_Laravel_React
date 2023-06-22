@@ -25,7 +25,7 @@ const Cart = () => {
   const handleRemoveFromCart = (product) => {
     dispatch(removeFromCart(product));
   };
-  
+
   const handleClearCart = () => {
     dispatch(clearCart());
   };
@@ -52,7 +52,13 @@ const Cart = () => {
         <h2>Giỏ hàng của bạn</h2>
         {cart.cartItems.length === 0 ? (
           <div className="cart-empty">
-            <p>Giỏ hàng của bạn hiện đang trống</p>
+            <div className="container-xxl">
+              <div className="row">
+                <div className='py-5'>
+                  <h1 className='py-3 text-center'>Không có sảm phẩm nào trong giỏ hàng!</h1>
+                </div>
+              </div>
+            </div>
             <div className="start-shopping">
               <Link to="../store">
                 <svg

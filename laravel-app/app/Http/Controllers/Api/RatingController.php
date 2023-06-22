@@ -11,6 +11,7 @@ class RatingController extends Controller
 {
     public function index()
     {
+
     }
 
     public function getRatings(Request $request)
@@ -39,7 +40,7 @@ class RatingController extends Controller
         // Kiểm tra sản phẩm có tồn tại không
         $product = Product::find($productId);
         if (!$product) {
-            return response()->json(['status' => 'Sản phẩm không tồn tại'], 404);
+            return response()->json(['message' => 'Sản phẩm không tồn tại'], 404);
         }
 
         // Kiểm tra xem người dùng đã đánh giá sản phẩm chưa
@@ -48,11 +49,11 @@ class RatingController extends Controller
             ->first();
 
         if ($existingReview) {
-            return response()->json(['status' => 'Bạn đã đánh giá sản phẩm này'], 400);
+            return response()->json(['message' => 'Bạn đã đánh giá sản phẩm này'], 400);
         }
 
         // Tạo đánh giá trong cơ sở dữ liệu
-        $review = Reviews::create([
+        Reviews::create([
             'product_id' => $productId,
             'rating' => $rating,
             'content' => $comment,
@@ -62,6 +63,6 @@ class RatingController extends Controller
         ]);
 
         // Phản hồi với dữ liệu đánh giá đã được tạo
-        return response()->json(['status' => 'Cảm ơn đánh giá của bạn'], 200);
+        return response()->json(['message' => 'Cảm ơn đánh giá của bạn'], 200);
     }
 }

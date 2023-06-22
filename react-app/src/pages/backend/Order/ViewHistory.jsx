@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router';
 import axios from '../../../api/axios';
-import { Link } from 'wouter';
 import { OrderQRCode } from '../QRCode/OrderQRCode';
 import { AiOutlineRollback } from 'react-icons/ai';
+import { Link } from 'react-router-dom';
 
 const ViewHistory = () => {
   const { id } = useParams(); // lấy ID từ URL
@@ -148,7 +148,7 @@ const ViewHistory = () => {
                     
                     <div className="track">
                       <div className={`step ${orders.order.status > 0 ? "active" : ""}`}>
-                        <span className="icon"  style={{ cursor: 'pointer' }}>
+                        <span className="icon">
                                     <i className="fa fa-check" />
                                 </span>
                         <span className="text">
@@ -156,7 +156,7 @@ const ViewHistory = () => {
                         </span>
                       </div>
                       <div className={`step ${orders.order.status > 1 ? "active" : ""}`} >
-                        <span className="icon"  style={{ cursor: 'pointer' }}>
+                        <span className="icon">
                                     <i className="fa fa-user" />
                                 </span>
                         <span className="text">
@@ -164,7 +164,7 @@ const ViewHistory = () => {
                         </span>
                       </div>
                       <div className={`step ${orders.order.status > 2 ? "active" : ""}`}>
-                        <span className="icon"  style={{ cursor: 'pointer' }}>
+                        <span className="icon">
                                     <i className="fa fa-truck" />
                                 </span>
                         <span className="text">
@@ -172,7 +172,7 @@ const ViewHistory = () => {
                         </span>
                       </div>
                       <div className={`step ${orders.order.status > 3 ? "active" : ""}`}>
-                        <span className="icon"  style={{ cursor: 'pointer' }}>
+                        <span className="icon">
                                     <i className="fa fa-box" />
                                 </span>
                         <span className="text">

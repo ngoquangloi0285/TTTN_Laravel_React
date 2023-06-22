@@ -41,7 +41,7 @@ class ContactController extends Controller
             'status' => '1'
         ]);
         return response()->json([
-            'status' => 'Created Successfully!, hihi',
+            'message' => 'Chúng tôi sẽ liên hệ với bạn ngay khi có thể!',
             'contact' => $contact
         ], 200);
     }

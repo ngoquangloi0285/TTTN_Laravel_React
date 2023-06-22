@@ -100,7 +100,7 @@ const OurStore = () => {
                         <div className="col-3">
                             <div className="filter-card mb-3">
                                 <h3 className="filter-title">
-
+                                    Thương hiệu
                                 </h3>
                                 <div className='container'>
                                     <div className="row filter-mx">
@@ -128,7 +128,7 @@ const OurStore = () => {
                             </div>
                             <div className="filter-card mb-3">
                                 <h3 className="filter-title">
-                                    Tìm theo màu
+                                     Màu sản phẩm
                                 </h3>
                                 <div className="d-flex flex-wrap">
                                     <div>
@@ -136,7 +136,7 @@ const OurStore = () => {
                                     </div>
                                 </div>
                                 <h3 className="filter-title">
-                                    Tìm theo kích thước
+                                    Kích thước sản phẩm
                                 </h3>
                                 {
                                     inch.map((inch) => (
@@ -265,9 +265,9 @@ const OurStore = () => {
                                                 ))
                                             )
                                     }
-                                    {
+                                    {/* {
                                         productList.length === 0 && <p>Không có sản phẩm!</p>
-                                    }
+                                    } */}
                                 </div>
                             </div>
                             <nav>

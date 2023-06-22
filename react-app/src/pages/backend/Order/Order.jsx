@@ -89,13 +89,13 @@ export default function DataGridDemo() {
         width: 200,
         align: 'center',
       },
-      {
-        field: 'note_admin',
-        headerName: 'Ghi chú',
-        editable: true,
-        width: 250,
-        align: 'center',
-      },
+      // {
+      //   field: 'note_admin',
+      //   headerName: 'Ghi chú',
+      //   editable: true,
+      //   width: 250,
+      //   align: 'center',
+      // },
       {
         field: 'status',
         headerName: 'Trạng thái đơn hàng',

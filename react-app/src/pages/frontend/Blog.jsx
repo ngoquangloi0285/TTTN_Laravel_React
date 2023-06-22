@@ -191,9 +191,9 @@ const Blog = () => {
                     ))
                   )
                 }
-                {
+                {/* {
                   newsList.length === 0 && <h1>Không có tin tức!</h1>
-                }
+                } */}
               </div>
             </div>
             <nav>

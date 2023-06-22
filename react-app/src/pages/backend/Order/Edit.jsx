@@ -51,7 +51,6 @@ const Edit = () => {
         fetchOrderData();
     }, [encodedId, fetchOrderData]);
 
-
     const handleStatusUpdate = useCallback(async (status) => {
         // Cập nhật trạng thái đơn hàng tại đây
         const newErrors = {};
@@ -72,6 +71,7 @@ const Edit = () => {
         formData.append('deliveryTime', deliveryTime)
         formData.append('note_admin', noteAdmin ? noteAdmin : null);
         try {
+            setIsLoading(true); // Đặt trạng thái isLoading thành true
             const response = await axios.post(`/api/order/v1/update-order/${encodedId}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
@@ -84,12 +84,8 @@ const Edit = () => {
                     icon: 'success',
                     title: 'Cập nhật đơn hàng',
                     text: response.data.status,
-                    confirmButtonText: 'Trở đến lịch sử đơn hàng'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        navigate('../order/history-order')
-                    }
-                });
+                    // confirmButtonText: 'Trở đến lịch sử đơn hàng'
+                })
                 fetchOrderData();
             }
             setIsLoading(false);
@@ -106,7 +102,7 @@ const Edit = () => {
             }
             setIsLoading(false);
         }
-    }, [deliveryTime, encodedId, noteAdmin, fetchOrderData, navigate]);
+    }, [deliveryTime, encodedId, noteAdmin, fetchOrderData]);
 
     const confirmUpdate = useCallback((status) => {
         Swal.fire({
@@ -118,13 +114,16 @@ const Edit = () => {
             cancelButtonText: 'Không, Không cập nhật!'
         }).then((result) => {
             if (result.isConfirmed) {
+                setIsLoading(true); // Đặt trạng thái isLoading thành true
                 handleStatusUpdate(status)
             }
+            setIsLoading(false);
         });
     }, [handleStatusUpdate]);
 
     const handleCancleOrder = useCallback(async (id) => {
         try {
+            setIsLoading(true); // Đặt trạng thái isLoading thành true
             const response = await axios.delete(`/api/order/v1/destroy/${encodedId}`);
             if (response.status === 200) {
                 setStatus(response.data.status)
@@ -348,6 +347,7 @@ const Edit = () => {
                                 </div>
                             )}
                         </div>
+
                         <div className="track">
                             <div className={`step ${orders.status > 0 ? "active" : ""}`}>
                                 <span className="icon" onClick={() => confirmUpdate(1)} style={{ cursor: 'pointer' }}>

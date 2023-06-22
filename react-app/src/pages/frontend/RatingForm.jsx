@@ -37,46 +37,56 @@ const RatingForm = (props) => {
         setHoverValue(undefined)
     }
 
-
-
     const handleSubmit = () => {
         const newErrors = {};
         if (currentValue === 0) {
-            newErrors.currentValue = "Bạn đánh giá sản phẩm này bao nhiêu sao";
+          newErrors.currentValue = "Bạn đánh giá sản phẩm này bao nhiêu sao";
         }
         if (!comment) {
-            newErrors.comment = "Vui lòng nhập đánh giá của bạn";
+          newErrors.comment = "Vui lòng nhập đánh giá của bạn";
         }
         // Kiểm tra các giá trị khác và thêm thông báo lỗi tương ứng vào object `newErrors`
         if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-            setTimeout(() => {
-                setErrors("");
-            }, 10000); // Hiển thị thông báo lỗi trong 10 giây
-            setIsLoading(false);
-            return;
+          setErrors(newErrors);
+          setTimeout(() => {
+            setErrors("");
+          }, 10000); // Hiển thị thông báo lỗi trong 10 giây
+          setIsLoading(false);
+          return;
         }
-        // chèn dữ liệu
+      
+        // Chèn dữ liệu
         const formData = new FormData();
         formData.append('productId', idProduct);
         formData.append('rating', currentValue);
         formData.append('comment', comment);
-        try {
-            setIsLoading(true);
-            const response = axios.post(`/api/review/v1/review_create`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            })
+      
+        setIsLoading(true);
+        axios
+          .post(`/api/review/v1/review_create`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          })
+          .then((response) => {
+            // Xử lý thành công, nhận thông báo từ phản hồi và hiển thị trong toast
             setIsLoading(false);
-            toast.success('Cảm ơn đánh giá của bạn');
-            setCurrentValue(0)
+            toast.success(response.data.message);
+            setCurrentValue(0);
             setComment('');
-        } catch (error) {
-
-        }
-        setIsLoading(false);
-    };
+            // Thực hiện hành động tiếp theo sau khi đánh giá đã được tạo thành công
+          })
+          .catch((error) => {
+            // Xử lý lỗi, nhận thông báo từ phản hồi hoặc xử lý lỗi khác
+            setIsLoading(false);
+            // Xử lý lỗi theo yêu cầu của bạn
+            if (error.response) {
+              toast.error(error.response.data.message);
+            } else {
+              toast.error("Đã xảy ra lỗi khi gửi đánh giá.");
+            }
+          });
+      };
 
     return (
         <>

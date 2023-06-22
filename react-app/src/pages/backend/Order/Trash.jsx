@@ -25,236 +25,265 @@ import Swal from 'sweetalert2';
 
 
 export default function DataGridDemo() {
-    const columns = useMemo(
-        () => [
-          {
-            field: 'id',
-            headerName: 'Mã đơn hàng',
-            align: 'center',
-          },
-    
-          {
-            field: 'orderer_name',
-            headerName: 'Tên khách hàng',
-            editable: true,
-            width: 150,
-            align: 'center',
-          },
-          {
-            field: 'email_order',
-            headerName: 'eMail khách hàng',
-            editable: true,
-            width: 200,
-            // align: 'center',
-          },
-          {
-            field: 'total_amount',
-            headerName: 'Tổng tiền đơn hàng',
-            editable: true,
-            width: 150,
-            align: 'center',
-            valueFormatter: (params) => {
-              const formatter = new Intl.NumberFormat('vi-VN', {
-                style: 'currency',
-                currency: 'VND'
-              });
-              return formatter.format(params.value);
-            }
-          },
-          {
-            field: 'note',
-            headerName: 'Lời nhắn khách hàng',
-            editable: true,
-            width: 250,
-            align: 'center',
-          },
-          {
-            field: 'payment_method',
-            headerName: 'Phương thức thanh toán',
-            editable: true,
-            width: 200,
-            align: 'center',
-          },
-          {
-            field: 'note_admin',
-            headerName: 'Ghi chú',
-            editable: true,
-            width: 250,
-            align: 'center',
-          },
-          {
-            field: 'status',
-            headerName: 'Trạng thái đơn hàng',
-            width: 220,
-            align: 'center',
-            renderCell: (params) => {
-              const statusStyle = {
-                padding: '5px',
-                borderRadius: '5px',
-                color: 'black',
-              };
-              let statusText, backgroundColor;
-              switch (params.value) {
-                case 0:
-                  statusText = 'Đang đợi xác nhận...';
-                  backgroundColor = 'yellow';
-                  break;
-                case 1:
-                  statusText = 'Đang đợi đóng gói...';
-                  backgroundColor = 'green';
-                  break;
-                case 2:
-                  statusText = 'Đang đợi vận chuyển...';
-                  backgroundColor = 'pink';
-                  break;
-                case 3:
-                  statusText = 'Đang giao...';
-                  backgroundColor = 'orange';
-                  break;
-                case 4:
-                  statusText = 'Đã giao';
-                  backgroundColor = 'purple';
-                  break;
-                default:
-                  statusText = 'Không xác định';
-                  backgroundColor = 'gray';
-              }
-              const statusDivStyle = {
-                ...statusStyle,
-                backgroundColor,
-              };
-              return <div style={statusDivStyle}>{statusText}</div>;
-            },
-            editable: true,
-          },
-          {
-            field: 'actions',
-            headerName: 'Hành động',
-            sortable: false,
-            align: 'center',
-            renderCell: (params) => (
-              <>
-                <Link
-                  className='mx-1 text-info'
-                  style={{ fontSize: '25px', cursor: 'pointer' }}
-                  title='Edit'
-                  to={`../order/view-history/${params.id}`}
-                >
-                  <AiOutlineEye />
-                </Link>
-              </>
-            ),
-          },
-        ]
-      )
+  const columns = useMemo(
+    () => [
+      {
+        field: 'id',
+        headerName: 'Mã đơn hàng',
+        align: 'center',
+      },
 
-
-    // xử lý load product
-    const [isLoading, setIsLoading] = useState(false);
-    const [records, setRecords] = useState([]);
-    const [initialData, setInitialData] = useState([]);
-    const [countTrash, setCountTrash] = useState(0);
-
-    const fetchData = useCallback(async () => {
-        setIsLoading(true);
-        try {
-            const response = await axios.get('/api/order/v1/trash');
-            setIsLoading(false);
-            setRecords(response.data);
-            setInitialData(response.data);
-            setCountTrash(response.data.length);
-        } catch (error) {
-            setIsLoading(false);
-            toast.error('Failed to load products.');
+      {
+        field: 'orderer_name',
+        headerName: 'Tên khách hàng',
+        editable: true,
+        width: 150,
+        align: 'center',
+      },
+      {
+        field: 'email_order',
+        headerName: 'eMail khách hàng',
+        editable: true,
+        width: 200,
+        // align: 'center',
+      },
+      {
+        field: 'total_amount',
+        headerName: 'Tổng tiền đơn hàng',
+        editable: true,
+        width: 150,
+        align: 'center',
+        valueFormatter: (params) => {
+          const formatter = new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+          });
+          return formatter.format(params.value);
         }
-    }, []);
+      },
+      {
+        field: 'note',
+        headerName: 'Lời nhắn khách hàng',
+        editable: true,
+        width: 250,
+        align: 'center',
+      },
+      {
+        field: 'payment_method',
+        headerName: 'Phương thức thanh toán',
+        editable: true,
+        width: 200,
+        align: 'center',
+      },
+      {
+        field: 'note_admin',
+        headerName: 'Ghi chú',
+        editable: true,
+        width: 250,
+        align: 'center',
+      },
+      {
+        field: 'status',
+        headerName: 'Trạng thái đơn hàng',
+        width: 220,
+        align: 'center',
+        renderCell: (params) => {
+          const statusStyle = {
+            padding: '5px',
+            borderRadius: '5px',
+            color: 'black',
+          };
+          let statusText, backgroundColor;
+          switch (params.value) {
+            case 0:
+              statusText = 'Đang đợi xác nhận...';
+              backgroundColor = 'yellow';
+              break;
+            case 1:
+              statusText = 'Đang đợi đóng gói...';
+              backgroundColor = 'green';
+              break;
+            case 2:
+              statusText = 'Đang đợi vận chuyển...';
+              backgroundColor = 'pink';
+              break;
+            case 3:
+              statusText = 'Đang giao...';
+              backgroundColor = 'orange';
+              break;
+            case 4:
+              statusText = 'Đã giao';
+              backgroundColor = 'purple';
+              break;
+            default:
+              statusText = 'Không xác định';
+              backgroundColor = 'gray';
+          }
+          const statusDivStyle = {
+            ...statusStyle,
+            backgroundColor,
+          };
+          return <div style={statusDivStyle}>{statusText}</div>;
+        },
+        editable: true,
+      },
+      {
+        field: 'actions',
+        headerName: 'Hành động',
+        sortable: false,
+        align: 'center',
+        renderCell: (params) => (
+          <>
+            <Link
+              className='mx-1 text-info'
+              style={{ fontSize: '25px', cursor: 'pointer' }}
+              title='Edit'
+              to={`../order/view-history/${params.id}`}
+            >
+              <AiOutlineEye />
+            </Link>
+          </>
+        ),
+      },
+    ]
+  )
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
 
-    // lọc sản phẩm theo tên
-    const handleFilter = useCallback(e => {
-        const { value } = e.target;
-        setRecords(prevRecords => {
-            if (value === '') {
-                return [...initialData];
-            }
-            return prevRecords.filter(record =>
-                record.id.toLowerCase().includes(value.toLowerCase())
-            );
-        });
-    }, [initialData, setRecords]);
+  // xử lý load product
+  const [isLoading, setIsLoading] = useState(false);
+  const [records, setRecords] = useState([]);
+  const [initialData, setInitialData] = useState([]);
+  const [countTrash, setCountTrash] = useState(0);
+  const [filter, setFilter] = useState('');
 
-    // load lại bảng data product
-    const LoadPage = useCallback(async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('btn-loadpage');
-        btn.innerHTML = "Loading page...";
-        await fetchData();
-        btn.innerHTML = "Load page";
-    }, [fetchData]);
-
-    if (isLoading === true) {
-        return <>
-            <LoadingOverlay className='text-danger'
-                spinner
-                active={isLoading}
-                text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
-                }
-            ></LoadingOverlay>
-        </>
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get('/api/order/v1/trash', {
+        params: {
+          filter: filter,
+        },
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      setIsLoading(false);
+      setRecords(response.data);
+      setInitialData(response.data);
+      setCountTrash(response.data.length);
+    } catch (error) {
+      setIsLoading(false);
+      toast.error('Failed to load products.');
     }
-    return (
-        <>
-            <Meta title={"Lịch sử đơn hàng"} />
-            <div className="container-xxl">
-                <div className="row">
-                    <input
-                        type="text"
-                        className="form-control my-3"
-                        placeholder="Tìm kiếm đơn hàng..."
-                        onChange={handleFilter}
-                    />
-                    <div className="col-12 d-flex">
-                        {/* <Link className="btn btn-info m-1 text-white d-flex align-items-center" type="button">
-                            <FiTrash2 className='fs-4' /> Lịch sử đơn hàng <span>( {!countTrash ? "0" : countTrash} )</span>
-                        </Link> */}
-                        <Link to='../order' className="btn btn-info m-1 text-white d-flex align-items-center" type="button">
-                            <AiOutlineRollback className='fs-4' /> Quay về đơn hàng
-                        </Link>
+  }, [filter]);
 
-                    </div>
-                    {/* hiện data product */}
-                    <Box sx={{ height: 600, width: '100%' }}>
-                        <DataGrid
-                            rows={records}
-                            columns={columns}
-                            initialState={{
-                                pagination: {
-                                    paginationModel: {
-                                        pageSize: 10,
-                                    },
-                                },
-                            }}
-                            pageSizeOptions={[5, 10, 20]}
-                            checkboxSelection
-                            disableRowSelectionOnClick
-                            // Hàm này sẽ được gọi mỗi khi thực hiện tìm kiếm
-                            onFilterModelChange={(model) => console.log(model)}
-                        />
-                    </Box>
-                    {/* hiện data product end*/}
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-                    <div className="col-3">
-                        <button type="button" id='btn-loadpage' onClick={LoadPage} className="btn btn-dark">
-                            Load page
-                        </button>
-                    </div>
+  // lọc sản phẩm theo tên
+  const handleFilter = useCallback(e => {
+    const { value } = e.target;
+    setRecords(prevRecords => {
+      if (value === '') {
+        return [...initialData];
+      }
+      return prevRecords.filter(record =>
+        record.id.toLowerCase().includes(value.toLowerCase())
+      );
+    });
+  }, [initialData, setRecords]);
 
-                    <ToastContainer />
-                </div>
+  // load lại bảng data product
+  const LoadPage = useCallback(async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btn-loadpage');
+    btn.innerHTML = "Loading page...";
+    await fetchData();
+    btn.innerHTML = "Load page";
+  }, [fetchData]);
+
+  if (isLoading === true) {
+    return <>
+      <LoadingOverlay className='text-danger'
+        spinner
+        active={isLoading}
+        text={<button type='submit' className='button btn-login text-white bg-dark'>Loading data...</button>
+        }
+      ></LoadingOverlay>
+    </>
+  }
+
+  return (
+    <>
+      <Meta title={"Lịch sử đơn hàng"} />
+      <div className="container-xxl">
+        <div className="row">
+          <input
+            type="text"
+            className="form-control my-3"
+            placeholder="Tìm kiếm theo mã đơn hàng..."
+            onChange={handleFilter}
+          />
+          <div className="col-12 d-flex">
+            <Link to='../order' className="btn btn-info m-1 text-white d-flex align-items-center" type="button">
+              <AiOutlineRollback className='fs-4' /> Quay về đơn hàng
+            </Link>
+          </div>
+          <div className="row">
+            <div className="col-5 mt-2">
+              <p className='mb-0 title-sort d-block'><i><strong>Chọn đơn hàng theo trạng thái:</strong></i></p>
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className='form-control form-select' name="" id="">
+
+                <option value="" selected>Tất cả trạng thái đơn hàng</option>
+
+                <option value="order_confirmation">Đơn hàng được xác nhận</option>
+                <option value="order_waiting_confirmation">Đơn hàng đang đợi xác nhận</option>
+
+                <option value="order_packed">Đơn hàng đã đóng gói</option>
+                <option value="order_waiting_packing">Đơn hàng đang đợi đóng gói</option>
+
+                <option value="order_shipping">Đơn hàng đang vận chuyển</option>
+                <option value="order_waiting_shipped">Đơn hàng đang đợi vận chuyển</option>
+
+                <option value="order_delivered">Đơn hàng đã được giao</option>
+
+              </select>
             </div>
-        </>
-    );
+          </div>
+          {/* hiện data product */}
+          <Box sx={{ height: 600, width: '100%' }}>
+            <DataGrid
+              rows={records}
+              columns={columns}
+              initialState={{
+                pagination: {
+                  paginationModel: {
+                    pageSize: 10,
+                  },
+                },
+              }}
+              pageSizeOptions={[5, 10, 20]}
+              checkboxSelection
+              disableRowSelectionOnClick
+              // Hàm này sẽ được gọi mỗi khi thực hiện tìm kiếm
+              onFilterModelChange={(model) => console.log(model)}
+            />
+          </Box>
+          {/* hiện data product end*/}
+
+          <div className="col-3">
+            <button type="button" id='btn-loadpage' onClick={LoadPage} className="btn btn-dark">
+              Load page
+            </button>
+          </div>
+
+          <ToastContainer />
+        </div>
+      </div>
+    </>
+  );
 }
