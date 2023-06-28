@@ -14,6 +14,7 @@ import Meta from '../../../components/frontend/Meta';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2';
+import { ContentNews } from './ContentNews';
 
 const NewProduct = () => {
     const { currentUser } = useAuthContext();
@@ -22,7 +23,6 @@ const NewProduct = () => {
     const [files, setFiles] = useState([]);
     const [previewUrls, setPreviewUrls] = useState([]);
     const [titleNews, setTitleNews] = useState();
-    const [description, setDescription] = useState();
     const [content, setContent] = useState('');
 
     const [selectedCategory, setSelectedCategory] = useState('');
@@ -105,8 +105,6 @@ const NewProduct = () => {
     };
 
     const ClearUp = (e) => {
-        // document.getElementById("category").value = "";
-        setDescription("")
         setSelectedCategory("");
         setSelectedNews("");
         setTitleNews("");
@@ -139,8 +137,6 @@ const NewProduct = () => {
             });
     }, []);
 
-
-    
     // Xử lý sự kiện thay đổi danh mục
     const handleCategoryChange = (e) => {
         const selectedValue = e.target.value;
@@ -153,6 +149,7 @@ const NewProduct = () => {
             setShowOtherNews(true);
         }
     };
+
     // Xử lý sự kiện thay đổi danh mục
     const handleOtherChange = (e) => {
         const selectedValue = e.target.value;
@@ -165,6 +162,7 @@ const NewProduct = () => {
             setShowCategory(true);
         }
     };
+
     // Xử lý khi người dùng ấn nút Submit
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -172,22 +170,13 @@ const NewProduct = () => {
 
         // lấy dữ liệu thì form
         const status = document.getElementById("status").value;
-        // const category = document.getElementById("category").value;
-        // const otherNews = document.getElementById("other_new").value;
-        // const nameProduct = document.getElementById("nameProduct").value;
         // định nghĩa lỗi
         const newErrors = {};
         if (!titleNews) {
             newErrors.titleNews = "Vui lòng nhập tiêu đề tin tức.";
         }
-        if (!description) {
-            newErrors.description = "Vui lòng nhập đoạn mô tả.";
-        }
-        // if (!selectedCategory) {
-        //     newErrors.selectedCategory = "Vui lòng nhập category.";
-        // }
-        // if (!selectedNews) {
-        //     newErrors.selectedNews = "Vui lòng nhập loại tin tức.";
+        // if (files.length > 1) {
+        //     newErrors.files = "Chỉ được phép tải lên 1 tập tin.";
         // }
         if (!content) {
             newErrors.content = "Vui lòng nhập nội dung tin tức.";
@@ -212,8 +201,7 @@ const NewProduct = () => {
         const formData = new FormData();
         formData.append('titleNews', titleNews);
         formData.append('category', selectedCategory);
-        formData.append('type', selectedNews);
-        formData.append('description', description);
+        formData.append('type', selectedNews ? selectedNews : null);
         formData.append('contentNews', content);
         formData.append('status', status);
         // quét files images
@@ -229,7 +217,6 @@ const NewProduct = () => {
             setIsLoading(false);
             if (response.status === 200) {
                 setStatus(response.data.status)
-                // toast.success(response.data.status);
                 Swal.fire(
                     'success',
                     response.data.status,
@@ -302,18 +289,6 @@ const NewProduct = () => {
                                     </div>
                                 )}
                             </div>
-                            <div className="mb-2">
-                                <label className='form-label fw-bold' htmlFor="description">Description:</label>
-                                <input
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    className='form-control' id='description' type="text" placeholder='Enter Description News' />
-                                {errors.description && (
-                                    <div className="alert alert-danger" role="alert">
-                                        {errors.description}
-                                    </div>
-                                )}
-                            </div>
 
                             {
                                 showCategory &&
@@ -330,14 +305,14 @@ const NewProduct = () => {
                                             <option key={category.id} value={category.id}>{category.name_category}</option>
                                         ))}
                                     </select>
-
+                                    {errors.category && (
+                                        <div className="alert alert-danger" role="alert">
+                                            {errors.category}
+                                        </div>
+                                    )}
                                 </>
                             }
-                            {/* {errors.category && (
-                                <div className="alert alert-danger" role="alert">
-                                    {errors.category}
-                                </div>
-                            )} */}
+
                             {showOtherNews && (
                                 <>
                                     <label className='form-label fw-bold' htmlFor="other_new">Type News:</label>
@@ -345,16 +320,16 @@ const NewProduct = () => {
                                         <option value="" selected>Select</option>
                                         <option value="other_news" selected>Other news</option>
                                     </select>
+                                    {errors.otherNews && (
+                                        <div className="alert alert-danger" role="alert">
+                                            {errors.otherNews}
+                                        </div>
+                                    )}
                                 </>
                             )}
-                            {/* {errors.otherNews && (
-                                <div className="alert alert-danger" role="alert">
-                                    {errors.otherNews}
-                                </div>
-                            )} */}
+
                         </div>
-                        <div className="col-5">
-                            <label className='form-label fw-bold' htmlFor="detail">Content News:</label>
+                        <div className="row">
                             {errors.content && (
                                 <div className="alert alert-danger"
                                     style={
@@ -366,7 +341,7 @@ const NewProduct = () => {
                             )}
                             <div className="form-floating mb-2">
                                 <div>
-                                    <ReactQuill value={content} onChange={handleContentChange} />
+                                    <ContentNews value={content} onChange={handleContentChange} />
                                 </div>
                             </div>
                         </div>

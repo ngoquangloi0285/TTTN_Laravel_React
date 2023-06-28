@@ -92,6 +92,10 @@ a {
   width: 32.6%;
 }
 
+.gr-f3 {
+  width: 19.3%;
+}
+
 .gr-3 {
   width: 24.2%;
 }
@@ -111,8 +115,14 @@ a {
   margin: 0;
 }
 
+.header-link {
+  font-weight: bold;
+}
+.header-bottom .dropdown button {
+  text-transform: capitalize !important;
+}
 .header-link:hover {
-  color: #FEA1A1 !important;
+  color: #a0e4fd !important;
 }
 
 .button {
@@ -486,8 +496,127 @@ header {
   text-decoration: none;
 }
 
+.content_product_detail {
+  overflow: auto;
+  height: 500px;
+}
+
+.content_detail {
+  overflow: hidden;
+  height: 100rem;
+}
+
+.content_detail code {
+  white-space: pre-wrap;
+}
+
+.content_detail .ql-align-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
 .product-card .add-to-cart:hover {
   background-color: #c70016;
+}
+
+.banner-ourstore {
+  background: linear-gradient(135deg, #c70016, rgb(255, 50, 108));
+  background-size: 200% 200%;
+  padding: 20px;
+  text-align: center;
+  animation: gradientAnimation_background 10s ease infinite;
+}
+
+.banner-ourstore .img-banner-left {
+  position: absolute;
+  top: -30px;
+  left: -20px;
+  animation: textAnimation 1s ease infinite;
+}
+.banner-ourstore .img-banner-right {
+  position: absolute;
+  top: -30px;
+  right: -20px;
+  animation: textAnimation 10s ease infinite;
+}
+
+.banner-ourstore h2 {
+  font-size: 24px;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+  animation: textAnimation 2s ease-in-out infinite;
+}
+
+.banner-ourstore h5 {
+  color: #fff;
+  animation: textAnimation 2s ease-in-out infinite;
+}
+
+@keyframes gradientAnimation {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes textAnimation {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes textAnimation {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes gradientAnimation_background {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+
+.newproduct-color {
+  margin-top: 5px;
+  width: 100%;
+  border: 1px solid #00ff00;
+}
+
+.newproduct-color li {
+  list-style: none !important;
+  width: 100%;
+  margin: 10px 0;
+  height: auto;
 }
 
 

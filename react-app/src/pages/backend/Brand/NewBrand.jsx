@@ -137,9 +137,7 @@ const NewBrand = () => {
         if (!nameBrand) {
             newErrors.nameCategory = "Vui lòng nhập tên thương hiệu.";
         }
-        if (!brand) {
-            newErrors.category = "Vui lòng chọn thương hiệu cha.";
-        }
+        
         if (files.length > 1) {
             newErrors.files = "Chỉ được phép tải lên 1 tập tin.";
         }
@@ -159,7 +157,6 @@ const NewBrand = () => {
         // chèn dữ liệu
         const formData = new FormData();
         formData.append('nameBrand', nameBrand);
-        formData.append('parent_brand', brand);
         formData.append('status', option_status);
         files.forEach(file => formData.append('images[]', file));
 
@@ -245,27 +242,6 @@ const NewBrand = () => {
                                     </div>
                                 )}
                             </div>
-                            <label className='form-label fw-bold' htmlFor="category">Parent Brand:</label>
-
-                            <select className="form-select mb-2" id='category' value={brand} onChange={(e) => setBand(e.target.value)} aria-label="Default select example">
-                                <option value="" selected>Select Brand</option>
-                                <option value="0">Select Parent</option>
-                                {brandList.map(brand => (
-                                    <option key={brand.id} value={brand.id}>{brand.name}</option>
-                                ))}
-                            </select>
-                            category: {brand}
-
-                            {errors.category && (
-                                <div className="alert alert-danger" role="alert">
-                                    {errors.category}
-                                </div>
-                            )}
-                            {showBrandToast && (
-                                <Toast bg="warning" delay={5000} autohide onClose={() => setShowBrandToast(false)} style={{ width: "100%", height: "50px" }}>
-                                    <Toast.Body className='my-toast fw-bold fs-6'>Brand has no data</Toast.Body>
-                                </Toast>
-                            )}
                         </div>
                         <div className="col-5">
                             <label className='form-label fw-bold' htmlFor="detail">Upload Image:</label>

@@ -186,28 +186,28 @@ const RevenueWeb = () => {
             <h3 className="text-center mt-3">Thống kê doanh thu</h3>
             <div className="revenue-card">
               <div className="revenue-number">
-                <p className='mt-3 mb-0 fs-4 ' style={{ fontWeight: '600', color: "#11009E" }}> <i style={{fontSize: '30px', color: '#DA1212'}}><FcMoneyTransfer />
+                <p className='mt-3 mb-0 fs-4 ' style={{ fontWeight: '600', color: "#11009E" }}> <i style={{ fontSize: '30px', color: '#DA1212' }}><FcMoneyTransfer />
                 </i> Doanh thu:</p>
                 <div className="fs-1 revenue-element text-white" ref={revenueNumberRef}>
                   <p className="fs-5">
                     {isLoading ? 'Loading...' : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(revenue)}
                   </p>
                 </div>
-                <p className='mt-3 mb-0 fs-4 ' style={{ fontWeight: '600', color: "#11009E" }}> <i style={{fontSize: '30px', color: '#DA1212'}}><BsFillCartCheckFill />
+                <p className='mt-3 mb-0 fs-4 ' style={{ fontWeight: '600', color: "#11009E" }}> <i style={{ fontSize: '30px', color: '#DA1212' }}><BsFillCartCheckFill />
                 </i> Đơn hoàn thành: </p>
                 <div className="fs-1 revenue-element text-white" ref={completedOrdersNumberRef}>
                   <p className="fs-5">
                     {isLoading ? 'Loading...' : completedOrders}
                   </p>
                 </div>
-                <p className='mt-3 mb-0 fs-4 ' style={{ fontWeight: '600', color: "#11009E" }}> <i style={{fontSize: '30px', color: '#DA1212'}}><BsFillCartXFill />
+                <p className='mt-3 mb-0 fs-4 ' style={{ fontWeight: '600', color: "#11009E" }}> <i style={{ fontSize: '30px', color: '#DA1212' }}><BsFillCartXFill />
                 </i> Đơn bị hủy:</p>
                 <div className="fs-1 revenue-element text-white" ref={canceledOrdersNumberRef}>
                   <p className="fs-5">
                     {isLoading ? 'Loading...' : canceledOrders}
                   </p>
                 </div>
-                <p className="mt-3 mb-0 fs-4 " style={{ fontWeight: '600', color: "#11009E" }}><i style={{fontSize: '30px', color: '#DA1212'}}><FaUserCheck />
+                <p className="mt-3 mb-0 fs-4 " style={{ fontWeight: '600', color: "#11009E" }}><i style={{ fontSize: '30px', color: '#DA1212' }}><FaUserCheck />
                 </i> Khách hàng:</p>
                 <div className="fs-1 revenue-element text-white" ref={countUserRef}>
                   <p className="fs-5">
@@ -220,10 +220,21 @@ const RevenueWeb = () => {
                 {isLoading ? 'Loading...' : ''}
                 <div>
                   <div className="mb-3">
-                    <label htmlFor="month" className="form-label">
-                      Nhập tháng doanh thu:
-                    </label>
-                    <input value={month} onChange={handleMonthChange} type="email" className="form-control" id="month" placeholder="9" />
+                    <label htmlFor="month" className="form-label">Chọn tháng doanh thu:</label>
+                    <select value={month} onChange={handleMonthChange} className='form-select' name="" id="month">
+                      <option value="1">Tháng 1</option>
+                      <option value="2">Tháng 2</option>
+                      <option value="3">Tháng 3</option>
+                      <option value="4">Tháng 4</option>
+                      <option value="5">Tháng 5</option>
+                      <option value="6">Tháng 6</option>
+                      <option value="7">Tháng 7</option>
+                      <option value="8">Tháng 8</option>
+                      <option value="9">Tháng 9</option>
+                      <option value="10">Tháng 10</option>
+                      <option value="11">Tháng 11</option>
+                      <option value="12">Tháng 12</option>
+                    </select>
                   </div>
                   <div className="mb-3">
                     <label htmlFor="year" className="form-label">

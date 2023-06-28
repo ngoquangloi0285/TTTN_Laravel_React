@@ -15,7 +15,7 @@ import { getTotals } from "../../state/cartSlice";
 
 const Header = () => {
   const { currentUser, logout } = useAuthContext();
-  
+
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
 
@@ -27,39 +27,20 @@ const Header = () => {
 
   const [menuList, setMenuList] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
+  const [brandList, setBrandList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [categoryMap, setCategoryMap] = useState({});
 
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [menuResponse, categoryResponse] = await Promise.all([
+      const [menuResponse, categoryResponse, brandResponse] = await Promise.all([
         axios.get('/api/menu/v1/menus'),
-        axios.get('/api/category/v1/category')
+        axios.get('/api/category/v1/category'),
+        axios.get('/api/brand/v1/brand'),
       ]);
-
-      const categoryMap = {};
-      const categoryList = categoryResponse.data;
-
-      categoryList.forEach((category) => {
-        categoryMap[category.id] = category;
-        category.children = []; // Thêm thuộc tính children cho mỗi category
-      });
-
-      const categoryTree = [];
-      categoryList.forEach((category) => {
-        if (category.parent_category) {
-          // Nếu category có parent_category, thêm nó vào danh sách con của category cha tương ứng
-          categoryMap[category.parent_category].children.push(category);
-        } else {
-          // Nếu không có parent_category, nó là category gốc, thêm vào danh sách gốc
-          categoryTree.push(category);
-        }
-      });
-
+      setCategoryList(categoryResponse.data)
+      setBrandList(brandResponse.data)
       setMenuList(menuResponse.data);
-      setCategoryList(categoryTree);
-      setCategoryMap(categoryMap);
 
       setIsLoading(false);
     } catch (error) {
@@ -71,30 +52,6 @@ const Header = () => {
   useEffect(() => {
     fetchData();
   }, []);
-
-  const renderCategory = (category) => {
-    return (
-      <li key={category.id} className="dropdown-submenu">
-        <Link to={`../category/${category.slug}`} className="dropdown-item dropdown-toggle text-dark" href="#">
-          {category.name_category}
-        </Link>
-        {category.children.length > 0 && (
-          <ul className="dropdown-menu">
-            {category.children.map((subcategory) => (
-              <li key={subcategory.id}>
-                <Link to={`../category/${subcategory.slug}`} className="dropdown-item text-dark" href="#">
-                  {subcategory.name_category}
-                </Link>
-                {/* Sử dụng đệ quy */}
-                {subcategory.children.length > 0 && renderCategory(subcategory)}
-              </li>
-            ))}
-          </ul>
-        )}
-      </li>
-
-    );
-  };
 
   // Loại bỏ các category trùng lặp
   const uniqueCategories = Array.from(new Set(categoryList.map((category) => category.id))).map((id) => {
@@ -138,7 +95,7 @@ const Header = () => {
           <div className="row align-items-center">
             <div className="col-2">
               <Link to="/" className="text-white">
-                <h2 className="mb-0 header-link d-flex align-items-between">
+                <h2 className="mb-0 d-flex align-items-between">
                   {/* <BsShop style={{
                     fontSize: '3rem'
                   }} /> */}
@@ -206,7 +163,7 @@ const Header = () => {
                             )
                             }
                             <li>
-                              <button onClick={logout} className="dropdown-item header-btn d-block header-link">Logout <BiLogOut className="icon-item" /></button>
+                              <button onClick={logout} className="dropdown-item header-btn d-block header-link">Đăng xuất <BiLogOut className="icon-item" /></button>
                             </li>
                           </ul>
                         </div>
@@ -248,14 +205,57 @@ const Header = () => {
                 <div>
                   <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle bg-transparent border-0 gap-15 d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      <span class="me-5 d-inline-block header-link">Danh mục</span>
+                      <span class="d-inline-block header-link">Phân loại Theo danh mục</span>
                     </button>
                     <ul className="dropdown-menu">
-                      {uniqueCategories.map((category) => renderCategory(category))}
+                      {
+                        categoryList.map((category) => {
+                          // Lọc ra các danh mục con của danh mục hiện tại
+                          const subcategories = categoryList.filter((subcat) => subcat.parent_category === category.id);
+
+                          return (
+                            <li key={category.id} className="dropdown-submenu">
+                              <Link to={`../category/${category.slug}`} className="dropdown-item dropdown-toggle text-dark" href="#">
+                                {category.name_category}
+                              </Link>
+
+                              {subcategories.length > 0 && (
+                                <ul className="dropdown-menu">
+                                  {subcategories.map((subcategory) => (
+                                    <li key={subcategory.id}>
+                                      <Link to={`../category/${subcategory.slug}`} className="dropdown-item text-dark" href="#">
+                                        {subcategory.name_category}
+                                      </Link>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </li>
+                          );
+                        })
+                      }
+
                     </ul>
                   </div>
                 </div>
-
+                <div>
+                  <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle bg-transparent border-0 gap-15 d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <span class="d-inline-block header-link"> Phân loại Theo Thương hiệu</span>
+                    </button>
+                    <ul className="dropdown-menu">
+                      {
+                        brandList.map((brand) => (
+                          <li key={brand.id} className="dropdown-submenu">
+                            <Link to={`../brand/${brand.slug}`} className="dropdown-item text-dark" href="#">
+                              {brand.name}
+                            </Link>
+                          </li>
+                        ))
+                      }
+                    </ul>
+                  </div>
+                </div>
                 <div className="menu-links">
                   <div className="d-flex align-items-center gap-15">
                     {
@@ -271,7 +271,6 @@ const Header = () => {
                           <NavLink className="header-link" to={menu.link}>{menu.name}</NavLink>
                         ))
                     }
-
                   </div>
                 </div>
               </div>

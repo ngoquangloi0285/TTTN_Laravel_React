@@ -26,7 +26,8 @@ Route::prefix('product/v1')->group(function () {
     Route::get("show_slide", [ProductController::class, 'show_slide']);
     // Lấy thông tin sản phẩm theo id
     Route::get('product/{product}', [ProductController::class, 'show'])->name('product.show');
-    Route::get('product', [ProductController::class, 'product_detail'])->name('product.product_detail');
+
+    Route::get('product_detail/{slug}', [ProductController::class, 'product_detail'])->name('product.product_detail');
     // Lấy thông tin sản phẩm theo id
     Route::get('edit/{id}', [ProductController::class, 'edit'])->name('product.edit');
     // Tạo sản phẩm mới

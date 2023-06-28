@@ -140,9 +140,9 @@ const NewCategory = () => {
         if (!category) {
             newErrors.category = "Vui lòng chọn danh mục cha.";
         }
-        if (files.length > 1) {
-            newErrors.files = "Chỉ được phép tải lên 1 tập tin.";
-        }
+        // if (files.length > 1) {
+        //     newErrors.files = "Chỉ được phép tải lên 1 tập tin.";
+        // }
         if (!option_status) {
             newErrors.status = "Vui lòng chọn trạng thái.";
         }
@@ -161,7 +161,7 @@ const NewCategory = () => {
         formData.append('nameCategory', nameCategory);
         formData.append('parent_category', category);
         formData.append('status', option_status);
-        files.forEach(file => formData.append('images[]', file));
+        // files.forEach(file => formData.append('images[]', file));
 
         console.log(formData)
         try {
@@ -249,7 +249,7 @@ const NewCategory = () => {
 
                             <select className="form-select mb-2" id='category' value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Default select example">
                                 <option value="" selected>Select Category</option>
-                                <option value="0">Select Parent</option>
+                                <option value="0">Parent</option>
                                 {categories.map(category => (
                                     <option key={category.id} value={category.id}>{category.name_category}</option>
                                 ))}
@@ -268,7 +268,7 @@ const NewCategory = () => {
                             )}
                         </div>
                         <div className="col-5">
-                            <label className='form-label fw-bold' htmlFor="detail">Upload Image:</label>
+                            {/* <label className='form-label fw-bold' htmlFor="detail">Upload Image:</label>
                             <input className='form-control mb-2' name='file[]' id='file' type="file" multiple onChange={handleUpload} />
                             {errors.files && (
                                 <div className="alert alert-danger"
@@ -292,7 +292,7 @@ const NewCategory = () => {
                                     <AiOutlineClear className='fs-4' />
                                     Clean up photos
                                 </button>
-                            }
+                            } */}
 
                             <label className='form-label fw-bold' htmlFor="status">Status:</label>
                             <select className="form-select" id="status" aria-label="Default select example">

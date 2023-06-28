@@ -16,16 +16,15 @@ class News extends Model
         'title_news',
         'slug',
         'type',
-        'description',
         'content_news',
         'category_id',
         'author',
         'status'
     ];
-    
+
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     public function images()

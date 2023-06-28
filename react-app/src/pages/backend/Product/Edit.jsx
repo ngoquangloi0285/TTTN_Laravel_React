@@ -39,7 +39,31 @@ const Edit = () => {
     const [inch, setInch] = useState();
     const [type, setType] = useState();
     const [total, setTotal] = useState();
+    const [colors, setColors] = useState([]); // Danh sách các màu sản phẩm
+    const [newColor, setNewColor] = useState(''); // Giá trị màu mới
 
+    const addColor = (e) => {
+        e.preventDefault()
+        const newErrors = {};
+        if (newColor.trim() === '') {
+            newErrors.colors = "Vui lòng nhập giá trị màu.";
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
+        setColors([...colors, newColor]); // Thêm màu mới vào danh sách
+        setNewColor(''); // Xóa giá trị màu mới
+        setErrors({}); // Xóa danh sách lỗi
+    };
+
+    const removeColor = (index) => {
+        const updatedColors = [...colors];
+        updatedColors.splice(index, 1); // Xóa màu khỏi danh sách
+        setColors(updatedColors);
+    };
 
     const timeZone = 'America/New_York';
     const now = moment().tz(timeZone).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DDTHH:mm:ss');
@@ -153,18 +177,19 @@ const Edit = () => {
 
     // lay du lieu tu product va product images
     const [product, setProduct] = useState([]);
+    const [colorsProduct, setColorsProduct] = useState([]);
     const [arrImages, setArrImages] = useState([]);
     useEffect(() => {
         Promise.all([
             axios.get(`api/product/v1/edit/${encodedId}`),
             axios.get('api/category/v1/category'),
             axios.get('api/brand/v1/brand'),
-            axios.get('api/images/v1/images'),
-            axios.get('api/countdown/v1/countdown'),
         ])
-            .then(([productResponse, categoryResponse, brandResponse, imagesResponse, countdownRes]) => {
+            .then(([productResponse, categoryResponse, brandResponse]) => {
                 if (productResponse.data) {
                     setProduct(productResponse.data);
+                    setColorsProduct(productResponse.data.product.colors)
+                    setArrImages(productResponse.data.product.images)
                 }
                 if (categoryResponse.data.length === 0) {
                     setShowCategoryToast(true);
@@ -172,6 +197,7 @@ const Edit = () => {
                 } else {
                     setCategories(categoryResponse.data);
                 }
+
                 if (categoryResponse.data.status === 200) {
                     setGetCategory(categoryResponse.data);
                 }
@@ -190,15 +216,9 @@ const Edit = () => {
                     setDiscount(productResponse.data.product.discount);
                     setColor(productResponse.data.product.color);
                     setInch(productResponse.data.product.inch);
-                    // setTotal(productResponse.data.product.total);
+                    setTotal(productResponse.data.product.total);
                     setType(productResponse.data.product.type);
                     setContent(productResponse.data.product.detail);
-                }
-                if (imagesResponse.data) {
-                    setArrImages(imagesResponse.data)
-                }
-                if (countdownRes.data) {
-                    setStartTimeArr(countdownRes.data);
                 }
                 setIsLoading(false);
             })
@@ -208,11 +228,6 @@ const Edit = () => {
             });
     }, [encodedId]);
 
-    // tìm images
-    const images = arrImages.filter(c => c.product_id === product.product.id);
-    const image_0 = product.product
-    images.unshift(image_0);
-    console.log(image_0)
     //   tìm id category trùng với id trong bảng category
     const category = categories.find(c => c.id === product.product.category_id);
     // khi trùng id thì lấy name_category ra
@@ -221,14 +236,8 @@ const Edit = () => {
     const brand = brands.find(c => c.id === product.product.brand_id);
     // khi trùng id thì lấy name_brands ra
     const brandName = brand ? brand.name : '';
-    // in star time và end time 
-    const start_end_time = arrTimeArr.find(c => c.product_id === product.product.id);
-    const getStart_Time = start_end_time ? start_end_time.start_time : '';
-    const getEnd_Time = start_end_time ? start_end_time.end_time : '';
-
 
     const [statusType, setStatusType] = useState('new_product');
-    // const [discount, setDiscount] = useState('');
 
     const handleDiscountChange = (e) => {
         const value = e.target.value;
@@ -242,10 +251,16 @@ const Edit = () => {
         }
     };
 
+
+    const [showDateTimeFields, setShowDateTimeFields] = useState(false);
+
+    const handleEndDateChange = (e) => {
+        setShowDateTimeFields(e.target.checked);
+    };
+
     // Xử lý khi người dùng ấn nút Submit
     const handleSubmit = useCallback(async () => {
         const btn = document.getElementById('btn_create');
-
         // lấy dữ liệu thì form
         const category = document.getElementById("category").value;
         const brand = document.getElementById("brand").value;
@@ -287,32 +302,50 @@ const Edit = () => {
                 newErrors.discount = "Giảm giá phải nhỏ hơn hoặc bằng 100.";
             }
         }
-        if (!color) {
-            newErrors.color = "Vui lòng nhập màu.";
+
+        if (!total) {
+            newErrors.total = "Vui lòng nhập số lượng sản phẩm này";
+        } else {
+            if (isNaN(total)) {
+                newErrors.total = "Số lượng sản phẩm phải là số.";
+            } else if (total <= 0) {
+                newErrors.total = "Số lượng sản phẩm phải lớn hơn 0.";
+            }
         }
+
         if (!inch) {
-            newErrors.inch = "Vui lòng số icnh.";
+            newErrors.inch = "Vui lòng nhập kích thước.";
         }
-        if (isNaN(inch)) {
-            newErrors.inch = "Inch phải là số.";
+        else {
+            if (isNaN(inch)) {
+                newErrors.inch = "Kích thước phải là số.";
+            }
+        }
+
+        if (colors.length === 0) {
+            newErrors.colors = "Vui lòng nhập màu.";
         }
 
         const nowDate = moment().tz(moment.tz.guess());
         const startDate = moment(startTime + ':00.000Z').tz(moment.tz.guess());
         const endDate = moment(endTime + ':00.000Z').tz(moment.tz.guess());
 
-        if (startDate < nowDate.startOf('day')) {
-            newErrors.startTime = 'Start time phải là ngày hiện tại hoặc sau ngày hiện tại.';
+        if (showDateTimeFields) {
+
+            if (startDate < nowDate.startOf('day')) {
+                newErrors.startTime = 'Start time phải là ngày hiện tại hoặc sau ngày hiện tại.';
+            }
+            if (endDate <= nowDate) {
+                newErrors.endTime = 'Ngày kết thúc không được nhỏ hơn ngày hiện tại.';
+            } else if (endDate.diff(startDate, 'days') > 30) {
+                newErrors.endTime = 'Ngày kết thúc không được quá 1 tháng so với ngày bắt đầu.';
+            } else if (endDate <= startDate) {
+                newErrors.endTime = 'Ngày kết thúc không được nhỏ hơn hoặc bằng ngày bắt đầu.';
+            } else if (endDate.isSame(startDate)) {
+                newErrors.endTime = 'Ngày kết thúc không được bằng với ngày bắt đầu.';
+            }
         }
-        if (endDate <= nowDate) {
-            newErrors.endTime = 'End time không được nhỏ hơn ngày hiện tại.';
-        } else if (endDate.diff(startDate, 'days') > 30) {
-            newErrors.endTime = 'End time không được quá 1 tháng so với start time.';
-        } else if (endDate <= startDate) {
-            newErrors.endTime = 'End time không được nhỏ hơn hoặc bằng Start time.';
-        } else if (endDate.isSame(startDate)) {
-            newErrors.endTime = 'End time không được bằng với start time.';
-        }
+
         if (!content) {
             newErrors.content = "Vui lòng nhập chi tiết sản phẩm.";
         }
@@ -341,7 +374,7 @@ const Edit = () => {
         formData.append('costProduct', costProduct);
         formData.append('priceSale', priceSale);
         formData.append('discount', discount ? discount : '');
-        formData.append('color', color);
+        formData.append('total', total);
         formData.append('inch', inch);
         formData.append('type', type);
         formData.append('start_time', startTime);
@@ -350,16 +383,19 @@ const Edit = () => {
         formData.append('status', status);
         // quét files images
         files.forEach(file => formData.append('images[]', file));
+        if (colors.length > 0) {
+            colors.forEach(color => formData.append('color[]', color));
+        }
         console.log(formData)
         try {
-            btn.innerHTML = "Updating...";
+            btn.innerHTML = "Đang cập nhật...";
             const response = await axios.post(`/api/product/v1/update-product/${encodedId}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
             setIsLoading(false);
-            btn.innerHTML = "Update Product";
+            btn.innerHTML = "Cập nhật";
             if (response.status === 200) {
                 setStatus(response.data.status)
                 // toast.success(response.data.status);
@@ -385,7 +421,7 @@ const Edit = () => {
             }
             btn.innerHTML = "Update Product";
         }
-    }, [content, color, costProduct, discount, encodedId, endTime, files, inch, nameProduct, priceSale, startTime, summary, navigate]);
+    }, [content, costProduct, discount, encodedId, endTime, files, inch, nameProduct, priceSale, startTime, summary, navigate, colors, total, showDateTimeFields]);
     // xác nhận  update
     const confirmUpdate = useCallback(() => {
         Swal.fire({
@@ -568,21 +604,42 @@ const Edit = () => {
                             </div>
                         </div>
                         <div className="row">
-                            <div className="col-4">
-                                <label className='form-label fw-bold' htmlFor="color">Color:</label>
-                                <input className='form-control'
-                                    value={color}
-                                    onChange={(e) => setColor(e.target.value)}
-                                    id='color' type="text" placeholder='Enter color' />
-                                {errors.color && (
-                                    <div className="alert alert-danger"
-                                        style={
-                                            { fontSize: '14px' }
-                                        }
-                                        role="alert">
-                                        {errors.color}
+                            <div className="col-6">
+                                <label className='form-label fw-bold' htmlFor="color">Màu sản phẩm:</label>
+                                <div className="input-group">
+                                    <input
+                                        className='form-control'
+                                        value={newColor}
+                                        onChange={(e) => setNewColor(e.target.value)}
+                                        id='color' type="text" placeholder='Red' />
+                                    <button className="btn btn-primary" onClick={addColor}>Thêm màu</button>
+                                </div>
+                                {errors.colors && (
+                                    <div className="alert alert-danger" style={{ fontSize: '14px' }}>
+                                        {errors.colors}
                                     </div>
                                 )}
+                                {colors.length > 0 && (
+                                    <div className='newproduct-color'>
+                                        <label className='form-label fw-bold'>Các màu đã thêm:</label>
+                                        <ul>
+                                            {colors.map((color, index) => (
+                                                <li key={index}>
+                                                    {color}
+                                                    <button className="btn btn-sm btn-danger ms-2" onClick={(e) => removeColor(index)}>Xóa</button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                                <div>
+                                    <label htmlFor="">Màu đã chọn:</label>
+                                    <ul>
+                                        {colorsProduct.map((color, index) => (
+                                            <li key={index}>{color}</li>
+                                        ))}
+                                    </ul>
+                                </div>
                             </div>
                             <div className="col-4">
                                 <label className='form-label fw-bold' htmlFor="inch">Inch:</label>
@@ -601,63 +658,85 @@ const Edit = () => {
                                 )}
                             </div>
                             <div className="row my-2">
-                                <div className="col-6">
+                                <div className="col-12">
                                     <div className="mb-2">
-                                        <label className='form-label fw-bold' htmlFor="startTime">Start Time:</label>
+                                        <label className='form-label fw-bold' htmlFor="endDate">Chọn ngày kết thúc bán sản phẩm:</label>
                                         <input
-                                            className='form-control'
-                                            value={startTime}
-                                            onChange={(e) => setStartTime(e.target.value)}
-                                            id='startTime'
-                                            type="datetime-local"
+                                            onChange={handleEndDateChange}
+                                            id='endDate'
+                                            type="checkbox"
                                         />
-                                        <p className='m-0'>selected start time: </p>
-                                        <strong>
-                                            {
-                                                getStart_Time ? getStart_Time : ""
-                                            }
-                                        </strong>
-                                        {errors.startTime && (
-                                            <div
-                                                className="alert alert-danger"
-                                                style={{
-                                                    fontSize: '14px'
-                                                }}
-                                                role="alert"
-                                            >
-                                                {errors.startTime}
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
-                                <div className="col-6">
-                                    <div className="mb-2">
-                                        <label className='form-label fw-bold' htmlFor="endTime">End Time:</label>
-                                        <input
-                                            className='form-control'
-                                            value={endTime}
-                                            onChange={(e) => setEndTime(e.target.value)}
-                                            id='endTime'
-                                            type="datetime-local"
-                                        />
-                                        <p className='m-0'>selected end time: </p>
-                                        <strong>
-                                            {
-                                                getEnd_Time ? getEnd_Time : ""
-                                            }
-                                        </strong>
-                                        {errors.endTime && (
-                                            <div
-                                                className="alert alert-danger"
-                                                style={{
-                                                    fontSize: '14px'
-                                                }}
-                                                role="alert"
-                                            >
-                                                {errors.endTime}
-                                            </div>
-                                        )}
+                            </div>
+                            {showDateTimeFields && (
+                                <div className="row">
+                                    <div className="col-6">
+                                        <div className="mb-2">
+                                            <label className='form-label fw-bold' htmlFor="startTime">Ngày bắt đầu:</label>
+                                            <input
+                                                className='form-control'
+                                                value={startTime}
+                                                onChange={(e) => setStartTime(e.target.value)}
+                                                id='startTime'
+                                                type="datetime-local"
+                                            />
+                                            {errors.startTime && (
+                                                <div
+                                                    className="alert alert-danger"
+                                                    style={{
+                                                        fontSize: '14px'
+                                                    }}
+                                                    role="alert"
+                                                >
+                                                    {errors.startTime}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
+                                    <div className="col-6">
+                                        <div className="mb-2">
+                                            <label className='form-label fw-bold' htmlFor="endTime">Ngày kết thúc:</label>
+                                            <input
+                                                className='form-control'
+                                                value={endTime}
+                                                onChange={(e) => setEndTime(e.target.value)}
+                                                id='endTime'
+                                                type="datetime-local"
+                                            />
+                                            {errors.endTime && (
+                                                <div
+                                                    className="alert alert-danger"
+                                                    style={{
+                                                        fontSize: '14px'
+                                                    }}
+                                                    role="alert"
+                                                >
+                                                    {errors.endTime}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            <div className="row">
+                                <div className="col-5">
+                                    <label className='form-label fw-bold' htmlFor="total">Số lượng sản phẩm:</label>
+                                    <input className='form-control'
+                                        value={total}
+                                        onChange={(e) => setTotal(e.target.value)}
+                                        id='total' type="text" placeholder='780' />
+                                    {errors.total && (
+                                        <div
+                                            className="alert alert-danger"
+                                            style={{
+                                                fontSize: '14px'
+                                            }}
+                                            role="alert"
+                                        >
+                                            {errors.total}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -704,12 +783,18 @@ const Edit = () => {
                             </div>
                         }
                         <br />
+
                         {
-                            images === null ? "Không có ảnh" :
+                            arrImages === null ? "Không có ảnh" :
                                 <div style={{ width: '100%' }}>
                                     <h4 className='mt-3'>Images selected: </h4>
                                     <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
-                                        {images.map((image, index) => (
+                                        <img className='img img-fluid img-thumbnail'
+                                            style={{ width: '100px', height: '100px', margin: '5px', objectFit: 'cover' }}
+                                            src={`http://localhost:8000/storage/product/${product.product.image}`}
+                                            alt=''
+                                        />
+                                        {arrImages.map((image, index) => (
                                             <img className='img img-fluid img-thumbnail'
                                                 key={index}
                                                 style={{ width: '100px', height: '100px', margin: '5px', objectFit: 'cover' }}

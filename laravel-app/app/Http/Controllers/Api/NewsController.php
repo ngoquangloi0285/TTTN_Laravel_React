@@ -36,7 +36,6 @@ class NewsController extends Controller
 
             return response()->json($news);
         }
-
         if ($request->has('blog')) {
             $news = News::where('status', 1)
                 ->limit(4)
@@ -45,14 +44,15 @@ class NewsController extends Controller
                 ->get();
 
             return response()->json($news);
+        } else {
+            $news = News::where('status', 1)
+                ->orderBy('created_at', 'desc')
+                ->latest()
+                ->with('category:id,name_category')
+                ->get();
+
+            return response()->json($news);
         }
-
-        $news = News::where('status', 1)
-            ->orderBy('created_at', 'desc')
-            ->latest()
-            ->get();
-
-        return response()->json($news);
     }
 
 
@@ -83,7 +83,6 @@ class NewsController extends Controller
                 'title_news' => $request['titleNews'],
                 'slug' => Str::slug($request['titleNews'], '-'),
                 'category_id' => $request['category'],
-                'description' => $request['description'],
                 'type' => $request['type'],
                 'content_news' => $request['contentNews'],
                 'author' => $request->user()->name,
@@ -96,7 +95,10 @@ class NewsController extends Controller
                 $count = count($files);
 
                 foreach ($files as $key => $file) {
-                    $path = $news->title_news . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
+                    $title = str_replace(':', '_', $news->title_news); // Thay thế dấu ":" bằng gạch dưới "_"
+                    $title = str_replace(' ', '_', $title); // Thay thế khoảng trắng bằng gạch dưới "_"
+
+                    $path = $title . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
                     $image = Image::make($file);
                     $image->resize(800, null, function ($constraint) {
                         $constraint->aspectRatio();
@@ -120,8 +122,6 @@ class NewsController extends Controller
                     }
                 }
             }
-
-
 
             // Trả về thông tin sản phẩm đã tạo và thông báo thành công
             return response()->json([
@@ -196,7 +196,10 @@ class NewsController extends Controller
             $paths = [];
 
             foreach ($files as $key => $file) {
-                $path = $request['titleNews'] . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
+                $title = str_replace(':', '_', $request['titleNews']); // Thay thế dấu ":" bằng gạch dưới "_"
+                $title = str_replace(' ', '_', $title); // Thay thế khoảng trắng bằng gạch dưới "_"
+
+                $path = $title . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
                 $image = Image::make($file);
                 $image->resize(800, null, function ($constraint) {
                     $constraint->aspectRatio();
@@ -238,6 +241,7 @@ class NewsController extends Controller
                 'news' => $news
             ], 200);
         }
+
         return response()->json([
             'status' => 'Update Unsuccessfully',
             'news' => $news

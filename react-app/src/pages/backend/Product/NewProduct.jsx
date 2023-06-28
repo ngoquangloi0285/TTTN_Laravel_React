@@ -28,9 +28,35 @@ const NewProduct = () => {
     const [costProduct, setCostProduct] = useState();
     const [priceSale, setPriceSale] = useState();
     const [discount, setDiscount] = useState();
-    const [color, setColor] = useState();
+    // const [color, setColor] = useState();
     const [inch, setInch] = useState();
     const [total, setTotal] = useState();
+
+    const [colors, setColors] = useState([]); // Danh sách các màu sản phẩm
+    const [newColor, setNewColor] = useState(''); // Giá trị màu mới
+
+    const addColor = (e) => {
+        e.preventDefault()
+        const newErrors = {};
+        if (newColor.trim() === '') {
+            newErrors.colors = "Vui lòng nhập giá trị màu.";
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
+        setColors([...colors, newColor]); // Thêm màu mới vào danh sách
+        setNewColor(''); // Xóa giá trị màu mới
+        setErrors({}); // Xóa danh sách lỗi
+    };
+
+    const removeColor = (index) => {
+        const updatedColors = [...colors];
+        updatedColors.splice(index, 1); // Xóa màu khỏi danh sách
+        setColors(updatedColors);
+    };
 
     const timeZone = 'America/New_York';
     const now = moment().tz(timeZone).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DDTHH:mm:ss');
@@ -124,7 +150,7 @@ const NewProduct = () => {
         setCostProduct("");
         setPriceSale("");
         setDiscount("");
-        setColor("");
+        setColors("");
         setInch("");
         setStartTime(now.slice(0, 16))
         setEndTime(now.slice(0, 16))
@@ -177,7 +203,6 @@ const NewProduct = () => {
     const handleDiscountChange = (e) => {
         const value = e.target.value;
         setDiscount(value);
-        console.log(value);
         // Nếu có giá trị discount, chuyển select sang giá trị 'product_sale'
         if (value === "0") {
             setStatusType('new_product');
@@ -200,14 +225,6 @@ const NewProduct = () => {
         const status = document.getElementById("status").value;
         const category = document.getElementById("category").value;
         const brand = document.getElementById("brand").value;
-        // const nameProduct = document.getElementById("nameProduct").value;
-        // const summary = document.getElementById("summary").value;
-        // const costProduct = document.getElementById("costProduct").value;
-        // const priceSale = document.getElementById("priceSale").value;
-        // const startTime = document.getElementById("startTime").value;
-        // const endTime = document.getElementById("endTime").value;
-        // const color = document.getElementById("color").value;
-        // const inch = document.getElementById("inch").value;
         const type = document.getElementById("type").value;
 
         // định nghĩa lỗi
@@ -256,9 +273,6 @@ const NewProduct = () => {
             }
         }
 
-        if (!color) {
-            newErrors.color = "Vui lòng nhập màu.";
-        }
         if (!inch) {
             newErrors.inch = "Vui lòng nhập kích thước.";
         }
@@ -268,6 +282,9 @@ const NewProduct = () => {
             }
         }
 
+        if (colors.length === 0) {
+            newErrors.colors = "Vui lòng nhập màu.";
+        }
 
         const nowDate = moment().tz(moment.tz.guess());
         const startDate = moment(startTime + ':00.000Z').tz(moment.tz.guess());
@@ -317,7 +334,6 @@ const NewProduct = () => {
         formData.append('costProduct', costProduct);
         formData.append('priceSale', priceSale);
         formData.append('discount', discount ? discount : '');
-        formData.append('color', color ? color : '');
         formData.append('inch', inch ? inch : '');
         formData.append('type', type);
         formData.append('total', total);
@@ -325,9 +341,14 @@ const NewProduct = () => {
         formData.append('end_time', endTime ? endTime : '');
         formData.append('detail', content);
         formData.append('status', status);
-        // quét files images
+        // Quét files images
         files.forEach(file => formData.append('images[]', file));
-        console.log(formData)
+
+        if (colors.length > 0) {
+            colors.forEach(color => formData.append('color[]', color));
+        }
+
+        console.log(formData);
         try {
             btn.innerHTML = "Creating...";
             const response = await axios.post('/api/product/v1/create-product', formData, {
@@ -524,17 +545,30 @@ const NewProduct = () => {
                             <div className="row">
                                 <div className="col-6">
                                     <label className='form-label fw-bold' htmlFor="color">Màu sản phẩm:</label>
-                                    <input className='form-control'
-                                        value={color}
-                                        onChange={(e) => setColor(e.target.value)}
-                                        id='color' type="text" placeholder='Red' />
-                                    {errors.color && (
-                                        <div className="alert alert-danger"
-                                            style={
-                                                { fontSize: '14px' }
-                                            }
-                                            role="alert">
-                                            {errors.color}
+                                    <div className="input-group">
+                                        <input
+                                            className='form-control'
+                                            value={newColor}
+                                            onChange={(e) => setNewColor(e.target.value)}
+                                            id='color' type="text" placeholder='Red' />
+                                        <button className="btn btn-primary" onClick={addColor}>Thêm màu</button>
+                                    </div>
+                                    {errors.colors && (
+                                        <div className="alert alert-danger" style={{ fontSize: '14px' }}>
+                                            {errors.colors}
+                                        </div>
+                                    )}
+                                    {colors.length > 0 && (
+                                        <div className='newproduct-color'>
+                                            <label className='form-label fw-bold'>Các màu đã thêm:</label>
+                                            <ul>
+                                                {colors.map((color, index) => (
+                                                    <li key={index}>
+                                                        {color}
+                                                        <button className="btn btn-sm btn-danger ms-2" onClick={(e) => removeColor(index)}>Xóa</button>
+                                                    </li>
+                                                ))}
+                                            </ul>
                                         </div>
                                     )}
                                 </div>

@@ -55,10 +55,21 @@ class Product extends Model
     }
     public function countdown()
     {
-        return $this->hasMany(CountDown::class);
+        return $this->hasOne(Countdown::class, 'product_id');
     }
+
     public function totalProduct()
     {
         return $this->hasOne(TotalProduct::class, 'product_count');
+    }
+
+    // Định nghĩa quan hệ với mô hình Order
+    public function order()
+    {
+        return $this->hasOne(Order::class);
+    }
+    public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class, 'product_id');
     }
 }

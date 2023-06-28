@@ -94,9 +94,8 @@ const Cart = () => {
                       <Link title='review' to={`../product-detail/${cartItem.slug}`}>
                         <img className='img-fluid' src={`http://localhost:8000/storage/product/${cartItem.image}`} style={{ width: '150px' }} alt={cartItem.name_product} />
                       </Link>
-                      <div>
-                        <h3>{cartItem.name_product}</h3>
-                        <p className='m-0'>{cartItem.summary}</p>
+                      <div className='ml-3'>
+                        <p className='fs-5'>{cartItem.name_product}</p>
                         <p className='m-0'>Màu sản phẩm: <strong>{cartItem.color}</strong></p>
                         <button className='cart-remove' onClick={() => handleRemoveFromCart(cartItem)}>
                           Xóa sản phẩm này

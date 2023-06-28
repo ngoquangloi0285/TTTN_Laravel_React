@@ -111,15 +111,9 @@ const EditBrand = () => {
 
     useEffect(() => {
         Promise.all([
-            axios.get('api/brand/v1/brand'),
             axios.get(`api/brand/v1/edit/${id}`)
         ])
-            .then(([brandResponse, editResponse]) => {
-                if (brandResponse.data.length === 0) {
-                    setShowBrandToast(true);
-                    setTimeout(() => setShowBrandToast(false), 10000);
-                }
-                setBands(brandResponse.data);
+            .then(([editResponse]) => {
                 if (editResponse.data.status === 200) {
                     setNameBrand(editResponse.data.brand.name);
                     setBrandID(editResponse.data.brand.id);
@@ -140,11 +134,6 @@ const EditBrand = () => {
                 setIsLoading(false)
             });
     }, [setBrandID, id]);
-    //   tìm id category trùng với id trong bảng category
-    const brand_ID = brands.find(c => c.id === brandID);
-    // console.log(category_ID)
-    // khi trùng id thì lấy name_category ra
-    const brandName = brand_ID ? brand_ID.name : '';
 
     // Xử lý khi người dùng ấn nút Submit
     const handleSubmit = useCallback(async () => {
@@ -156,9 +145,7 @@ const EditBrand = () => {
         if (!nameBrand) {
             newErrors.nameBrand = "Vui lòng nhập tên danh mục.";
         }
-        if (!brand) {
-            newErrors.brandID = "Vui lòng chọn danh mục cha.";
-        }
+        
         if (files.length > 1) {
             newErrors.files = "Chỉ được phép tải lên 1 tập tin.";
         }
@@ -178,7 +165,6 @@ const EditBrand = () => {
         // chèn dữ liệu
         const formData = new FormData();
         formData.append('nameBrand', nameBrand);
-        formData.append('parent_category', brand);
         formData.append('status', option_status);
         files.forEach(file => formData.append('images[]', file));
 
@@ -290,28 +276,6 @@ const EditBrand = () => {
                                 </div>
                             )}
                         </div>
-                        <label className='form-label fw-bold' htmlFor="category">Parent Category:</label>
-
-                        <select value={brand} onChange={(e) => setBrand(e.target.value)} className="form-select mb-2" id='category' aria-label="Default select example">
-                            <option value={brand_ID ? brand_ID.id : ""} selected>
-                                {brandName ? `Selected: ${brandName}` : 'Select brand'}
-                            </option>
-                            <option value="0">Select Parent</option>
-                            {brands.map(brand => (
-                                <option key={brand.id} value={brand.id}>{brand.name}</option>
-                            ))}
-                        </select>
-                        <p>Brand: {brand}</p>
-                        {errors.brand && (
-                            <div className="alert alert-danger" role="alert">
-                                {errors.brand}
-                            </div>
-                        )}
-                        {showBrandToast && (
-                            <Toast bg="warning" delay={5000} autohide onClose={() => showBrandToast(false)} style={{ width: "100%", height: "50px" }}>
-                                <Toast.Body className='my-toast fw-bold fs-6'>Category has no data</Toast.Body>
-                            </Toast>
-                        )}
                     </div>
                     <div className="col-5">
                         <label className='form-label fw-bold' htmlFor="detail">Upload Image:</label>

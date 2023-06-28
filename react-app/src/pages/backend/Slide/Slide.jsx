@@ -162,7 +162,6 @@ export default function DataGridDemo() {
       console.log(formData)
       if (btn) {
         btn.innerHTML = "Creating...";
-
         const res = await axios.post('/api/slide/v1/create_slide', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'

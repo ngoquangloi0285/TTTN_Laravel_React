@@ -16,7 +16,7 @@ class Brand extends Model
         'brand_id',
         'name',
         'slug',
-        'parent_brand',
+        // 'parent_brand',
         'author',
         'status'
     ];

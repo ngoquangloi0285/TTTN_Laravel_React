@@ -13,7 +13,7 @@ const CommentRating = ({ product_id }) => {
   useEffect(() => {
     const fetchRatings = async () => {
       try {
-        const response = await axios.get(`/api/review/v1/ratings?product_id=${product_id}&user_id=${user_id}`);
+        const response = await axios.get(`/api/review/v1/ratings?product_id=${product_id}`);
         setRatings(response.data);
       } catch (error) {
         console.log(error);
@@ -30,9 +30,9 @@ const CommentRating = ({ product_id }) => {
         <div className="col-4" key={rating.id}>
           <div className="rating-card">
             <div className="rating-avatar">
-              {!rating.avatar ?
+              {!rating.user.avatar ?
                 <img src="https://haycafe.vn/wp-content/uploads/2022/02/Avatar-trang-den.png" alt="null" /> :
-                <img src={`http://localhost:8000/storage/user/${rating.avatar}`} alt={rating.avatar} />
+                <img src={`http://localhost:8000/storage/user/${rating.user.avatar}`} alt={rating.user.avatar} />
               }
               {/* <img src={rating.avatar} alt="" /> */}
             </div>

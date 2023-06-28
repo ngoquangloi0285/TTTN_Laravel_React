@@ -31,4 +31,9 @@ class Order extends Model
     {
         return $this->hasMany(OrderDetail::class, 'order_id');
     }
+    // Định nghĩa quan hệ với mô hình Product
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 }

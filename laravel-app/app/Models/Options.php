@@ -11,5 +11,5 @@ class Options extends Model
     use HasFactory;
     // use SoftDeletes;
 
-    // protected $dates = ['deleted_at'];
+    protected $fillable = ['product_id', 'color', 'inch', 'author', 'status'];
 }

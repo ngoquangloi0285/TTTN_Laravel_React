@@ -200,25 +200,11 @@ export default function DataGridDemo() {
     }
   };
 
-  const updateData = async () => {
-    try {
-      const [productsResponse, trashResponse] = await Promise.all([
-        axios.get('/api/product/v1/products'),
-        axios.get('/api/product/v1/trash')
-      ]);
-      setRecords(productsResponse.data);
-      setInitialData(productsResponse.data);
-      setCountTrash(trashResponse.data.length);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const handleFilter = e => {
     const { value } = e.target;
     setRecords(prevRecords => {
-      // nếu thanh search không có dữ liệu thì tự động load lại danh sách
-      if (value === '') {
+      // Nếu thanh search không có dữ liệu thì tự động load lại danh sách
+      if (value === null) {
         return [...initialData];
       }
       return prevRecords.filter(record =>
@@ -226,6 +212,7 @@ export default function DataGridDemo() {
       );
     });
   };
+  
 
   const LoadPage = async (e) => {
     e.preventDefault();
@@ -235,48 +222,6 @@ export default function DataGridDemo() {
     btn.innerHTML = "Load page";
   };
 
-  // xóa tạm nhiều sản phẩm
-  const [arrDmr, setArrDmr] = useState([])
-  const handleDeleteAll = useCallback(async () => {
-    try {
-      const res = await axios.delete(`/api/product/v1/products/soft-delete`, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        data: JSON.stringify({ ids: arrDmr })
-      });
-      Swal.fire(
-        'Delete Product Successfully',
-        res.data.message,
-        'success'
-      )
-      setArrDmr([]);
-      updateData();
-    } catch (error) {
-      console.error(error);
-      // toast.error('Failed to delete product.');
-      Swal.fire(
-        'Delete Product Successfully',
-        error.data.message,
-        'success'
-      )
-    }
-  }, [arrDmr])
-  /// xác nhận xóa tạm
-  const confirmDeleteALL = useCallback(() => {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'Are you sure you want to temporarily delete all this catalog and related products!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete all!',
-      cancelButtonText: 'No, keep it'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        handleDeleteAll();
-      }
-    });
-  }, [handleDeleteAll]);
 
   useEffect(() => {
     fetchData();
@@ -301,12 +246,12 @@ export default function DataGridDemo() {
           <input
             type="text"
             className="form-control my-3"
-            placeholder="Tìm kiếm đơn hàng..."
+            placeholder="Tìm kiếm theo mã đơn hàng..."
             onChange={handleFilter}
           />
           <div className="col-3 d-flex">
             <Link to="history-order" className="btn btn-info mb-3 text-white d-flex align-items-center" type="button">
-              <AiOutlineHistory className='fs-4' /> Lịch sử đơn hàng 
+              <AiOutlineHistory className='fs-4' /> Lịch sử đơn hàng
               {/* <span> ( {!countTrash ? "0" : countTrash} )</span> */}
             </Link>
           </div>
@@ -346,12 +291,6 @@ export default function DataGridDemo() {
               pageSizeOptions={[5, 10, 20]}
               checkboxSelection
               disableRowSelectionOnClick
-              onRowSelectionModelChange={(data) => {
-                setArrDmr(data)
-              }}
-              components={{
-                Toolbar: GridToolbar,
-              }}
               // Hàm này sẽ được gọi mỗi khi thực hiện tìm kiếm
               onFilterModelChange={(model) => console.log(model)}
             />

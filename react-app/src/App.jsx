@@ -89,7 +89,7 @@ function App(props) {
           {/* <Route path='category/:slug' element={<SlugProduct />} /> */}
           <Route path='category/:slug' element={<OurStore />} />
           {/* <Route path='brand-product/:slug' element={<SlugProduct />} /> */}
-          <Route path='brand-product/:slug' element={<OurStore />} />
+          <Route path='brand/:slug' element={<OurStore />} />
           <Route path="search/:keyword" element={<OurStore />} />
           <Route path="product/color/:slug" element={<OurStore />} />
           <Route path="product/inch/:slug" element={<OurStore />} />

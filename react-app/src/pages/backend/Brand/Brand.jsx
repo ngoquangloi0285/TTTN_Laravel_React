@@ -61,23 +61,23 @@ export default function DataGridDemo() {
           />
         ),
       },
-      {
-        field: 'parent_brand',
-        headerName: 'Parent Brand',
-        type: 'number',
-        editable: true,
-        width: 150, // Thêm thuộc tính width vào đây
-        align: 'center',
-        valueFormatter: (params) => {
-          if (params.value === 0) {
-            return 'Level 1';
-          } else if (params.value === 1) {
-            return 'Level 2';
-          } else {
-            return `${params.value}`;
-          }
-        },
-      },
+      // {
+      //   field: 'parent_brand',
+      //   headerName: 'Parent Brand',
+      //   type: 'number',
+      //   editable: true,
+      //   width: 150, // Thêm thuộc tính width vào đây
+      //   align: 'center',
+      //   valueFormatter: (params) => {
+      //     if (params.value === 0) {
+      //       return 'Level 1';
+      //     } else if (params.value === 1) {
+      //       return 'Level 2';
+      //     } else {
+      //       return `${params.value}`;
+      //     }
+      //   },
+      // },
       {
         field: 'detail', headerName: 'Detail',
         width: 100, // Thêm thuộc tính width vào đây

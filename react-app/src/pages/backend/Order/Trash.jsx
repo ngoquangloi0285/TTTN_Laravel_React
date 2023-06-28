@@ -181,20 +181,19 @@ export default function DataGridDemo() {
     fetchData();
   }, [fetchData]);
 
-  // lọc sản phẩm theo tên
-  const handleFilter = useCallback(e => {
+  const handleFilter = e => {
     const { value } = e.target;
     setRecords(prevRecords => {
-      if (value === '') {
+      // Nếu thanh search không có dữ liệu thì tự động load lại danh sách
+      if (value === null) {
         return [...initialData];
       }
       return prevRecords.filter(record =>
         record.id.toLowerCase().includes(value.toLowerCase())
       );
     });
-  }, [initialData, setRecords]);
+  };
 
-  // load lại bảng data product
   const LoadPage = useCallback(async (e) => {
     e.preventDefault();
     const btn = document.getElementById('btn-loadpage');

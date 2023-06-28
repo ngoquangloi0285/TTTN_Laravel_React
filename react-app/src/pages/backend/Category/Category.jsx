@@ -45,22 +45,22 @@ export default function DataGridDemo() {
         width: 100, // Thêm thuộc tính width vào đây
         align: 'center'
       },
-      {
-        field: 'image',
-        headerName: 'Image',
-        sortable: false,
-        cellClassName: 'custom-cell',
-        width: 100, // Thêm thuộc tính width vào đây
-        align: 'center',
-        renderCell: (params) => (
-          <img
-            className='img img-fluid img-thumbnail'
-            src={`http://localhost:8000/storage/category/${params.value}`}
-            alt={params.row.name_category}
-            style={{ width: '100%', height: 'auto' }} // Thêm CSS cho hình ảnh
-          />
-        ),
-      },
+      // {
+      //   field: 'image',
+      //   headerName: 'Image',
+      //   sortable: false,
+      //   cellClassName: 'custom-cell',
+      //   width: 100, // Thêm thuộc tính width vào đây
+      //   align: 'center',
+      //   renderCell: (params) => (
+      //     <img
+      //       className='img img-fluid img-thumbnail'
+      //       src={`http://localhost:8000/storage/category/${params.value}`}
+      //       alt={params.row.name_category}
+      //       style={{ width: '100%', height: 'auto' }} // Thêm CSS cho hình ảnh
+      //     />
+      //   ),
+      // },
       {
         field: 'parent_category',
         headerName: 'Parent category',

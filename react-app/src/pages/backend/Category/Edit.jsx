@@ -180,7 +180,7 @@ const EditCategory = () => {
         formData.append('nameCategory', nameCategory);
         formData.append('parent_category', category);
         formData.append('status', option_status);
-        files.forEach(file => formData.append('images[]', file));
+        // files.forEach(file => formData.append('images[]', file));
 
         console.log(formData)
         try {
@@ -290,13 +290,13 @@ const EditCategory = () => {
                                 </div>
                             )}
                         </div>
+                        
                         <label className='form-label fw-bold' htmlFor="category">Parent Category:</label>
-
                         <select value={category} onChange={(e) => setCategory(e.target.value)} className="form-select mb-2" id='category' aria-label="Default select example">
                             <option value={category_ID ? category_ID.id : ""} selected>
                                 {categoryName ? `Selected: ${categoryName}` : 'Select category'}
                             </option>
-                            <option value="0">Select Parent</option>
+                            <option value="0">Parent</option>
                             {categories.map(category => (
                                 <option key={category.id} value={category.id}>{category.name_category}</option>
                             ))}
@@ -314,7 +314,7 @@ const EditCategory = () => {
                         )}
                     </div>
                     <div className="col-5">
-                        <label className='form-label fw-bold' htmlFor="detail">Upload Image:</label>
+                        {/* <label className='form-label fw-bold' htmlFor="detail">Upload Image:</label>
                         <input className='form-control mb-2' name='file[]' id='file' type="file" multiple onChange={handleUpload} />
                         {errors.files && (
                             <div className="alert alert-danger"
@@ -339,8 +339,8 @@ const EditCategory = () => {
                                 <AiOutlineClear className='fs-4' />
                                 Clean up photos
                             </button>
-                        }
-                        {
+                        } */}
+                        {/* {
                             image === null ? "" :
                                 <div style={{ width: '100%' }}>
                                     <h4 className='mt-3'>Images selected: </h4>
@@ -352,7 +352,7 @@ const EditCategory = () => {
                                         />
                                     </div>
                                 </div>
-                        }
+                        } */}
                         <label className='form-label fw-bold' htmlFor="status">Status:</label>
                         <select className="form-select" id="status" aria-label="Default select example">
                             <option value="" selected>Select Status</option>

@@ -15,19 +15,13 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Storage;
-use PhpOption\Option;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
     public function show_slide()
     {
-        $titles = ['product_sale', 'product_special'];
-
-        $data = ImageSlide::whereIn('title', $titles)
-            ->orderBy('created_at', 'desc')
-            ->latest()
-            ->get();
-
+        $data = ImageSlide::get();
         return response()->json($data);
     }
 
@@ -39,138 +33,144 @@ class ProductController extends Controller
             ->where('total', '>', 0);
 
         if (isset($params['random_product'])) {
-            $products = $query->where('type', '=', 'new_product')->inRandomOrder()
-                ->where('status', 1)
-                ->where('total', '>', 0)
+            $products = $query->where('type', 'new_product')
+                ->inRandomOrder()
                 ->limit(3)
-                ->latest()
                 ->get();
-        }
-        // Load sản phẩm mới và sản phẩm giảm giá
-        if (isset($params['newProduct']) || isset($params['saleProduct'])) {
-            $typeNew = $params['newProduct'];
-            $typeSale = $params['saleProduct'];
-            $products = $query->whereIn('type', [$typeNew, $typeSale])
-                ->where('status', 1)
-                ->where('total', '>', 0)
-                ->orderBy('created_at', 'desc')
-                ->inRandomOrder()
-                ->limit(10)
-                ->latest()
-                ->get();
-        }
-        // Sản phẩm đặc biệt
-        else if (isset($params['specialProduct'])) {
-            $type = $params['specialProduct'];
-            $products = $query->where('type', $type)
-                ->where('status', 1)
-                ->where('total', '>', 0)
-                ->orderBy('price', 'asc')
-                ->inRandomOrder()
-                ->latest()
-                ->limit(4)
-                ->get();
+        } else {
+            $productTypes = [];
 
-            $countdowns = Countdown::with('product')
-                ->whereIn('product_id', $products->pluck('id'))
-                ->get();
+            if (isset($params['newProduct'])) {
+                $productTypes[] = $params['newProduct'];
+            }
 
-            foreach ($products as $product) {
-                $countdown = $countdowns->firstWhere('product_id', $product->id);
-                if ($countdown) {
-                    // Gán dữ liệu từ Countdown vào Product
-                    $product->start_time = $countdown->start_time;
-                    $product->end_time = $countdown->end_time;
-                }
+            if (isset($params['saleProduct'])) {
+                $productTypes[] = $params['saleProduct'];
+            }
+
+            if (isset($params['specialProduct'])) {
+                $productTypes[] = $params['specialProduct'];
+            }
+
+            if (isset($params['suggestion'])) {
+                $products = $query->inRandomOrder()
+                    ->limit(5)
+                    ->get();
+            } elseif (isset($params['relatedproducts'])) {
+                $productId = $params['relatedproducts'];
+                $products = $this->getRelatedProducts($productId);
+            } else {
+                $products = $query->whereIn('type', $productTypes)
+                    ->orderBy('created_at', 'desc')
+                    ->inRandomOrder()
+                    ->limit(10)
+                    ->get();
+            }
+
+            if (isset($params['specialProduct'])) {
+                $productIds = $products->pluck('id')->toArray();
+                $countdowns = Countdown::whereIn('product_id', $productIds)->get();
+
+                $products = $products->take(6); // Giới hạn số lượng sản phẩm là 10
+
+                $products->each(function ($product) use ($countdowns) {
+                    $countdown = $countdowns->firstWhere('product_id', $product->id);
+                    if ($countdown) {
+                        $product->start_time = $countdown->start_time;
+                        $product->end_time = $countdown->end_time;
+                    }
+                });
             }
         }
 
-        // Sản phẩm gợi ý ngẫu nhiên
-        else if (isset($params['suggestion'])) {
-            $products = $query->inRandomOrder()
-                ->where('status', 1)
-                ->where('total', '>', 0)
-                ->limit(5)
-                ->latest()
-                ->get();
-        }
-        // Sản phẩm liên quan
-        else if (isset($params['relatedproducts'])) {
-            $productId = $request->input('relatedproducts');
-            // Gọi hàm getRelatedProducts để lấy danh sách sản phẩm liên quan
-            $products = $this->getRelatedProducts($productId);
-        }
+        // Fetch category and brand names
+        $categoryIds = $products->pluck('category_id')->toArray();
+        $brandIds = $products->pluck('brand_id')->toArray();
+
+        $categoryMap = Category::whereIn('id', $categoryIds)->pluck('name_category', 'id')->toArray();
+        $brandMap = Brand::whereIn('id', $brandIds)->pluck('name', 'id')->toArray();
+
+        $products->each(function ($product) use ($categoryMap, $brandMap) {
+            $product->category_name = $categoryMap[$product->category_id] ?? '';
+            $product->brand_name = $brandMap[$product->brand_id] ?? '';
+        });
+
         return response()->json($products);
     }
 
     public function getRelatedProducts($productId)
     {
-        // Lấy thông tin của sản phẩm hiện tại
         $currentProduct = Product::find($productId);
 
-        // Kiểm tra xem sản phẩm hiện tại có tồn tại không
         if ($currentProduct) {
             $categoryId = $currentProduct->category_id;
             $brandId = $currentProduct->brand_id;
             $productType = $currentProduct->type;
+            $productName = $currentProduct->name_product;
 
-            // Tìm kiếm các sản phẩm liên quan dựa trên cùng loại, cùng danh mục và cùng thương hiệu
-            $relatedProducts = Product::where('category_id', $categoryId)
-                // ->where('brand_id', $brandId)
-                ->where('type', $productType)
-                ->where('id', '!=', $productId) // Loại trừ sản phẩm hiện tại
+            $relatedProducts = Product::where('category_id', '=', $categoryId)
+                ->where('brand_id', $brandId)
+                ->where('id', '!=', $productId)
+                // ->orWhere('name_product', 'LIKE', '%' . $productName . '%')
                 ->where('status', 1)
                 ->where('total', '>', 0)
                 ->get();
+
             return $relatedProducts;
         } else {
-            // Xử lý khi không tìm thấy sản phẩm hiện tại
             return [];
         }
     }
 
-    // ...
     public function searchProducts($slug)
     {
-        $products = Product::where('status', 1)
-            ->when($slug, function ($query) use ($slug) {
-                return $query->where('name_product', 'like', "%{$slug}%");
-            })
-            ->where('total', '>', 0)
-            ->get();
+        $query = Product::where('status', 1)
+            ->where('total', '>', 0);
+
+        if ($slug) {
+            $query->where('name_product', 'like', "%{$slug}%");
+        }
+
+        $products = $query->get();
 
         return $products;
     }
 
-    // hàm lọc
     public function filterProducts($filter)
     {
-        return Product::where('status', 1)
-            ->when($filter === 'bestSelling', function ($query) {
-                return $query->orderBy('sales', 'desc');
-            })
-            ->when($filter === 'lowToHigh', function ($query) {
-                return $query->orderBy('price', 'asc');
-            })
-            ->when($filter === 'highToLow', function ($query) {
-                return $query->orderBy('price', 'desc');
-            })
-            ->when($filter === 'oldToNew', function ($query) {
-                return $query->orderBy('created_at', 'asc');
-            })
-            ->when($filter === 'newToOld', function ($query) {
-                return $query->orderBy('created_at', 'desc');
-            })
-            ->where('total', '>', 0)
-            ->get();
+        $query = Product::where('status', 1)
+            ->where('total', '>', 0);
+
+        if ($filter === 'bestSelling') {
+            $query->whereIn('id', function ($subquery) {
+                $subquery->select('product_id')
+                    ->from('order_details')
+                    ->where('status', 4);
+                    // ->onlyTrashed();
+            });
+        } elseif ($filter === 'lowToHigh') {
+            $query->orderBy('price', 'asc');
+        } elseif ($filter === 'highToLow') {
+            $query->orderBy('price', 'desc');
+        } elseif ($filter === 'oldToNew') {
+            $query->orderBy('created_at', 'asc');
+        } elseif ($filter === 'newToOld') {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $products = $query->get();
+
+        return $products;
     }
+
+
 
     public function searchBySlug($slug)
     {
-        return Product::where('status', 1)
+        $products = Product::where('status', 1)
             ->where('total', '>', 0)
-            ->when($slug, function ($query, $slug) {
-                return $query->where(function ($query) use ($slug) {
+            ->when($slug, function ($query) use ($slug) {
+                $query->where(function ($query) use ($slug) {
                     $query->whereHas('category', function ($query) use ($slug) {
                         $query->where('slug', $slug);
                     })
@@ -185,15 +185,16 @@ class ProductController extends Controller
             })
             ->latest()
             ->get();
+
+        return $products;
     }
 
     public function index(Request $request)
     {
         $params = $request->all();
-        $search = isset($params['search']) ? $params['search'] : null;
-        $filter = isset($params['filter']) ? $params['filter'] : null;
-        $slug = isset($params['slug']) ? $params['slug'] : null;
-        $products = [];
+        $search = $params['search'] ?? null;
+        $filter = $params['filter'] ?? null;
+        $slug = $params['slug'] ?? null;
 
         if ($search) {
             $products = $this->searchProducts($search);
@@ -202,19 +203,25 @@ class ProductController extends Controller
         } elseif ($filter) {
             $products = $this->filterProducts($filter);
         } else {
-            $products = Product::where('status', 1)
-                ->where('total', '>', 0)
-                ->inRandomOrder()
-                ->latest()
-                ->get();
+            $products = Product::latest()->get();
         }
+
+        // Fetch category and brand names
+        $categoryIds = $products->pluck('category_id')->toArray();
+        $brandIds = $products->pluck('brand_id')->toArray();
+
+        $categoryMap = Category::whereIn('id', $categoryIds)->pluck('name_category', 'id')->toArray();
+        $brandMap = Brand::whereIn('id', $brandIds)->pluck('name', 'id')->toArray();
+
+        $products->transform(function ($product) use ($categoryMap, $brandMap) {
+            $product->category_name = $categoryMap[$product->category_id] ?? '';
+            $product->brand_name = $brandMap[$product->brand_id] ?? '';
+            return $product;
+        });
+
         return response()->json($products);
     }
 
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $product = Product::where([
@@ -234,6 +241,7 @@ class ProductController extends Controller
             if (strlen($product_id) > 10) {
                 $product_id = substr($product_id, 0, 10);
             }
+
             $product = Product::create([
                 'product_id' => $product_id,
                 'name_product' => $request['nameProduct'],
@@ -244,7 +252,7 @@ class ProductController extends Controller
                 'cost' => $request['costProduct'],
                 'price' => $request['priceSale'],
                 'discount' => $request['discount'],
-                'color' => $request['color'],
+                // 'color' => $request['color'],
                 'inch' => $request['inch'],
                 'type' => $request['type'],
                 'total' => $request['total'],
@@ -259,6 +267,9 @@ class ProductController extends Controller
                 $count = count($files);
 
                 foreach ($files as $key => $file) {
+                    $title = str_replace(':', '_', $product->name_product); // Thay thế dấu ":" bằng gạch dưới "_"
+                    $title = str_replace(' ', '_', $title); // Thay thế khoảng trắng bằng gạch dưới "_"
+
                     $path = $product->name_product . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
                     $image = Image::make($file);
                     $image->resize(800, null, function ($constraint) {
@@ -283,14 +294,19 @@ class ProductController extends Controller
                     }
                 }
 
-                // Lưu thông tin options của sản phẩm vào bảng Options
-                $options = new Options();
-                $options->product_id = $product->id;
-                $options->color = $product->color;
-                $options->inch = $product->inch;
-                $options->author = $request->user()->name;
-                $options->status = $request['status'];
-                $options->save();
+                if ($request->has('color')) {
+                    $colors = $request->input('color'); // Mảng màu từ request
+
+                    foreach ($colors as $color) {
+                        $options = new Options();
+                        $options->product_id = $product->id;
+                        $options->color = $color;
+                        $options->inch = $product->inch;
+                        $options->author = $request->user()->name;
+                        $options->status = $request['status'];
+                        $options->save();
+                    }
+                }
 
                 // Lưu thông tin countdown của sản phẩm vào bảng CountDown (nếu có request)
                 if ($request->has('start_time') && $request->has('end_time')) {
@@ -313,38 +329,49 @@ class ProductController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Product $product)
     {
         return $product;
     }
 
-    public function product_detail(Request $request)
+
+    public function product_detail($slug)
     {
-        $data = $request['slug'];
-        $product = Product::where('slug', $data)->with('images')->first();
+        $product = Product::where('slug', $slug)->with('images')->first();
+
+        $categoryIds = [$product->category_id]; // Danh sách id của danh mục
+        $brandIds = [$product->brand_id]; // Danh sách id của thương hiệu
+
+        $categoryMap = Category::whereIn('id', $categoryIds)->pluck('name_category', 'id')->toArray();
+        $brandMap = Brand::whereIn('id', $brandIds)->pluck('name', 'id')->toArray();
+
+        $product->category_name = $categoryMap[$product->category_id] ?? '';
+        $product->brand_name = $brandMap[$product->brand_id] ?? '';
+
+        $options = DB::table('options')->where('product_id', $product->id)->get();
+        $colors = $options->pluck('color')->unique();
+        $product->colors = $colors;
+
         return response()->json($product);
     }
-    /**
-     * Update the specified resource in storage.
-     */
+
+
     public function edit($id)
     {
-        $data = Product::find($id);
-
-        if ($data) {
-            return response()->json([
-                'status' => 200,
-                'product' => $data,
-            ]);
-        } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'No Product Found',
-            ]);
+        $product = Product::with('images', 'countdown')->findOrFail($id);
+        $countdown = $product->countdown;
+        if ($countdown) {
+            $product->start_time = $countdown->start_time;
+            $product->end_time = $countdown->end_time;
         }
+        $options = $product->options()->get();
+        $colors = $options->pluck('color')->unique();
+        $product->colors = $colors;
+
+        return response()->json([
+            'status' => 200,
+            'product' => $product,
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -364,7 +391,7 @@ class ProductController extends Controller
             $product->cost = $request['costProduct'];
             $product->price = $request['priceSale'];
             $product->discount = $request['discount'];
-            $product->color = $request['color'];
+            $product->total = $request['total'];
             $product->inch = $request['inch'];
             $product->type = $request['type'];
             $product->detail = $request['detail'];
@@ -377,6 +404,9 @@ class ProductController extends Controller
 
                 // Xóa các đường dẫn đã tồn tại trong folder "product" trước khi tạo mới
                 foreach ($files as $key => $file) {
+                    $title = str_replace(':', '_', $request['nameProduct']); // Thay thế dấu ":" bằng gạch dưới "_"
+                    $title = str_replace(' ', '_', $title); // Thay thế khoảng trắng bằng gạch dưới "_"
+
                     $path = $request['nameProduct'] . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
                     $image = Image::make($file);
                     $image->resize(800, null, function ($constraint) {
@@ -419,12 +449,20 @@ class ProductController extends Controller
                 }
 
                 // Lưu thông tin options của sản phẩm vào bảng Options
-                $options = Options::where('product_id', '=', $product->id)->first();
-                $options->color = $request['color'];
-                $options->inch = $request['inch'];
-                $options->author = $request->user()->name;
-                $options->status = $request['status'];
-                $options->save();
+                $options = Options::where('product_id', $product->id);
+                if ($request->has('color')) {
+                    $colors = $request->input('color'); // Mảng màu từ request
+
+                    // Xóa các màu sắc hiện có
+                    $options->whereNotIn('color', $colors)->delete();
+
+                    foreach ($colors as $color) {
+                        Options::updateOrCreate(
+                            ['product_id' => $product->id, 'color' => $color],
+                            ['inch' => $product->inch, 'author' => $request->user()->name, 'status' => $request['status']]
+                        );
+                    }
+                }
 
                 // Lưu thông tin countdown của sản phẩm vào bảng CountDown (nếu có request)
                 if ($request->has('start_time') && $request->has('end_time')) {

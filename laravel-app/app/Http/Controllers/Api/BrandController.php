@@ -58,7 +58,7 @@ class BrandController extends Controller
                 'brand_id' => $brand_id,
                 'name' => $request['nameBrand'],
                 'slug' => Str::slug($request['nameBrand'], '-'),
-                'parent_brand' => $request['parent_brand'],
+                // 'parent_brand' => $request['parent_brand'],
                 'author' => $request->user()->name,
                 'status' => $request['status']
             ]);
@@ -68,6 +68,9 @@ class BrandController extends Controller
                 $count = count($files);
 
                 foreach ($files as $key => $file) {
+                    $title = str_replace(':', '_', $brand->name); // Thay thế dấu ":" bằng gạch dưới "_"
+                    $title = str_replace(' ', '_', $title); // Thay thế khoảng trắng bằng gạch dưới "_"
+
                     $path = $brand->name . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
                     $image = Image::make($file);
                     $image->resize(800, null, function ($constraint) {
@@ -138,7 +141,7 @@ class BrandController extends Controller
         } else {
             $brand->name = $request['nameBrand'];
             $brand->slug = Str::slug($request['nameBrand'], '-');
-            $brand->parent_brand = $request['parent_brand'];
+            // $brand->parent_brand = $request['parent_brand'];
             $brand->author = $request->user()->name;
             $brand->status = $request['status'];
 
@@ -156,6 +159,9 @@ class BrandController extends Controller
                 }
 
                 foreach ($files as $key => $file) {
+                    $title = str_replace(':', '_', $request['nameBrand']); // Thay thế dấu ":" bằng gạch dưới "_"
+                    $title = str_replace(' ', '_', $title); // Thay thế khoảng trắng bằng gạch dưới "_"
+
                     $path = $request['nameBrand'] . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
                     $image = Image::make($file);
                     $image->resize(800, null, function ($constraint) {

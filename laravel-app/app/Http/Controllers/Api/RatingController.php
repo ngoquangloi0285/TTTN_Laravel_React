@@ -17,13 +17,11 @@ class RatingController extends Controller
     public function getRatings(Request $request)
     {
         $product_id = $request->query('product_id');
-        $user_id = $request->query('user_id');
 
         // Lấy danh sách đánh giá dựa trên product_id và user_id,
         // và kết hợp thông tin user từ bảng User
         $ratings = Reviews::with('user')
             ->where('product_id', $product_id)
-            ->where('user_id', $user_id)
             ->get();
 
         return response()->json($ratings);

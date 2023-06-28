@@ -19,49 +19,21 @@ function calculateDiscountedPrice(price, discountPercent) {
     return discountedPrice;
 }
 
-const ProductDetail = (props) => {
+const ProductDetail = () => {
     const { currentUser } = useAuthContext();
 
-    const ratingChanged = (newRating) => {
-        console.log(newRating);
-    };
-    // const related_products = props.
     const { slug } = useParams();
-    console.log('product detail', slug);
     const [productList, setProductList] = useState([]);
-    const [categoryMap, setCategoryMap] = useState({});
-    const [imagesMap, setImageMap] = useState([]);
-    const [brandMap, setBrandMap] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [isProductListLoaded, setIsProductListLoaded] = useState(false); // Thêm state mới
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [productResponse, categoryResponse, brandResponse] = await Promise.all([
-                    axios.get(`/api/product/v1/product/`, {
-                        params: {
-                            slug: slug,
-                        },
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    }),
-                    axios.get('/api/category/v1/category'),
-                    axios.get('/api/brand/v1/brand'),
+                const [productResponse] = await Promise.all([
+                    axios.get(`/api/product/v1/product_detail/${slug}`),
                 ]);
-
-                const newCategoryMap = {};
-                categoryResponse.data.forEach((category) => {
-                    newCategoryMap[category.id] = category.name_category;
-                });
-                const newBrandMap = {};
-                brandResponse.data.forEach((brand) => {
-                    newBrandMap[brand.id] = brand.name;
-                });
                 setProductList(productResponse.data);
-                setCategoryMap(newCategoryMap);
-                setBrandMap(newBrandMap);
                 setIsLoading(false);
                 setIsProductListLoaded(true); // Cập nhật trạng thái đã tải xong productList
             } catch (error) {
@@ -105,12 +77,14 @@ const ProductDetail = (props) => {
         }
     }, [productList]);
 
-    console.log('product color', selectedColor);
-
-
     const cart = useSelector((state) => state.cart);
 
     const handleAddToCart = (product, selectedColor) => {
+        if (!selectedColor) {
+            toast.error("Vui lòng chọn màu sản phẩm");
+            return;
+        }
+
         if (currentUser) {
             // Kiểm tra sản phẩm đã tồn tại trong giỏ hàng chưa
             const existingProduct = cart.cartItems.find(item => item.id === product.id);
@@ -162,7 +136,7 @@ const ProductDetail = (props) => {
                         </div>
                     </div>
                 ) : (
-                    <div div className="single-product store-wrapper home-wrapper-2 py-5">
+                    <div div className="single-product">
                         <div className="container-xxl">
                             <div className="row">
                                 <div className="col-4">
@@ -178,7 +152,7 @@ const ProductDetail = (props) => {
                                     </div>
                                 </div>
                                 <div className="col-6">
-                                    <h1>{productList.name_product}</h1>
+                                    <p className='fs-4'>{productList.name_product}</p>
                                     <p className='price'>{calculateDiscountedPrice(productList.price, productList.discount).toLocaleString('vi-VN', {
                                         style: 'currency',
                                         currency: 'VND'
@@ -190,27 +164,31 @@ const ProductDetail = (props) => {
                                         )}
                                             <sup> {productList.discount === null ? "" : `Giảm ${parseInt(productList.discount)}%`}</sup></span></p>
                                     <p className="text-dark m-0">
-                                        Danh mục: <strong className='text-danger'> {categoryMap[productList.category_id]}</strong>
+                                        Danh mục: <strong className='text-danger'> {productList.category_name}</strong>
                                     </p>
                                     <p className="text-dark my-2">
-                                        Thương hiệu: <strong className='text-danger'> {brandMap[productList.brand_id]}</strong>
-                                    </p>
-                                    <p className="text-dark my-2">
-                                        Màu: <strong className='text-danger'> {productList.color}</strong>
+                                        Thương hiệu: <strong className='text-danger'> {productList.brand_name}</strong>
                                     </p>
                                     <p className="text-dark my-2">
                                         Kích thước: <strong className='text-danger'> {productList.inch}</strong>
                                     </p>
                                     <p className='m-0 text-dark my-2'>Còn hàng:({productList.total}) sản phẩm</p>
-                                    <label htmlFor="selectedColor">Chọn màu sản phẩm:</label>
-                                    <input
-                                        value={selectedColor}
-                                        onChange={(e) => setSelectedColor(e.target.value)}
-                                        style={{ width: '150px' }}
-                                        type="text"
-                                        id="selectedColor"
-                                        className="form-control"
-                                    />
+                                    {/* <label htmlFor="selectedColor">Chọn màu sản phẩm:</label> */}
+                                    <div className='row'>
+                                        <div className="col-5">
+                                            <select value={selectedColor}
+                                                onChange={(e) => setSelectedColor(e.target.value)}
+                                                className='form-select'
+                                            >
+                                                <option selected>Chọn màu sản phẩm</option>
+                                                {productList.colors.map((color, index) => (
+                                                    <>
+                                                        <option key={index}>{color}</option>
+                                                    </>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
                                     <div className="react_start d-flex my-3">
                                         <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
                                         <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
@@ -221,7 +199,13 @@ const ProductDetail = (props) => {
                                     {/* <input type="number" value='1' /> */}
                                     <Link to="#" onClick={() => handleAddToCart(productList, selectedColor)} className='button btn-product-detail m-0'>Add to cart</Link>
                                     <h3>Thông tin sản phẩm <i className='fa fa-indent'></i></h3>
-                                    <p gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(productList.detail) }} ></p>
+                                    <div className='content_product_detail'>
+                                        <div className="row blog_overflow">
+                                            <div className=''>
+                                                <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(productList.detail) }} />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <hr className="my-3" style={{ backgroundColor: '#e0e0e0', opacity: 1 }} />
                                 <div className="row">
@@ -229,7 +213,7 @@ const ProductDetail = (props) => {
                                         <h3 className="section-heading">Đánh giá sản phẩm</h3>
                                     </div>
                                     <div className="row">
-                                        <CommentRating product_id = {productList.id}/>
+                                        <CommentRating product_id={productList.id} />
                                     </div>
                                 </div>
                                 <hr className="my-4" style={{ backgroundColor: '#e0e0e0', opacity: 1 }} />
@@ -245,7 +229,6 @@ const ProductDetail = (props) => {
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div >

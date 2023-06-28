@@ -63,28 +63,28 @@ class CategoryController extends Controller
                 'author' => $request->user()->name,
                 'status' => $request['status']
             ]);
-            if ($request->hasFile('images')) {
-                $files = $request->file('images');
-                $paths = [];
-                $count = count($files);
+            // if ($request->hasFile('images')) {
+            //     $files = $request->file('images');
+            //     $paths = [];
+            //     $count = count($files);
 
-                foreach ($files as $key => $file) {
-                    $path = $category->name_category . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
-                    $image = Image::make($file);
-                    $image->resize(800, null, function ($constraint) {
-                        $constraint->aspectRatio();
-                        $constraint->upsize();
-                    });
-                    Storage::disk('public')->put('category/' . $path, (string) $image->encode());
-                    $paths[] = $path;
+            //     foreach ($files as $key => $file) {
+            //         $path = $category->name_category . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
+            //         $image = Image::make($file);
+            //         $image->resize(800, null, function ($constraint) {
+            //             $constraint->aspectRatio();
+            //             $constraint->upsize();
+            //         });
+            //         Storage::disk('public')->put('category/' . $path, (string) $image->encode());
+            //         $paths[] = $path;
 
-                    // Lưu ảnh đầu tiên vào trường images của bảng products
-                    if ($key == 0) {
-                        $category->image = $path;
-                        $category->save();
-                    }
-                }
-            }
+            //         // Lưu ảnh đầu tiên vào trường images của bảng products
+            //         if ($key == 0) {
+            //             $category->image = $path;
+            //             $category->save();
+            //         }
+            //     }
+            // }
             // Trả về thông tin sản phẩm đã tạo và thông báo thành công
             return response()->json([
                 'status' => 'Created Successfully!, hihi',
@@ -149,35 +149,35 @@ class CategoryController extends Controller
             //     $product->save(); // Lưu lại thông tin sản phẩm
             // }
 
-            if ($request->hasFile('images')) {
-                $files = $request->file('images');
-                $paths = [];
+            // if ($request->hasFile('images')) {
+            //     $files = $request->file('images');
+            //     $paths = [];
 
-                if ($category->image && Storage::disk('public')->exists('category/' . $category->image)) {
-                    Storage::disk('public')->delete('category/' . $category->image);
-                } else {
-                    return response()->json([
-                        'status' => 404,
-                        'error' => 'Image not exists',
-                    ]);
-                }
+            //     if ($category->image && Storage::disk('public')->exists('category/' . $category->image)) {
+            //         Storage::disk('public')->delete('category/' . $category->image);
+            //     } else {
+            //         return response()->json([
+            //             'status' => 404,
+            //             'error' => 'Image not exists',
+            //         ]);
+            //     }
 
-                foreach ($files as $key => $file) {
-                    $path = $request['nameCategory'] . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
-                    $image = Image::make($file);
-                    $image->resize(800, null, function ($constraint) {
-                        $constraint->aspectRatio();
-                        $constraint->upsize();
-                    });
-                    Storage::disk('public')->put('category/' . $path, (string) $image->encode());
-                    $paths[] = $path;
+            //     foreach ($files as $key => $file) {
+            //         $path = $request['nameCategory'] . '_' . time() . '_' . $key . '.' . $file->getClientOriginalExtension();
+            //         $image = Image::make($file);
+            //         $image->resize(800, null, function ($constraint) {
+            //             $constraint->aspectRatio();
+            //             $constraint->upsize();
+            //         });
+            //         Storage::disk('public')->put('category/' . $path, (string) $image->encode());
+            //         $paths[] = $path;
 
-                    // Lưu ảnh đầu tiên vào trường images của bảng products
-                    if ($key == 0) {
-                        $category->image = $path;
-                    }
-                }
-            }
+            //         // Lưu ảnh đầu tiên vào trường images của bảng products
+            //         if ($key == 0) {
+            //             $category->image = $path;
+            //         }
+            //     }
+            // }
 
             // Lưu thay đổi vào CSDL
             $category->save();
@@ -297,7 +297,6 @@ class CategoryController extends Controller
     }
 
 
-
     public function trash()
     {
         $categories = Category::onlyTrashed()->get();
@@ -413,10 +412,10 @@ class CategoryController extends Controller
             return response()->json(['message' => 'Category is not deleted.']);
         }
 
-        // Xóa ảnh đại diện của category nếu có
-        if ($category->image && Storage::disk('public')->exists('category/' . $category->image)) {
-            Storage::disk('public')->delete('category/' . $category->image);
-        }
+        // // Xóa ảnh đại diện của category nếu có
+        // if ($category->image && Storage::disk('public')->exists('category/' . $category->image)) {
+        //     Storage::disk('public')->delete('category/' . $category->image);
+        // }
         // Kiểm tra xem có sản phẩm nào có category_id bằng $category->id không
         $products = Product::where('category_id', '=', $category->id)->withTrashed()->get();
         // Xóa vĩnh viễn category nếu không có sản phẩm liên quan
@@ -479,9 +478,9 @@ class CategoryController extends Controller
             }
 
             // Xóa ảnh đại diện của category nếu có
-            if ($category->image && Storage::disk('public')->exists('category/' . $category->image)) {
-                Storage::disk('public')->delete('category/' . $category->image);
-            }
+            // if ($category->image && Storage::disk('public')->exists('category/' . $category->image)) {
+            //     Storage::disk('public')->delete('category/' . $category->image);
+            // }
             // Kiểm tra xem có sản phẩm nào có category_id bằng $category->id không
             $products = Product::where('category_id', '=', $category->id)->withTrashed()->get();
             // Xóa vĩnh viễn category nếu không có sản phẩm liên quan

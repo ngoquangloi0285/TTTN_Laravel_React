@@ -4,6 +4,7 @@ import axios from '../../../api/axios';
 import { OrderQRCode } from '../QRCode/OrderQRCode';
 import { AiOutlineRollback } from 'react-icons/ai';
 import { Link } from 'react-router-dom';
+import Meta from '../../../components/frontend/Meta';
 
 const ViewHistory = () => {
   const { id } = useParams(); // lấy ID từ URL
@@ -29,11 +30,13 @@ const ViewHistory = () => {
 
   return (
     <>
+      <Meta title={`Lịch sử mã đơn hàng: ${id}`} />
       <div className="container-xxl">
         <section className="h-100 gradient-custom your_order">
           <div className="container py-5 h-100">
             {isLoading ? 'Loading...' :
               <div className="row d-flex justify-content-center align-items-center h-100">
+                <h1>Lịch sử mã đơn hàng: {id}</h1>
                 <div className='col-12'>
                   <div className='card-body edit_your_order px-4 py-0'>
                     <div className='text-center'><h1>Thông tin khách hàng</h1></div>
