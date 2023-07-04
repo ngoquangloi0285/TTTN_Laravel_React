@@ -56,6 +56,11 @@ export default function DataGridDemo() {
         editable: true,
       },
       {
+        field: 'type',
+        headerName: 'Loại',
+        editable: true,
+      },
+      {
         field: 'image',
         headerName: 'Image',
         sortable: false,

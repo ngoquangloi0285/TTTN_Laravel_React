@@ -88,7 +88,6 @@ const Edit = () => {
                 })
                 fetchOrderData();
             }
-            setIsLoading(false);
         } catch (error) {
             if (error.response && error.response.status === 404) {
                 setStatus(error.response.data.status);
@@ -97,9 +96,8 @@ const Edit = () => {
                     title: 'Cập nhật không thành công',
                     text: error.response.data.error,
                 });
-            } else {
-                // Xử lý các trường hợp lỗi khác
             }
+        } finally {
             setIsLoading(false);
         }
     }, [deliveryTime, encodedId, noteAdmin, fetchOrderData]);
@@ -115,11 +113,11 @@ const Edit = () => {
         }).then((result) => {
             if (result.isConfirmed) {
                 setIsLoading(true); // Đặt trạng thái isLoading thành true
-                handleStatusUpdate(status)
+                handleStatusUpdate(status);
             }
-            setIsLoading(false);
         });
     }, [handleStatusUpdate]);
+
 
     const handleCancleOrder = useCallback(async (id) => {
         try {

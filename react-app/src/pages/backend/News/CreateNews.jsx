@@ -301,9 +301,11 @@ const NewProduct = () => {
                                     )}
                                     <select onChange={handleCategoryChange} value={selectedCategory} className="form-select mb-2" id='category' aria-label="Default select example">
                                         <option value="" selected>Select Category</option>
-                                        {categories.map(category => (
-                                            <option key={category.id} value={category.id}>{category.name_category}</option>
-                                        ))}
+                                        {categories
+                                            .filter(category => category.parent_category === 0 && category.status === 1)
+                                            .map(category => (
+                                                <option key={category.id} value={category.id}>{category.name_category}</option>
+                                            ))}
                                     </select>
                                     {errors.category && (
                                         <div className="alert alert-danger" role="alert">

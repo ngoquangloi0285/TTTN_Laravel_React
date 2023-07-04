@@ -14,8 +14,7 @@ class MenuController extends Controller
      */
     public function index()
     {
-        $sqlMenu = Menu::orderBy('position')->get();
-
+        $sqlMenu = Menu::where('status', 1)->orderBy('position')->get();
         return response()->json($sqlMenu);
     }
 

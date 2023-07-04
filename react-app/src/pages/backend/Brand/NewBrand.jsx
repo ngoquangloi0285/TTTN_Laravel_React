@@ -137,7 +137,7 @@ const NewBrand = () => {
         if (!nameBrand) {
             newErrors.nameCategory = "Vui lòng nhập tên thương hiệu.";
         }
-        
+
         if (files.length > 1) {
             newErrors.files = "Chỉ được phép tải lên 1 tập tin.";
         }

@@ -122,7 +122,7 @@ const BlogSlug = (props) => {
                                 </div>
                                 <div className='content_detail'>
                                     <div className="row blog_overflow">
-                                        <div className='content_detail'>
+                                        <div className=''>
                                             <Typography className="product-detail" gutterBottom dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(newstList.content_news) }} />
                                         </div>
                                     </div>

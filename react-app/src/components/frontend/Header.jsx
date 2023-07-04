@@ -12,6 +12,8 @@ import axios from "../../api/axios";
 import Search from "./Search";
 import { useDispatch, useSelector } from "react-redux";
 import { getTotals } from "../../state/cartSlice";
+import { FaShoppingCart, FaUserAlt } from "react-icons/fa";
+import { GiShoppingCart } from "react-icons/gi";
 
 const Header = () => {
   const { currentUser, logout } = useAuthContext();
@@ -53,10 +55,59 @@ const Header = () => {
     fetchData();
   }, []);
 
-  // Loại bỏ các category trùng lặp
-  const uniqueCategories = Array.from(new Set(categoryList.map((category) => category.id))).map((id) => {
-    return categoryList.find((category) => category.id === id);
-  });
+  const SubcategoryItem = ({ subcategory }) => {
+    const [showChildren, setShowChildren] = useState(false);
+
+    const handleMouseEnter = () => {
+      setShowChildren(true);
+    };
+
+    const handleMouseLeave = () => {
+      setShowChildren(false);
+    };
+
+    return (
+      <li
+        key={subcategory.id}
+        className="dropdown-submenu"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <Link to={`../category/${subcategory.slug}`} className="dropdown-item dropdown-toggle text-dark" href="#">
+          {subcategory.name_category}
+        </Link>
+
+        {showChildren && subcategory.children && (
+          <ul className="dropdown-menu">
+            {subcategory.children.map((childCategory) => (
+              <li key={childCategory.id}>
+                <Link to={`../category/${childCategory.slug}`} className="dropdown-item text-dark" href="#">
+                  {childCategory.name_category}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </li>
+    );
+  };
+
+  const renderSubcategories = (subcategories) => {
+    if (!subcategories || subcategories.length === 0) {
+      return null;
+    }
+
+    return (
+      <ul className="dropdown-menu">
+        {subcategories.map((subcategory) => (
+          <SubcategoryItem key={subcategory.id} subcategory={subcategory} />
+        ))}
+      </ul>
+    );
+  };
+
+  // Lọc danh sách danh mục cha
+  const parentCategories = categoryList.filter((category) => category.parent_category === 0);
 
   return (
     <>
@@ -109,7 +160,8 @@ const Header = () => {
               <div className="header-upper-links d-flex justify-content-center align-items-center">
                 <div className="mx-2">
                   <div className="d-flex align-items-center gap-10">
-                    <img src="images/user.svg" alt="user" />
+                    <FaUserAlt className="icon_user fs-3 text-white"/>
+                    {/* <img src="images/user.svg" alt="user" /> */}
                     <p className="mb-0">
                       {currentUser ? (<>
                         {/* Hello! <strong>{user?.name}</strong> <br /> */}
@@ -179,7 +231,8 @@ const Header = () => {
                 </div>
                 <div>
                   <Link to="/cart" className="d-flex align-items-center gap-10 text-white">
-                    <img src="images/cart.svg" alt="cart" />
+                    <GiShoppingCart className="fs-1 icon_user"/>
+                    {/* <img src="images/cart.svg" alt="cart" /> */}
                     <div className="d-flex flex-column gap-10">
                       <span className="badge bg-white text-dark fs-6">{uniqueItemCount}</span>
                       <p className="mb-0 header-link">{cart.cartTotalAmount.toLocaleString('vi-VN', {
@@ -209,32 +262,24 @@ const Header = () => {
                     </button>
                     <ul className="dropdown-menu">
                       {
-                        categoryList.map((category) => {
-                          // Lọc ra các danh mục con của danh mục hiện tại
-                          const subcategories = categoryList.filter((subcat) => subcat.parent_category === category.id);
+                        parentCategories.map((parentCategory) => {
+                          const subcategories = categoryList.filter((category) => category.parent_category === parentCategory.id);
+                          const categoriesWithChildren = subcategories.map((subcategory) => ({
+                            ...subcategory,
+                            children: categoryList.filter((category) => category.parent_category === subcategory.id)
+                          }));
 
                           return (
-                            <li key={category.id} className="dropdown-submenu">
-                              <Link to={`../category/${category.slug}`} className="dropdown-item dropdown-toggle text-dark" href="#">
-                                {category.name_category}
+                            <li key={parentCategory.id} className="dropdown-submenu">
+                              <Link to={`../category/${parentCategory.slug}`} className="dropdown-item dropdown-toggle text-dark" href="#">
+                                {parentCategory.name_category}
                               </Link>
 
-                              {subcategories.length > 0 && (
-                                <ul className="dropdown-menu">
-                                  {subcategories.map((subcategory) => (
-                                    <li key={subcategory.id}>
-                                      <Link to={`../category/${subcategory.slug}`} className="dropdown-item text-dark" href="#">
-                                        {subcategory.name_category}
-                                      </Link>
-                                    </li>
-                                  ))}
-                                </ul>
-                              )}
+                              {renderSubcategories(categoriesWithChildren)}
                             </li>
                           );
                         })
                       }
-
                     </ul>
                   </div>
                 </div>

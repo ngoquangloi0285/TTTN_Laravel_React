@@ -67,9 +67,9 @@ const OurStore = () => {
                                 <div className='img-banner-left'>
                                     <img src="images/flash.png" alt="" width="100" />
                                 </div>
-                                <div className='img-banner-right'>
+                                {/* <div className='img-banner-right'>
                                     <img src="images/aithy.jpg" alt="" width="100" />
-                                </div>
+                                </div> */}
                                 <h2>Tha hồ mua sắm cùng E-Mart <img src="images/mua_ngay.png" alt="" width="100" /> </h2>
                                 <h5>Siêu thị điện tử </h5>
                             </div>
@@ -146,15 +146,6 @@ const OurStore = () => {
                                                                     <h5 className='product-title'>
                                                                         {product.name_product}
                                                                     </h5>
-                                                                    <p className="text-danger brand m-0">
-                                                                        <span>
-                                                                            Màu: <span className='text-dark'>{product.color}</span>
-                                                                        </span>
-                                                                        <span className='text-info'> - </span>
-                                                                        <span>
-                                                                            Kích thước: <span className='text-dark'>{product.inch}</span>
-                                                                        </span>
-                                                                    </p>
                                                                     <div className="react_start d-flex">
                                                                         <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />
                                                                         <FaStar style={{ color: '#ffd700', fontSize: '20px' }} />

@@ -301,7 +301,7 @@ const EditCategory = () => {
                                 <option key={category.id} value={category.id}>{category.name_category}</option>
                             ))}
                         </select>
-                        <p>category:{category}</p>
+                        {/* <p>category:{category}</p> */}
                         {errors.category && (
                             <div className="alert alert-danger" role="alert">
                                 {errors.category}

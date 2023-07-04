@@ -29,7 +29,7 @@ class BrandController extends Controller
             return response()->json($brand);
         }
 
-        $brands = Brand::all();
+        $brands = Brand::where('status', 1)->latest()->get();
         return response()->json($brands);
     }
 
@@ -455,13 +455,14 @@ class BrandController extends Controller
         $brand->forceDelete();
         return response()->json(['message' => 'Category and associated products have been permanently deleted.']);
     }
+
+
     public function removeALL(Request $request)
     {
         $ids = $request['ids'];
 
         foreach ($ids as $id) {
-
-            $brand = Brand::withTrashed()->findOrFail($id);
+            $brand = Brand::withTrashed()->find($id);
 
             if (!$brand) {
                 $restoredUsers[] = ['id' => $id, 'message' => 'Brand not found.'];
@@ -472,52 +473,52 @@ class BrandController extends Controller
                 return response()->json(['message' => 'Brand is not deleted.']);
             }
 
-            // Xóa ảnh đại diện của category nếu có
+            // Xóa ảnh đại diện của brand nếu có
             if ($brand->image && Storage::disk('public')->exists('brand/' . $brand->image)) {
                 Storage::disk('public')->delete('brand/' . $brand->image);
             }
-            // Kiểm tra xem có sản phẩm nào có category_id bằng $category->id không
-            $products = Product::where('brand_id', '=', $brand->id)->withTrashed()->get();
-            // Xóa vĩnh viễn category nếu không có sản phẩm liên quan
+
+            // Kiểm tra xem có sản phẩm nào có brand_id bằng $brand->id không
+            $products = Product::where('brand_id', $brand->id)->withTrashed()->get();
+
             if ($products->isEmpty()) {
+                // Nếu không có sản phẩm liên quan, xóa vĩnh viễn brand
                 $brand->forceDelete();
-                return response()->json(['message' => 'Brand has been permanently deleted.']);
+                continue;
             }
 
-            if ($products) {
-                foreach ($products as $product) {
-                    $options = Options::where('product_id', $product->id)->get();
-                    if (!$options->isEmpty()) {
-                        Options::where('product_id', $product->id)->delete();
-                    }
-
-                    $countDowns = CountDown::where('product_id', $product->id)->get();
-                    if (!$countDowns->isEmpty()) {
-                        CountDown::where('product_id', $product->id)->delete();
-                    }
-
-                    $product_images = ProductImages::where('product_id', $product->id)->get();
-
-                    if ($product_images->isNotEmpty()) {
-                        foreach ($product_images as $image) {
-                            if ($image->image && Storage::disk('public')->exists('product/' . $image->image)) {
-                                Storage::disk('public')->delete('product/' . $image->image);
-                                $image->delete();
-                            }
-                        }
-                    }
-
-                    if ($product->image && Storage::disk('public')->exists('product/' . $product->image)) {
-                        Storage::disk('public')->delete('product/' . $product->image);
-                    }
-
-                    $product->forceDelete();
+            foreach ($products as $product) {
+                $options = Options::where('product_id', $product->id)->get();
+                if (!$options->isEmpty()) {
+                    Options::where('product_id', $product->id)->delete();
                 }
+
+                $countDowns = CountDown::where('product_id', $product->id)->get();
+                if (!$countDowns->isEmpty()) {
+                    CountDown::where('product_id', $product->id)->delete();
+                }
+
+                $productImages = ProductImages::where('product_id', $product->id)->get();
+
+                if ($productImages->isNotEmpty()) {
+                    foreach ($productImages as $image) {
+                        if ($image->image && Storage::disk('public')->exists('product/' . $image->image)) {
+                            Storage::disk('public')->delete('product/' . $image->image);
+                        }
+                        $image->delete();
+                    }
+                }
+
+                if ($product->image && Storage::disk('public')->exists('product/' . $product->image)) {
+                    Storage::disk('public')->delete('product/' . $product->image);
+                }
+
+                $product->forceDelete();
             }
 
             $brand->forceDelete();
         }
 
-        return response()->json(['message' => 'Brands and associated products have been permanently deleted.']);
+        return response()->json(['message' => 'Brands have been permanently deleted.']);
     }
 }

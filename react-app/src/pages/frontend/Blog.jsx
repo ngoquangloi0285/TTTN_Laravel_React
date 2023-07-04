@@ -37,23 +37,8 @@ const Blog = () => {
         newCategoryMap[category.id] = category.name_category;
       });
 
-      const newCategoryList = categoryResponse.data.map((category) => ({
-        ...category,
-        children: []
-      }));
-
-      categoryResponse.data.forEach((category) => {
-        if (category.parent_category) {
-          const parentCategory = newCategoryList.find((c) => c.id === category.parent_category);
-          if (parentCategory) {
-            parentCategory.children.push(category);
-          }
-        }
-      });
-
-      setCategoryList(newCategoryList);
+      setCategoryList(categoryResponse.data);
       setNewsList(newsResponse.data);
-      console.log(newsResponse.data);
       setCategoryMap(newCategoryMap);
       setIsLoading(false);
     } catch (error) {
@@ -61,8 +46,6 @@ const Blog = () => {
       setIsLoading(false);
     }
   }, [slug]);
-
-  console.log('category tin tuc', categoryList);
 
   useEffect(() => {
     fetchData();
@@ -93,32 +76,19 @@ const Blog = () => {
                   <div className="row filter-mx">
                     <div className="col-12 blog-category">
                       <ul className="ps-0 menu">
-                        {categoryList.filter(category => category.parent_category === 0).map((category) => (
-                          <li key={category.id}>
-                            <Link
-                              value={filter}
-                              onChange={(e) => setFilter(e.target.value)}
-                              to={`../blog/category/${category.slug}`}
-                            >
-                              {category.name_category}
-                            </Link>
-                            {/* {category.children.length > 0 && (
-                              <ul>
-                                {category.children.map((subcategory) => (
-                                  <li key={subcategory.id}>
-                                    <Link
-                                      value={filter}
-                                      onChange={(e) => setFilter(e.target.value)}
-                                      to={`../blog/category/${subcategory.slug}`}
-                                    >
-                                      {subcategory.name_category}
-                                    </Link>
-                                  </li>
-                                ))}
-                              </ul>
-                            )} */}
-                          </li>
-                        ))}
+                        {categoryList
+                          .filter(category => category.parent_category === 0 && category.status === 1)
+                          .map((category) => (
+                            <li key={category.id}>
+                              <Link
+                                value={filter}
+                                onChange={(e) => setFilter(e.target.value)}
+                                to={`../blog/category/${category.slug}`}
+                              >
+                                {category.name_category}
+                              </Link>
+                            </li>
+                          ))}
                         <li>
                         </li>
                         <li><Link to={`../blog/other-news/${typeNews}`}>Tin tức khác</Link></li>
@@ -141,7 +111,7 @@ const Blog = () => {
                               height: '200px',
                             }
                           }
-                           className="card-img-top placeholder-glow placeholder" alt="" />
+                          className="card-img-top placeholder-glow placeholder" alt="" />
                         <div className="card-body">
                           <h5 className="card-title placeholder-glow">
                             <span className="placeholder col-6"></span>
@@ -173,10 +143,10 @@ const Blog = () => {
                           </p>
                           {
                             news.type === 'other_news' ?
-                            <p className="text-dark m-0">
-                              Tin tức khác
-                            </p>
-                            : ''
+                              <p className="text-dark m-0">
+                                Tin tức khác
+                              </p>
+                              : ''
                           }
                           <p className='date'>{format(new Date(news.created_at), "d MMM, yyyy")}</p>
                           <h5 className='title'>

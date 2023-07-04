@@ -179,8 +179,8 @@ const NewCategory = () => {
                 // Nếu thành công, hiển thị thông báo thành công
                 Swal.fire('Create new Category successfully!', response.data.message, 'success');
             }
-            ClearUp();
             fetchCategory();
+            ClearUp();
         } catch (error) {
             setIsLoading(false);
             // Nếu xảy ra lỗi, hiển thị thông báo lỗi
@@ -246,16 +246,17 @@ const NewCategory = () => {
                                 )}
                             </div>
                             <label className='form-label fw-bold' htmlFor="category">Parent Category:</label>
-
+                            <p className='m-0 text-danger'>*Lưu ý: được thiết kế chỉ 3 cấp 0-1-2 </p>
                             <select className="form-select mb-2" id='category' value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Default select example">
                                 <option value="" selected>Select Category</option>
                                 <option value="0">Parent</option>
-                                {categories.map(category => (
-                                    <option key={category.id} value={category.id}>{category.name_category}</option>
-                                ))}
+                                {categories
+                                    .map(category => (
+                                        <option key={category.id} value={category.id}>
+                                            {`ID: ${category.id}; Phân loại: ${category.name_category}; ID Cha: ${category.parent_category === 0 ? "Cấp 1" : category.parent_category
+                                                }`}
+                                        </option>))}
                             </select>
-                            category: {category}
-
                             {errors.category && (
                                 <div className="alert alert-danger" role="alert">
                                     {errors.category}

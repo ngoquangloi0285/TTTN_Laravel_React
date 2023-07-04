@@ -146,7 +146,7 @@ class ProductController extends Controller
                 $subquery->select('product_id')
                     ->from('order_details')
                     ->where('status', 4);
-                    // ->onlyTrashed();
+                // ->onlyTrashed();
             });
         } elseif ($filter === 'lowToHigh') {
             $query->orderBy('price', 'asc');
@@ -203,7 +203,7 @@ class ProductController extends Controller
         } elseif ($filter) {
             $products = $this->filterProducts($filter);
         } else {
-            $products = Product::latest()->get();
+            $products = Product::where('status', 1)->where('total', '>', 0)->latest()->get();
         }
 
         // Fetch category and brand names
@@ -638,25 +638,24 @@ class ProductController extends Controller
                 continue;
             }
 
-            // Xóa ảnh đại diện của category nếu có
+            // Xóa ảnh đại diện của product nếu có
             if ($product->image && Storage::disk('public')->exists('product/' . $product->image)) {
                 Storage::disk('public')->delete('product/' . $product->image);
             }
 
-            // tìm id có trong danh sách xóa tạm không
             if ($product->trashed()) {
-                // Xóa các bảng liên quan
+                // Nếu sản phẩm đã được xóa tạm, xóa các bảng liên quan
                 Options::where('product_id', $id)->delete();
                 CountDown::where('product_id', $id)->delete();
 
-                $product_image = ProductImages::where('product_id', $id)->get();
+                $productImages = ProductImages::where('product_id', $id)->get();
 
-                if ($product_image->isNotEmpty()) {
-                    foreach ($product_image as $image) {
+                if ($productImages->isNotEmpty()) {
+                    foreach ($productImages as $image) {
                         if ($image->image && Storage::disk('public')->exists('product/' . $image->image)) {
                             Storage::disk('public')->delete('product/' . $image->image);
-                            $image->delete();
                         }
+                        $image->delete();
                     }
                 }
 
@@ -665,6 +664,7 @@ class ProductController extends Controller
                 $product->delete();
             }
         }
+
         return response()->json(['message' => 'Permanently deleted successfully']);
     }
 }

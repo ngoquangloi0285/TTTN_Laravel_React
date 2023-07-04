@@ -31,7 +31,7 @@ class CategoryController extends Controller
         }
 
         // Lấy danh sách tất cả các danh mục
-        $categories = Category::all();
+        $categories = Category::where('status', 1)->latest()->get();
         return response()->json($categories);
     }
 
@@ -465,8 +465,7 @@ class CategoryController extends Controller
         $ids = $request['ids'];
 
         foreach ($ids as $id) {
-
-            $category = Category::withTrashed()->findOrFail($id);
+            $category = Category::withTrashed()->find($id);
 
             if (!$category) {
                 $restoredUsers[] = ['id' => $id, 'message' => 'Category not found.'];
@@ -481,43 +480,43 @@ class CategoryController extends Controller
             // if ($category->image && Storage::disk('public')->exists('category/' . $category->image)) {
             //     Storage::disk('public')->delete('category/' . $category->image);
             // }
+
             // Kiểm tra xem có sản phẩm nào có category_id bằng $category->id không
-            $products = Product::where('category_id', '=', $category->id)->withTrashed()->get();
-            // Xóa vĩnh viễn category nếu không có sản phẩm liên quan
+            $products = Product::where('category_id', $category->id)->withTrashed()->get();
+
             if ($products->isEmpty()) {
+                // Nếu không có sản phẩm liên quan, xóa vĩnh viễn category
                 $category->forceDelete();
-                return response()->json(['message' => 'Category has been permanently deleted.']);
+                continue;
             }
 
-            if ($products) {
-                foreach ($products as $product) {
-                    $options = Options::where('product_id', $product->id)->get();
-                    if (!$options->isEmpty()) {
-                        Options::where('product_id', $product->id)->delete();
-                    }
-
-                    $countDowns = CountDown::where('product_id', $product->id)->get();
-                    if (!$countDowns->isEmpty()) {
-                        CountDown::where('product_id', $product->id)->delete();
-                    }
-
-                    $product_images = ProductImages::where('product_id', $product->id)->get();
-
-                    if ($product_images->isNotEmpty()) {
-                        foreach ($product_images as $image) {
-                            if ($image->image && Storage::disk('public')->exists('product/' . $image->image)) {
-                                Storage::disk('public')->delete('product/' . $image->image);
-                                $image->delete();
-                            }
-                        }
-                    }
-
-                    if ($product->image && Storage::disk('public')->exists('product/' . $product->image)) {
-                        Storage::disk('public')->delete('product/' . $product->image);
-                    }
-
-                    $product->forceDelete();
+            foreach ($products as $product) {
+                $options = Options::where('product_id', $product->id)->get();
+                if (!$options->isEmpty()) {
+                    Options::where('product_id', $product->id)->delete();
                 }
+
+                $countDowns = CountDown::where('product_id', $product->id)->get();
+                if (!$countDowns->isEmpty()) {
+                    CountDown::where('product_id', $product->id)->delete();
+                }
+
+                $productImages = ProductImages::where('product_id', $product->id)->get();
+
+                if ($productImages->isNotEmpty()) {
+                    foreach ($productImages as $image) {
+                        if ($image->image && Storage::disk('public')->exists('product/' . $image->image)) {
+                            Storage::disk('public')->delete('product/' . $image->image);
+                        }
+                        $image->delete();
+                    }
+                }
+
+                if ($product->image && Storage::disk('public')->exists('product/' . $product->image)) {
+                    Storage::disk('public')->delete('product/' . $product->image);
+                }
+
+                $product->forceDelete();
             }
 
             $category->forceDelete();

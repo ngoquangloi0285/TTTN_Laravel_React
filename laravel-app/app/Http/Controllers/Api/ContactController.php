@@ -15,11 +15,9 @@ class ContactController extends Controller
      */
     public function index()
     {
-        $query = Contact::query();
+        $contact = Contact::where('status', 1)->get();
 
-        $products = $query->get();
-
-        return response()->json($products);
+        return response()->json($contact);
     }
 
 

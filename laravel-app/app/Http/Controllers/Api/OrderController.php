@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OrderConfirmation;
 use App\Mail\OrderDelivered;
+use App\Models\Product;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -225,7 +226,14 @@ class OrderController extends Controller
                 $orderDetail->deleted_at = $now;
                 $orderDetail->status = $status;
                 $orderDetail->save();
+
+                $product = Product::find($orderDetail->product_id);
+                if ($product) {
+                    $product->total -= 1;
+                    $product->save();
+                }
             }
+
 
             $order->deleted_at = $now;
             $order->note_admin = 'Giao hàng thành công';
